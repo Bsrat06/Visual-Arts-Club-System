@@ -1,3 +1,6 @@
+from rest_framework.pagination import PageNumberPagination
+from users.pagination import CustomPagination
+from notifications.models import Notification
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Artwork
@@ -6,6 +9,7 @@ from .serializers import ArtworkSerializer
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()
     serializer_class = ArtworkSerializer
+    pagination_class = CustomPagination  # Use the custom pagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     # Enable filtering by approval status and artist
@@ -16,3 +20,13 @@ class ArtworkViewSet(viewsets.ModelViewSet):
     
     # Enable ordering by submission date
     ordering_fields = ['submission_date']
+
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        if instance.approval_status == 'approved':
+            Notification.objects.create(
+                recipient=instance.artist,
+                message=f"Your artwork '{instance.title}' has been approved!",
+                notification_type='artwork_approved'
+            )

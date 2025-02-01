@@ -1,3 +1,4 @@
+from notifications.models import Notification
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from users.permissions import IsAdminUser
@@ -27,3 +28,13 @@ class EventViewSet(viewsets.ModelViewSet):
         else:
             self.permission_classes = [IsAuthenticated]  # Members can only view
         return super().get_permissions()
+
+    
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        for attendee in instance.attendees.all():
+            Notification.objects.create(
+                recipient=attendee,
+                message=f"The event '{instance.title}' has been updated.",
+                notification_type='event_update'
+            )
