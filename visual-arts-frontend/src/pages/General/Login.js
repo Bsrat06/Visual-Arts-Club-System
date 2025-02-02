@@ -14,7 +14,10 @@ const Login = () => {
     e.preventDefault();
     dispatch(loginUser({ email, password })).then((result) => {
       if (result.meta.requestStatus === "fulfilled") {
-        navigate("/admin/dashboard"); // Redirect after login
+        console.log("Login Successful! Token:", localStorage.getItem("token")); // ✅ Debugging log
+        navigate("/admin/dashboard"); // ✅ Redirect after login
+      } else {
+        console.error("Login Failed", result.error);
       }
     });
   };
