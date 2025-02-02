@@ -1,22 +1,26 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import API from "../../services/api";
 
 const API_URL = "http://127.0.0.1:8000/api/auth/";
 
 // Create an Axios instance for authenticated requests
-const API = axios.create({
-  baseURL: API_URL,
-});
+// const API = axios.create({
+//   baseURL: API_URL,
+// });
 
 // Async action for logging in
-export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAPI) => {
+export const loginUser = createAsyncThunk("auth/login", async (credentials, thunkAPI) => {
   try {
-    const response = await API.post("login/", userData);
-    const token = response.data.key;
-    localStorage.setItem("token", token); // ✅ Store token in localStorage
-    return { token }; // ✅ Return token to Redux state
+    const response = await API.post("auth/login/", credentials);
+    // const token = response.data.key;
+    localStorage.setItem("token", response.data.key); // ✅ Store token in localStorage
+    const userResponse = await API.get("auth/user/"); // ✅ Fetch user data
+    localStorage.setItem("user", JSON.stringify(userResponse.data)); // ✅ Store user in local storage
+    return { token: response.data.key, user: userResponse.data };
+    // return { token }; // ✅ Return token to Redux state
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response.data);
+    return thunkAPI.rejectWithValue(error.response?.data || "Login failed");
   }
 });
 
@@ -34,8 +38,9 @@ export const registerUser = createAsyncThunk("auth/register", async (userData, t
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
+    // user: null,
     token: localStorage.getItem("token") || null,
+    user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null, // ✅ Load user from storage
     loading: false,
     error: null,
   },

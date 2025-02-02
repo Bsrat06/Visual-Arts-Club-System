@@ -1,13 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import API from "../../services/api";
+import { getProjects, createProject, updateProject, deleteProject } from "../../services/api";
 
 // Fetch all projects
 export const fetchProjects = createAsyncThunk("projects/fetchAll", async (_, thunkAPI) => {
   try {
-    const response = await API.get("projects/");
-    return response.data;  // ✅ Ensure the response is an array
+    const response = await getProjects();
+    return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch projects");
+  }
+});
+
+// Create new project
+export const addProject = createAsyncThunk("projects/add", async (data, thunkAPI) => {
+  try {
+    const response = await createProject(data);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to create project");
+  }
+});
+
+// Update project
+export const editProject = createAsyncThunk("projects/edit", async ({ id, data }, thunkAPI) => {
+  try {
+    const response = await updateProject(id, data);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to update project");
+  }
+});
+
+// Delete project
+export const removeProject = createAsyncThunk("projects/remove", async (id, thunkAPI) => {
+  try {
+    await deleteProject(id);
+    return id;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to delete project");
   }
 });
 
@@ -15,24 +45,26 @@ export const fetchProjects = createAsyncThunk("projects/fetchAll", async (_, thu
 const projectsSlice = createSlice({
   name: "projects",
   initialState: {
-    projects: [],  // ✅ Set initial state as an empty array
+    projects: [],
     loading: false,
     error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProjects.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(fetchProjects.fulfilled, (state, action) => {
-        state.loading = false;
-        state.projects = Array.isArray(action.payload) ? action.payload : [];  // ✅ Ensure it's an array
+        state.projects = action.payload;
       })
-      .addCase(fetchProjects.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-        state.projects = [];  // ✅ Reset to empty array on error
+      .addCase(addProject.fulfilled, (state, action) => {
+        state.projects.push(action.payload);
+      })
+      .addCase(editProject.fulfilled, (state, action) => {
+        state.projects = state.projects.map((project) =>
+          project.id === action.payload.id ? action.payload : project
+        );
+      })
+      .addCase(removeProject.fulfilled, (state, action) => {
+        state.projects = state.projects.filter((project) => project.id !== action.payload);
       });
   },
 });

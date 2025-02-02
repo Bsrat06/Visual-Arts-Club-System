@@ -1,4 +1,5 @@
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.parsers import MultiPartParser, FormParser
 from users.pagination import CustomPagination
 from notifications.models import Notification
 from rest_framework import viewsets, filters
@@ -7,8 +8,9 @@ from .models import Artwork
 from .serializers import ArtworkSerializer
 
 class ArtworkViewSet(viewsets.ModelViewSet):
-    queryset = Artwork.objects.all()
+    queryset = Artwork.objects.all()#.order_by("-submission_date")
     serializer_class = ArtworkSerializer
+    parser_classes = (MultiPartParser, FormParser)  # ✅ Allow file uploads
     pagination_class = CustomPagination  # Use the custom pagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
