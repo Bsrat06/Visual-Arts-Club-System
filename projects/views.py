@@ -40,4 +40,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
     
     
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)  # ✅ Automatically assign logged-in user
+        serializer.save(creator=self.request.user)  # ✅ Automatically assign logged-in user
