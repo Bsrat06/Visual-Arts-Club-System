@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/api";
+import API from "../../services/api";
+
 
 // Fetch all projects
 export const fetchProjects = createAsyncThunk("projects/fetchAll", async (_, thunkAPI) => {
   try {
     const response = await getProjects();
-    return response.data;
+    return response.data.results || []; // ✅ Extract `results`
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch projects");
   }
@@ -13,10 +15,20 @@ export const fetchProjects = createAsyncThunk("projects/fetchAll", async (_, thu
 
 // Create new project
 export const addProject = createAsyncThunk("projects/add", async (data, thunkAPI) => {
+  const token = localStorage.getItem("token"); // ✅ Ensure we get the token
+
+  console.log("Adding Project with Token:", token); // ✅ Debug log
+  
+  
   try {
-    const response = await createProject(data);
+    const response = await API.post("projects/", data, {
+      headers: {
+        Authorization: `Token ${token}`, // ✅ Ensure token is sent
+      },
+    });
     return response.data;
   } catch (error) {
+    console.error("Project Submission Error:", error.response?.data); // ✅ Log exact error
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to create project");
   }
 });

@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getEvents, createEvent, updateEvent, deleteEvent } from "../../services/api";
+import API from "../../services/api";
 
 // Fetch all events
 export const fetchEvents = createAsyncThunk("events/fetchAll", async (_, thunkAPI) => {
   try {
     const response = await getEvents();
-    return response.data;
+    return response.data.results || []; // ✅ Extract `results`
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch events");
   }
@@ -13,10 +14,19 @@ export const fetchEvents = createAsyncThunk("events/fetchAll", async (_, thunkAP
 
 // Create new event
 export const addEvent = createAsyncThunk("events/add", async (data, thunkAPI) => {
+  const token = localStorage.getItem("token"); // ✅ Ensure we get the token
+  
+  console.log("Adding Event with Token:", token); // ✅ Debugging log
+  
   try {
-    const response = await createEvent(data);
+    const response = await API.post("events/", data, {
+      headers: {
+        Authorization: `Token ${token}`, // ✅ Ensure admin token is sent
+      },
+    });
     return response.data;
   } catch (error) {
+    console.error("Event Submission Error:", error.response?.data); // ✅ Log exact error
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to create event");
   }
 });

@@ -36,7 +36,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 recipient=member,
                 message=f"You have been added to the project '{instance.title}'.",
                 notification_type='project_invite'
-            )
-            
+            )        
     
- 
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)  # ✅ Automatically assign logged-in user

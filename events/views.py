@@ -38,3 +38,15 @@ class EventViewSet(viewsets.ModelViewSet):
                 message=f"The event '{instance.title}' has been updated.",
                 notification_type='event_update'
             )
+
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)  # ✅ Automatically assign logged-in user
+        
+    
+    def create(self, request, *args, **kwargs):
+        print(f"Request User: {request.user}")  # ✅ Debugging log
+        print(f"Is Superuser: {request.user.is_superuser}")  # ✅ Should be True
+        print(f"Is Staff: {request.user.is_staff}")  # ✅ Should be True
+        print("Request Payload:", request.data)  # Log the payload
+        return super().create(request, *args, **kwargs)
