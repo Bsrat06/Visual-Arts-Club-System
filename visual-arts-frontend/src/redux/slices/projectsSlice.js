@@ -36,9 +36,16 @@ export const addProject = createAsyncThunk("projects/add", async (data, thunkAPI
 // Update project
 export const editProject = createAsyncThunk("projects/edit", async ({ id, data }, thunkAPI) => {
   try {
-    const response = await updateProject(id, data);
+    console.log("Updating Project:", id, data); // ✅ Debugging log
+    const response = await API.put(`projects/${id}/`, data, {
+      headers: {
+        Authorization: `Token ${localStorage.getItem("token")}`,
+      },
+    });
     return response.data;
+
   } catch (error) {
+    console.error("Update Project Error:", error.response?.data || error.message);
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to update project");
   }
 });

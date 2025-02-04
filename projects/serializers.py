@@ -11,6 +11,10 @@ class ProjectSerializer(serializers.ModelSerializer):
         model = Project
         fields = '__all__'
         read_only_fields = ['creator']  # ✅ Prevent frontend from passing 'creator'
+        extra_kwargs = {
+            "title": {"required": True},
+            "description": {"required": True},
+        }
 
     def create(self, validated_data):
         request = self.context.get("request")

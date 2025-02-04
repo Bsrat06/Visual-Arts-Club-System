@@ -5,6 +5,7 @@ from users.permissions import IsAdminUser
 from .models import Project
 from .serializers import ProjectSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -29,14 +30,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
             self.permission_classes = [IsAuthenticated]  # Members can only view
         return super().get_permissions()
     
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        for member in instance.members.all():
-            Notification.objects.create(
-                recipient=member,
-                message=f"You have been added to the project '{instance.title}'.",
-                notification_type='project_invite'
-            )        
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+     
     
     
     def perform_create(self, serializer):

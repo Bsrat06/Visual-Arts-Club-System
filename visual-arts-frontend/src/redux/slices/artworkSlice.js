@@ -45,6 +45,7 @@ export const removeArtwork = createAsyncThunk("artwork/remove", async (id, thunk
   }
 });
 
+
 // Redux slice
 const artworkSlice = createSlice({
   name: "artwork",
