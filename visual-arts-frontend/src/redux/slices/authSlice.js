@@ -12,17 +12,19 @@ const API_URL = "http://127.0.0.1:8000/api/auth/";
 // Async action for logging in
 export const loginUser = createAsyncThunk("auth/login", async (credentials, thunkAPI) => {
   try {
-    const response = await API.post("auth/login/", credentials);
-    // const token = response.data.key;
+    const response = await axios.post("http://127.0.0.1:8000/api/auth/login/", credentials); // Use direct Axios for login
     localStorage.setItem("token", response.data.key); // ✅ Store token in localStorage
-    const userResponse = await API.get("auth/user/"); // ✅ Fetch user data
-    localStorage.setItem("user", JSON.stringify(userResponse.data)); // ✅ Store user in local storage
+
+    // After login, set the token dynamically for subsequent requests
+    const userResponse = await API.get("auth/user/");
+    localStorage.setItem("user", JSON.stringify(userResponse.data)); // ✅ Store user in localStorage
     return { token: response.data.key, user: userResponse.data };
-    // return { token }; // ✅ Return token to Redux state
   } catch (error) {
+    console.error("Login Error:", error.response?.data || error.message); // Debugging log
     return thunkAPI.rejectWithValue(error.response?.data || "Login failed");
   }
 });
+
 
 // Async action for registering a new user
 export const registerUser = createAsyncThunk("auth/register", async (userData, thunkAPI) => {
