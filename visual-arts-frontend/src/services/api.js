@@ -13,7 +13,14 @@ const API = axios.create({
 // CRUD for Artworks
 export const getArtworks = () => API.get("artwork/");
 export const createArtwork = (data) => API.post("artwork/", data);
-export const updateArtwork = (id, data) => API.put(`artwork/${id}/`, data);
+// export const updateArtwork = (id, data) => API.put(`artwork/${id}/`, data);
+export const updateArtwork = async (id, data) => {
+  return await API.put(`artwork/${id}/`, data, {
+    headers: {
+      "Content-Type": "multipart/form-data", // ✅ Ensure correct content type
+    },
+  });
+};
 export const deleteArtwork = (id) => API.delete(`artwork/${id}/`);
 
 // CRUD for Events

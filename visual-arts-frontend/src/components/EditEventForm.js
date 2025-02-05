@@ -120,3 +120,4 @@ const EditEventForm = ({ event, onClose }) => {
 };
 
 export default EditEventForm;
+
