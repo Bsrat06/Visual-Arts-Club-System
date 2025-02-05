@@ -5,6 +5,8 @@ from users.permissions import IsAdminUser
 from .models import Event
 from .serializers import EventSerializer
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+
 
 
 class EventViewSet(viewsets.ModelViewSet):

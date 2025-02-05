@@ -6,6 +6,7 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Artwork
 from .serializers import ArtworkSerializer
+from rest_framework.response import Response
 
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()#.order_by("-submission_date")
