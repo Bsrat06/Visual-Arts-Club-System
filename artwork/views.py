@@ -30,6 +30,6 @@ class ArtworkViewSet(viewsets.ModelViewSet):
         if instance.approval_status == 'approved':
             Notification.objects.create(
                 recipient=instance.artist,
-                message=f"Your artwork '{instance.title}' has been approved!",
+                message=f"Your artwork '{instance.title}' has been approved.",
                 notification_type='artwork_approved'
             )

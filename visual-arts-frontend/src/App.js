@@ -7,6 +7,8 @@ import ContactUs from "./pages/General/ContactUs";
 import Login from "./pages/General/Login";
 import Register from "./pages/General/Register";
 import Dashboard from "./pages/Admin/Dashboard";
+import NotificationsList from "./pages/General/NotificationsList";
+
 
 const PrivateRoute = ({ children }) => {
   const { token } = useSelector((state) => state.auth);
@@ -23,6 +25,7 @@ function App() {
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/notifications" element={<NotificationsList />} />
 
           {/* Protected Route for Admin */}
           <Route path="/admin/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
