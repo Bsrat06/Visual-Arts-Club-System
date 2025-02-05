@@ -7,6 +7,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .models import Artwork
 from .serializers import ArtworkSerializer
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from users.permissions import IsAdminUser
 
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()#.order_by("-submission_date")
@@ -25,7 +27,19 @@ class ArtworkViewSet(viewsets.ModelViewSet):
     ordering_fields = ['submission_date']
 
 
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update', 'destroy']:
+            print(f"Permissions checked for admin user: {self.request.user.is_staff}")  # ✅ Debugging log
+            permission_classes = [IsAuthenticated, IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    
+
+
     def perform_update(self, serializer):
+        print("Updating Artwork with Data:", serializer.validated_data)  # ✅ Debugging log
         instance = serializer.save()
         if instance.approval_status == 'approved':
             Notification.objects.create(
