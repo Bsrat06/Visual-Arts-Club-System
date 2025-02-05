@@ -5,10 +5,22 @@ const API_URL = "http://127.0.0.1:8000/api/";
 const API = axios.create({
   baseURL: API_URL,
   headers: {
-    Authorization: `Token ${localStorage.getItem("token")}`,
     "Content-Type": "application/json",
   },
 });
+
+// Add a request interceptor to set the token dynamically
+API.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token"); // ✅ Retrieve token from localStorage
+    if (token) {
+      config.headers.Authorization = `Token ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 
 // CRUD for Artworks
 export const getArtworks = () => API.get("artwork/");
