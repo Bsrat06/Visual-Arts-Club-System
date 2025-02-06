@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Layout from "./components/Layout";
 import HomePage from "./pages/General/HomePage";
@@ -6,20 +7,19 @@ import AboutUs from "./pages/General/AboutUs";
 import ContactUs from "./pages/General/ContactUs";
 import Login from "./pages/General/Login";
 import Register from "./pages/General/Register";
-import Dashboard from "./pages/Admin/Dashboard";
 import NotificationsList from "./pages/General/NotificationsList";
+import RoleGuard from "./components/RoleGuard";
+import AdminDashboard from "./pages/Admin/Dashboard";
+import MemberDashboard from "./pages/Member/MemberDashboard";
+import VisitorHome from "./pages/Visitor/VisitorHome";
+import Unauthorized from "./pages/Other/Unauthorized";
 
-
-const PrivateRoute = ({ children }) => {
-  const { token } = useSelector((state) => state.auth);
-  return token ? children : <Navigate to="/login" />;
-};
-
-function App() {
+const App = () => {
   return (
     <Router>
       <Layout>
         <Routes>
+          {/* Public Routes (Accessible by Anyone) */}
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
@@ -27,12 +27,34 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/notifications" element={<NotificationsList />} />
 
-          {/* Protected Route for Admin */}
-          <Route path="/admin/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          {/* Visitor-Only Route */}
+          <Route path="/visitor" element={<VisitorHome />} />
+
+          {/* Role-Restricted Routes */}
+          <Route
+            path="/admin/dashboard"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="/member/dashboard"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <MemberDashboard />
+              </RoleGuard>
+            }
+          />
+
+          {/* Unauthorized Page */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
       </Layout>
     </Router>
   );
-}
+};
 
 export default App;

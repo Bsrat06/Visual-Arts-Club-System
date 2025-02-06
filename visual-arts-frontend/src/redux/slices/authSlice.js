@@ -1,29 +1,43 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 import API from "../../services/api";
 
 const API_URL = "http://127.0.0.1:8000/api/auth/";
 
-// Create an Axios instance for authenticated requests
-// const API = axios.create({
-//   baseURL: API_URL,
-// });
-
 // Async action for logging in
+// authSlice.js
 export const loginUser = createAsyncThunk("auth/login", async (credentials, thunkAPI) => {
   try {
-    const response = await axios.post("http://127.0.0.1:8000/api/auth/login/", credentials); // Use direct Axios for login
-    localStorage.setItem("token", response.data.key); // ✅ Store token in localStorage
+    console.log("Sending login request with:", credentials);
+    const response = await API.post("auth/login/", credentials);
+    
+    console.log("Login Response:", response.data);  // Log API response
 
-    // After login, set the token dynamically for subsequent requests
-    const userResponse = await API.get("auth/user/");
-    localStorage.setItem("user", JSON.stringify(userResponse.data)); // ✅ Store user in localStorage
-    return { token: response.data.key, user: userResponse.data };
+    const { token } = response.data;
+
+    if (!token) {
+      throw new Error("No token received");
+    }
+
+    localStorage.setItem("token", token);
+
+    const userResponse = await API.get("auth/user/", {
+      headers: { Authorization: `Token ${token}` },
+    });
+
+    console.log("User Data Response:", userResponse.data);  // Log user details
+
+    const { role, ...userData } = userResponse.data;
+
+    localStorage.setItem("role", role);
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    return { token, role, user: userData };
   } catch (error) {
-    console.error("Login Error:", error.response?.data || error.message); // Debugging log
+    console.error("Login Error:", error.response?.data || error.message);
     return thunkAPI.rejectWithValue(error.response?.data || "Login failed");
   }
 });
+
 
 
 // Async action for registering a new user
@@ -36,13 +50,12 @@ export const registerUser = createAsyncThunk("auth/register", async (userData, t
   }
 });
 
-// Redux slice for authentication
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    // user: null,
     token: localStorage.getItem("token") || null,
-    user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null, // ✅ Load user from storage
+    role: localStorage.getItem("role") || null,
+    user: localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null,
     loading: false,
     error: null,
   },
@@ -50,7 +63,10 @@ const authSlice = createSlice({
     logout: (state) => {
       state.user = null;
       state.token = null;
-      localStorage.removeItem("token"); // ✅ Clear token on logout
+      state.role = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      localStorage.removeItem("user");
     },
   },
   extraReducers: (builder) => {
@@ -62,6 +78,8 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.role = action.payload.role;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;

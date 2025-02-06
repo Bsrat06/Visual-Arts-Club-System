@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
   const notifications = useSelector((state) => state.notifications.notifications);
   const unreadCount = notifications.filter((notification) => !notification.read).length;
+  const role = useSelector((state) => state.auth.role);
 
   return (
     <nav className="flex justify-between items-center p-4 bg-gray-800 text-white">
@@ -15,6 +16,12 @@ const Navbar = () => {
         <Link to="/contact">Contact</Link>
         <Link to="/login">Login</Link>
         <Link to="/register">Register</Link>
+        {role === "admin" && (
+          <Link to="/admin" className="hover:underline">Admin Panel</Link>
+        )}
+        {(role === "member" || role === "admin") && (
+          <Link to="/member" className="hover:underline">Member Dashboard</Link>
+        )}
         <Link to="/notifications" className="relative">
           <span>Notifications</span>
           {unreadCount > 0 && (
