@@ -9,6 +9,11 @@ import EditProjectForm from "../../components/EditProjectForm";
 import { fetchArtworks, removeArtwork } from "../../redux/slices/artworkSlice";
 import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
+import NotificationForm from "../../components/NotificationForm";
+import { deleteNotification } from "../../redux/slices/notificationsSlice"; // ✅ Import the deleteNotification action
+
+
+
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -16,6 +21,8 @@ const Dashboard = () => {
   const { artworks, loading: artworksLoading, error: artworksError } = useSelector((state) => state.artwork);
   const { events, loading: eventsLoading, error: eventsError } = useSelector((state) => state.events);
   const { projects, loading: projectsLoading, error: projectsError } = useSelector((state) => state.projects);
+
+  const { notifications = [], loading, error } = useSelector((state) => state.notifications);
 
   const [editingItem, setEditingItem] = useState(null);
   const [editType, setEditType] = useState(null);
@@ -34,6 +41,36 @@ const Dashboard = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
+
+      {/* Add Notification Form */}
+      <h2 className="text-xl font-semibold mt-4">Create Notification</h2>
+      <NotificationForm />
+
+
+      {/* Notifications List */}
+      <h2 className="text-xl font-semibold mt-4">Notifications</h2>
+      {notifications.loading && <p>Loading notifications...</p>}
+      {notifications.error && <p className="text-red-500">{notifications.error}</p>}
+      <ul className="list-disc pl-6">
+        {loading && <p>Loading notifications...</p>}
+        {error && <p className="text-red-500">{error}</p>}
+        {notifications.length > 0 ? (
+          notifications.map((notification) => (
+            <li key={notification.id}>
+              {notification.message} - {notification.notification_type}
+              <button
+                onClick={() => dispatch(deleteNotification(notification.id))}
+                className="text-red-500 ml-2"
+              >
+                Delete
+              </button>
+            </li>
+          ))
+        ) : (
+          <p>No notifications available</p>
+        )}
+      </ul>
+
 
       {/* Edit Forms */}
       {editType === "artwork" && <EditArtworkForm artwork={editingItem} onClose={() => setEditType(null)} />}

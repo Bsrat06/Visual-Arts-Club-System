@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchNotifications, markNotificationAsRead } from "../../redux/slices/notificationsSlice";
+import { fetchNotifications, markNotificationAsRead, deleteNotification } from "../../redux/slices/notificationsSlice";
+
 
 const NotificationsList = () => {
   const dispatch = useDispatch();
@@ -19,34 +20,27 @@ const NotificationsList = () => {
 
   return (
     <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Notifications</h2>
-      <ul className="space-y-4">
-        {notifications.length > 0 ? ( // ✅ Check if notifications array is not empty
-          notifications.map((notification) => (
-            <li
-              key={notification.id}
-              className={`p-4 rounded shadow ${
-                notification.read ? "bg-gray-200" : "bg-white"
-              }`}
-            >
-              <p>{notification.message}</p>
-              <small className="text-gray-500">
-                {new Date(notification.created_at).toLocaleString()}
-              </small>
-              {!notification.read && (
-                <button
-                  onClick={() => handleMarkAsRead(notification.id)}
-                  className="bg-blue-500 text-white px-4 py-2 rounded mt-2"
-                >
-                  Mark as Read
-                </button>
-              )}
-            </li>
-          ))
-        ) : (
-          <p>No notifications to display.</p> // ✅ Handle empty notifications gracefully
-        )}
-      </ul>
+      <h2 className="text-xl font-semibold mt-4">Notifications</h2>
+{loading && <p>Loading notifications...</p>}
+{error && <p className="text-red-500">{error}</p>}
+<ul className="list-disc pl-6">
+  {Array.isArray(notifications) && notifications.length > 0 ? (
+    notifications.map((notification) => (
+      <li key={notification.id}>
+        {notification.message} - {notification.notification_type}
+        <button
+          onClick={() => dispatch(deleteNotification(notification.id))}
+          className="text-red-500 ml-2"
+        >
+          Delete
+        </button>
+      </li>
+    ))
+  ) : (
+    <p>No notifications available</p>
+  )}
+</ul>
+
     </div>
   );
 };
