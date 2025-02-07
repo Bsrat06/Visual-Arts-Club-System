@@ -10,6 +10,7 @@ class CustomUser(AbstractUser):
     ]
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='visitor')
+    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
     
     USERNAME_FIELD = "email"  # Use email to log in
     REQUIRED_FIELDS = []  # Remove username from required fields

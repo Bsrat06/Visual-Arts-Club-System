@@ -10,6 +10,7 @@ from .serializers import UserSerializer, ProfileUpdateSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 User = get_user_model()
@@ -48,6 +49,7 @@ class UserListView(ListAPIView):
 
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # ✅ Enable image uploads
 
     def get(self, request):
         print("UserDetailView accessed!")  # Debugging line
@@ -86,5 +88,13 @@ class ProfileUpdateView(APIView):
         serializer = ProfileUpdateSerializer(request.user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail": "Profile updated successfully", "data": serializer.data})
+            # Include the updated profile picture URL in the response
+            updated_user = serializer.data
+            if request.user.profile_picture:
+                updated_user["profile_picture_url"] = request.user.profile_picture.url
+
+            return Response({
+                "detail": "Profile updated successfully",
+                "data": updated_user,
+            }, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=400)

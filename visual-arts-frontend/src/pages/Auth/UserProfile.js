@@ -1,9 +1,11 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import API from "../../services/api";
 
 const UserProfile = () => {
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth); // Fetch user data from Redux
+
   const [formData, setFormData] = useState({
     username: user?.username || "",
     email: user?.email || "",
@@ -11,6 +13,8 @@ const UserProfile = () => {
     last_name: user?.last_name || "",
     password: "",
   });
+
+  const [profilePicture, setProfilePicture] = useState(null);
   const [message, setMessage] = useState(""); // For success or error messages
   const [isSuccess, setIsSuccess] = useState(false); // To style the message appropriately
 
@@ -18,26 +22,40 @@ const UserProfile = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleFileChange = (e) => {
+    setProfilePicture(e.target.files[0]);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Filter out empty fields for partial update
-    const payload = {};
-    for (const [key, value] of Object.entries(formData)) {
+    const updatedFormData = new FormData();
+
+    // Append non-empty fields
+    Object.entries(formData).forEach(([key, value]) => {
       if (value.trim() !== "") {
-        payload[key] = value;
+        updatedFormData.append(key, value);
       }
+    });
+
+    // Append profile picture if selected
+    if (profilePicture) {
+      updatedFormData.append("profile_picture", profilePicture);
     }
 
     try {
-      const response = await API.put("auth/profile/update/", payload);
-      setMessage(response.data.detail); // Display success message
+      const response = await API.put("auth/profile/update/", updatedFormData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      setMessage(response.data.detail);
       setIsSuccess(true);
 
-      // Reset the password field after updating
-      setFormData({ ...formData, password: "" });
+      // Fetch updated user data and update Redux
+      const userResponse = await API.get("auth/user/");
+      dispatch({ type: "auth/updateUser", payload: userResponse.data });
 
-      // Automatically hide the message after 3 seconds
+      setFormData({ ...formData, password: "" });
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
       setMessage("Error updating profile. Please try again.");
@@ -48,7 +66,7 @@ const UserProfile = () => {
   return (
     <div className="flex flex-col items-center mt-10">
       <h2 className="text-2xl font-bold mb-4">Update Profile</h2>
-      
+
       {message && (
         <p className={`text-${isSuccess ? "green" : "red"}-500 mb-4`}>
           {message}
@@ -94,6 +112,12 @@ const UserProfile = () => {
           value={formData.password}
           onChange={handleChange}
           placeholder="New Password (optional)"
+          className="border p-2 rounded w-full"
+        />
+        <input
+          type="file"
+          name="profile_picture"
+          onChange={handleFileChange}
           className="border p-2 rounded w-full"
         />
         <button type="submit" className="bg-blue-600 text-white px-4 py-2">

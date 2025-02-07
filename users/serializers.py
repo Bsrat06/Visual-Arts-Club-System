@@ -10,13 +10,14 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["username", "email", "first_name", "last_name", "password"]
+        fields = ["first_name", "last_name", "email", "password", "profile_picture"]  # ✅ Include profile_picture
+        extra_kwargs = {
+            'password': {'write_only': True, 'required': False},
+        }
 
     def update(self, instance, validated_data):
-        password = validated_data.pop("password", None)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        # Handle password update if provided
+        password = validated_data.pop('password', None)
         if password:
             instance.set_password(password)
-        instance.save()
-        return instance
+        return super().update(instance, validated_data)
