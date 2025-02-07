@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser
+from .models import CustomUser, ActivityLog
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,3 +21,9 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         if password:
             instance.set_password(password)
         return super().update(instance, validated_data)
+    
+    
+class ActivityLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ActivityLog
+        fields = ['id', 'user', 'action', 'resource', 'timestamp']

@@ -5,8 +5,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAdminUser
 from rest_framework.generics import ListAPIView
 from rest_framework import status
-from .models import CustomUser
-from .serializers import UserSerializer, ProfileUpdateSerializer
+from .models import CustomUser, ActivityLog
+from .serializers import UserSerializer, ProfileUpdateSerializer, ActivityLogSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -33,6 +33,10 @@ class CustomAuthToken(ObtainAuthToken):
         # Generate or retrieve token
         token, created = Token.objects.get_or_create(user=user)
 
+         # Log the login action
+        ActivityLog.objects.create(user=request.user, action='login')
+
+        
         return Response({
             "token": token.key,
             "user_id": user.id,
@@ -97,4 +101,15 @@ class ProfileUpdateView(APIView):
                 "detail": "Profile updated successfully",
                 "data": updated_user,
             }, status=status.HTTP_200_OK)
+        
+         # Log the profile update action
+        ActivityLog.objects.create(user=request.user, action='update', resource='Profile')
+        
         return Response(serializer.errors, status=400)
+
+
+
+class ActivityLogListView(ListAPIView):
+    queryset = ActivityLog.objects.all().order_by('-timestamp')
+    serializer_class = ActivityLogSerializer
+    permission_classes = [IsAdminUser]

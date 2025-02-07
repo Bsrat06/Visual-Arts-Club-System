@@ -13,6 +13,9 @@ import NotificationForm from "../../components/NotificationForm";
 import { deleteNotification } from "../../redux/slices/notificationsSlice";
 import { fetchUsers, updateUserRole } from "../../redux/slices/userSlice"; // Import user actions
 import UserManagement from "./UserManagement";
+import ActivityLogs from "../../components/ActivityLogs";
+
+
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -46,6 +49,9 @@ const Dashboard = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
+
+       {/* Activity Logs */}
+       <ActivityLogs />
 
       {/* User Management Section */}
       <h2 className="text-xl font-semibold mt-4">User Management</h2>
