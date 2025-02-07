@@ -30,6 +30,7 @@ const Navbar = () => {
             </span>
           )}
         </Link>
+        <Link to="/profile">Profile</Link>
       </div>
     </nav>
   );

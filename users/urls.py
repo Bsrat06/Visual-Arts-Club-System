@@ -1,11 +1,7 @@
 from django.urls import path, include
 from django.urls import path
-from dj_rest_auth.views import (
-    PasswordResetView,
-    PasswordResetConfirmView,
-    LogoutView
-)
-from .views import CustomAuthToken, UserListView, UserDetailView, UpdateUserRoleView
+from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LogoutView
+from .views import CustomAuthToken, UserListView, UserDetailView, UpdateUserRoleView, ProfileUpdateView
 
 urlpatterns = [
     # Password Reset Endpoints (Manually Defined)
@@ -21,4 +17,6 @@ urlpatterns = [
     path("auth/user/", UserDetailView.as_view(), name="user-detail"),  # Custom user detail
     path("users/", UserListView.as_view(), name="user-list"),  # Admin user list
     path("users/<int:pk>/update-role/", UpdateUserRoleView.as_view(), name="update-user-role"),
+    path("auth/profile/update/", ProfileUpdateView.as_view(), name="profile-update"),
+
 ]

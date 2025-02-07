@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.generics import ListAPIView
 from rest_framework import status
 from .models import CustomUser
-from .serializers import UserSerializer
+from .serializers import UserSerializer, ProfileUpdateSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
@@ -76,3 +76,15 @@ class UpdateUserRoleView(APIView):
         user.role = role
         user.save()
         return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
+    
+    
+
+class ProfileUpdateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        serializer = ProfileUpdateSerializer(request.user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Profile updated successfully", "data": serializer.data})
+        return Response(serializer.errors, status=400)

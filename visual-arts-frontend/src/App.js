@@ -15,7 +15,7 @@ import VisitorHome from "./pages/Visitor/VisitorHome";
 import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
-
+import UserProfile from "./pages/Auth/UserProfile";
 
 
 const App = () => {
@@ -56,6 +56,11 @@ const App = () => {
           <Route>
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+          </Route>
+
+          {/* Profile Page */}
+          <Route>
+            <Route path="/profile" element={<UserProfile />} />
           </Route>
 
 
