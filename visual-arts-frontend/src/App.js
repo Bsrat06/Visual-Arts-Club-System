@@ -16,7 +16,7 @@ import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import UserProfile from "./pages/Auth/UserProfile";
-
+import ArtworkApprovals from "./pages/Admin/ArtworkApprovals"; // Added new route
 
 const App = () => {
   return (
@@ -43,6 +43,16 @@ const App = () => {
               </RoleGuard>
             }
           />
+          
+          {/* New Route: Admin Artwork Approvals */}
+          <Route
+            path="/admin/artwork-approvals"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <ArtworkApprovals />
+              </RoleGuard>
+            }
+          />
 
           <Route
             path="/member/dashboard"
@@ -62,7 +72,6 @@ const App = () => {
           <Route>
             <Route path="/profile" element={<UserProfile />} />
           </Route>
-
 
           {/* Unauthorized Page */}
           <Route path="/unauthorized" element={<Unauthorized />} />

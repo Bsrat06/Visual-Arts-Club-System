@@ -5,6 +5,4 @@ from .views import ArtworkViewSet
 router = DefaultRouter()
 router.register(r'artwork', ArtworkViewSet)
 
-urlpatterns = [
-    path('', include(router.urls)),
-]
+urlpatterns = router.urls

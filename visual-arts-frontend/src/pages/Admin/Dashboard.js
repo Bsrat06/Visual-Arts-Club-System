@@ -131,7 +131,9 @@ const Dashboard = () => {
         {Array.isArray(artworks) && artworks.length > 0 ? (
           artworks.map((art) => (
             <li key={art.id}>
-              {art.title}
+              <p>Title: {art.title}</p>
+              
+              <p>Status: {art.approval_status} </p>
               <button
                 onClick={() => handleEdit(art, "artwork")}
                 className="text-blue-500 ml-2"

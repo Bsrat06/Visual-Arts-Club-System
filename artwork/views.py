@@ -9,6 +9,9 @@ from .serializers import ArtworkSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from users.permissions import IsAdminUser
+from rest_framework.decorators import action
+from rest_framework import status
+
 
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()#.order_by("-submission_date")
@@ -47,3 +50,33 @@ class ArtworkViewSet(viewsets.ModelViewSet):
                 message=f"Your artwork '{instance.title}' has been approved.",
                 notification_type='artwork_approved'
             )
+
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated, IsAdminUser])
+    def approve(self, request, pk=None):
+        artwork = self.get_object()
+        artwork.approval_status = 'approved'
+        artwork.save()
+
+        # Send Notification
+        Notification.objects.create(
+            recipient=artwork.artist,
+            message=f"Your artwork '{artwork.title}' has been approved.",
+            notification_type='artwork_approved'
+        )
+        return Response({"message": "Artwork approved successfully."}, status=status.HTTP_200_OK)
+
+
+    @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated, IsAdminUser])
+    def reject(self, request, pk=None):
+        artwork = self.get_object()
+        artwork.approval_status = 'rejected'
+        artwork.save()
+
+        # Send Notification
+        Notification.objects.create(
+            recipient=artwork.artist,
+            message=f"Your artwork '{artwork.title}' has been rejected.",
+            notification_type='artwork_rejected'
+        )
+        return Response({"message": "Artwork rejected successfully."}, status=status.HTTP_200_OK)
