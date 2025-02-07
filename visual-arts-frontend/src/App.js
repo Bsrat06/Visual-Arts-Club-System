@@ -13,6 +13,10 @@ import AdminDashboard from "./pages/Admin/Dashboard";
 import MemberDashboard from "./pages/Member/MemberDashboard";
 import VisitorHome from "./pages/Visitor/VisitorHome";
 import Unauthorized from "./pages/Other/Unauthorized";
+import ForgotPassword from "./pages/Auth/ForgotPassword";
+import ResetPassword from "./pages/Auth/ResetPassword";
+
+
 
 const App = () => {
   return (
@@ -48,6 +52,12 @@ const App = () => {
               </RoleGuard>
             }
           />
+
+          <Route>
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+          </Route>
+
 
           {/* Unauthorized Page */}
           <Route path="/unauthorized" element={<Unauthorized />} />

@@ -44,7 +44,7 @@ class CustomAuthToken(ObtainAuthToken):
 class UserListView(ListAPIView):
     queryset = CustomUser.objects.all()
     permission_classes = [IsAdminUser]  # ✅ Only admins can view the user list
-    
+    serializer_class = UserSerializer
 
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]

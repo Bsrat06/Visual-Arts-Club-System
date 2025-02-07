@@ -10,10 +10,9 @@ import { fetchArtworks, removeArtwork } from "../../redux/slices/artworkSlice";
 import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
 import NotificationForm from "../../components/NotificationForm";
-import { deleteNotification } from "../../redux/slices/notificationsSlice"; // ✅ Import the deleteNotification action
-
-
-
+import { deleteNotification } from "../../redux/slices/notificationsSlice";
+import { fetchUsers, updateUserRole } from "../../redux/slices/userSlice"; // Import user actions
+import UserManagement from "./UserManagement";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -21,8 +20,9 @@ const Dashboard = () => {
   const { artworks, loading: artworksLoading, error: artworksError } = useSelector((state) => state.artwork);
   const { events, loading: eventsLoading, error: eventsError } = useSelector((state) => state.events);
   const { projects, loading: projectsLoading, error: projectsError } = useSelector((state) => state.projects);
-
   const { notifications = [], loading, error } = useSelector((state) => state.notifications);
+
+  const { users, loading: usersLoading, error: usersError } = useSelector((state) => state.users); // User state
 
   const [editingItem, setEditingItem] = useState(null);
   const [editType, setEditType] = useState(null);
@@ -31,6 +31,7 @@ const Dashboard = () => {
     dispatch(fetchArtworks());
     dispatch(fetchEvents());
     dispatch(fetchProjects());
+    dispatch(fetchUsers()); // Fetch users on component mount
   }, [dispatch]);
 
   const handleEdit = (item, type) => {
@@ -38,22 +39,58 @@ const Dashboard = () => {
     setEditType(type);
   };
 
+  const handleRoleChange = (userId, newRole) => {
+    dispatch(updateUserRole({ id: userId, role: newRole })); // Update user role
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Admin Dashboard</h1>
+
+      {/* User Management Section */}
+      <h2 className="text-xl font-semibold mt-4">User Management</h2>
+      {usersLoading && <p>Loading users...</p>}
+      {usersError && <p className="text-red-500">{usersError}</p>}
+      <table className="w-full border-collapse border border-gray-300 mt-4">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 p-2">Username</th>
+            <th className="border border-gray-300 p-2">Email</th>
+            <th className="border border-gray-300 p-2">Role</th>
+            <th className="border border-gray-300 p-2">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.pk}>
+              <td className="border border-gray-300 p-2">{user.username}</td>
+              <td className="border border-gray-300 p-2">{user.email}</td>
+              <td className="border border-gray-300 p-2">{user.role}</td>
+              <td className="border border-gray-300 p-2">
+                <select
+                  value={user.role}
+                  onChange={(e) => handleRoleChange(user.pk, e.target.value)}
+                  className="border border-gray-300 p-1"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="member">Member</option>
+                  <option value="visitor">Visitor</option>
+                </select>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
       {/* Add Notification Form */}
       <h2 className="text-xl font-semibold mt-4">Create Notification</h2>
       <NotificationForm />
 
-
       {/* Notifications List */}
       <h2 className="text-xl font-semibold mt-4">Notifications</h2>
-      {notifications.loading && <p>Loading notifications...</p>}
-      {notifications.error && <p className="text-red-500">{notifications.error}</p>}
+      {loading && <p>Loading notifications...</p>}
+      {error && <p className="text-red-500">{error}</p>}
       <ul className="list-disc pl-6">
-        {loading && <p>Loading notifications...</p>}
-        {error && <p className="text-red-500">{error}</p>}
         {notifications.length > 0 ? (
           notifications.map((notification) => (
             <li key={notification.id}>
@@ -70,7 +107,6 @@ const Dashboard = () => {
           <p>No notifications available</p>
         )}
       </ul>
-
 
       {/* Edit Forms */}
       {editType === "artwork" && <EditArtworkForm artwork={editingItem} onClose={() => setEditType(null)} />}

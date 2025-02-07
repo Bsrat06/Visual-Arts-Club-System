@@ -4,7 +4,7 @@ import artworkReducer from "./slices/artworkSlice";
 import eventsReducer from "./slices/eventsSlice";
 import projectsReducer from "./slices/projectsSlice";
 import notificationsReducer from "./slices/notificationsSlice";
-
+import userReducer from "./slices/userSlice";
 
 const store = configureStore({
   reducer: {
@@ -13,6 +13,7 @@ const store = configureStore({
     events: eventsReducer,
     projects: projectsReducer,
     notifications: notificationsReducer,
+    users: userReducer,
   },
 });
 
