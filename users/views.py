@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAdminUser
 from rest_framework.generics import ListAPIView
+from rest_framework import status
 from .models import CustomUser
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -58,3 +59,20 @@ class UserDetailView(APIView):
         return Response(serializer.data)
 
 
+
+class UpdateUserRoleView(APIView):
+    permission_classes = [IsAdminUser]  # Only admins can update roles
+
+    def patch(self, request, pk):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        role = request.data.get("role")
+        if role not in ["admin", "member", "visitor"]:
+            return Response({"error": "Invalid role"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.role = role
+        user.save()
+        return Response(UserSerializer(user).data, status=status.HTTP_200_OK)
