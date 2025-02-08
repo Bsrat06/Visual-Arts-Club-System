@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addArtwork } from "../redux/slices/artworkSlice";
 
+
 const AddArtworkForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");

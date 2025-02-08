@@ -17,6 +17,12 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import UserProfile from "./pages/Auth/UserProfile";
 import ArtworkApprovals from "./pages/Admin/ArtworkApprovals"; // Added new route
+import ManageArtworks from "./pages/Admin/ManageArtworks";
+import ManageEvents from "./pages/Admin/ManageEvents";
+import ManageProjects from "./pages/Admin/ManageProjects";
+import UserManagement from "./pages/Admin/UserManagement";
+import NotificationManagement from "./pages/Admin/NotificationManagement";
+
 
 const App = () => {
   return (
@@ -53,6 +59,65 @@ const App = () => {
               </RoleGuard>
             }
           />
+
+          <Route
+            path="/admin/manage-artworks"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <ManageArtworks />
+              </RoleGuard>
+            }
+          />
+
+
+
+          <Route
+            path="/admin/manage-events"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <ManageEvents />
+              </RoleGuard>
+            }
+          />
+
+
+
+
+
+          <Route
+            path="/admin/project-management"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <ManageProjects />
+              </RoleGuard>
+            }
+          />
+
+
+
+          <Route
+            path="/admin/notifications"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <NotificationManagement />
+              </RoleGuard>
+            }
+          />
+
+
+
+          <Route
+            path="/admin/user-management"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <UserManagement />
+              </RoleGuard>
+            }
+          />
+
+
+
+
 
           <Route
             path="/member/dashboard"

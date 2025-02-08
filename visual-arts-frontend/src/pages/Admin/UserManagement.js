@@ -16,10 +16,10 @@ const UserManagement = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-xl font-bold mb-4">User Management</h2>
+      <h1 className="text-2xl font-bold mb-4">User Management</h1>
       {loading && <p>Loading users...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      <table className="w-full border-collapse border border-gray-300">
+      <table className="w-full border-collapse border border-gray-300 mt-4">
         <thead>
           <tr>
             <th className="border border-gray-300 p-2">Username</th>
