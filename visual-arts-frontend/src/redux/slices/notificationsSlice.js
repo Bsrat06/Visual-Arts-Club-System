@@ -62,6 +62,20 @@ export const markNotificationAsRead = createAsyncThunk("notifications/markAsRead
   }
 });
 
+export const markAllAsRead = createAsyncThunk(
+  "notifications/markAllAsRead",
+  async (_, thunkAPI) => {
+    try {
+      const response = await API.patch("notifications/mark-all-as-read/");
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Failed to mark all as read");
+    }
+  }
+);
+
+
+
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState: {
@@ -75,6 +89,11 @@ const notificationsSlice = createSlice({
       .addCase(fetchNotifications.pending, (state) => {
         state.loading = true;
       })
+      .addCase(markAllAsRead.fulfilled, (state) => {
+        state.notifications.forEach((notification) => {
+          notification.read = true;
+        });
+      })  // <-- Added closing parenthesis and semicolon here
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading = false;
         state.notifications = action.payload.results || [];
@@ -97,6 +116,7 @@ const notificationsSlice = createSlice({
         );
       });
   },
+  
 });
 
 export default notificationsSlice.reducer;

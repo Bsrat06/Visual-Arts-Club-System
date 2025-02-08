@@ -23,7 +23,7 @@ const Navbar = () => {
           <Link to="/member/dashboard" className="hover:underline">Member Dashboard</Link>
         )}
         <Link to="/notifications" className="relative">
-          <span>Notifications</span>
+          <span>Notifications: {unreadCount}</span>
           {unreadCount > 0 && (
             <span className="absolute top-0 right-0 bg-red-500 text-white rounded-full text-sm px-2 py-1">
               {unreadCount}

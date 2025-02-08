@@ -4,7 +4,7 @@ from .models import Artwork
 class ArtworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artwork
-        fields = ['id', 'title', 'description', 'image', 'feedback', 'approval_status']  # ✅ Include 'id' and 'approval_status'
+        fields = ['id', 'title', 'description', 'image', 'artist', 'feedback', 'approval_status']  # ✅ Include 'id' and 'approval_status'
         
     def create(self, validated_data):
         request = self.context.get('request')  # Get the request from the context

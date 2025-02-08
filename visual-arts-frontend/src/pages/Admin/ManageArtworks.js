@@ -79,6 +79,7 @@ const ManageArtworks = () => {
             <li key={art.id}>
               <p>Title: {art.title}</p>
               <p>Status: {art.approval_status}</p>
+              <p>Artist: {art.artist}</p>
               <p>Feedback: {art.feedback}</p>
 
             {selectedArtwork?.id === art.id && (

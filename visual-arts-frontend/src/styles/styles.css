@@ -1,0 +1,10 @@
+/* styles.css */
+.text-gray-500 {
+    color: gray; /* This will dim the text for read notifications */
+  }
+  
+  .text-black {
+    color: black; /* This will make unread notifications bold and black */
+    font-weight: bold; /* Optional: Makes the unread notifications bold */
+  }
+  

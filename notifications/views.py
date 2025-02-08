@@ -21,7 +21,16 @@ class NotificationViewSet(viewsets.ModelViewSet):
         notification.read = True
         notification.save()
         return Response({"message": "Notification marked as read."})
-     
+    
+    
+    @action(detail=False, methods=['patch'], permission_classes=[permissions.IsAuthenticated])
+    def mark_all_as_read(self, request):
+        notifications = self.get_queryset().filter(read=False)
+        notifications.update(read=True)
+        return Response({"message": "All notifications marked as read."})
+    
 
     # def get_queryset(self):
     #     return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
+
+
