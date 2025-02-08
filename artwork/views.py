@@ -44,6 +44,14 @@ class ArtworkViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         print("Updating Artwork with Data:", serializer.validated_data)  # ✅ Debugging log
         instance = serializer.save()
+        
+        if instance.approval_status == 'rejected' and 'feedback' in serializer.validated_data:
+            Notification.objects.create(
+                recipient=instance.artist,
+                message=f"Your artwork '{instance.title}' has been rejected. Feedback: {instance.feedback}",
+                notification_type='artwork_feedback'
+            )
+        
         if instance.approval_status == 'approved':
             Notification.objects.create(
                 recipient=instance.artist,

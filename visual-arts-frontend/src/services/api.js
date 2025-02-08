@@ -28,6 +28,7 @@ API.interceptors.request.use(
 export const getArtworks = () => API.get("artwork/");
 export const createArtwork = (data) => API.post("artwork/", data);
 // export const updateArtwork = (id, data) => API.put(`artwork/${id}/`, data);
+
 export const updateArtwork = async (id, data) => {
   return await API.put(`artwork/${id}/`, data, {
     headers: {

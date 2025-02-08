@@ -4,18 +4,46 @@ import { Link } from "react-router-dom";
 import { FaUser, FaImages, FaCalendar, FaProjectDiagram, FaCog } from "react-icons/fa";
 import AddArtworkForm from "../../components/AddArtworkForm";
 import EditArtworkForm from "../../components/EditArtworkForm";
-import { fetchArtworks, removeArtwork } from "../../redux/slices/artworkSlice";
+import { fetchArtworks, removeArtwork, editArtwork } from "../../redux/slices/artworkSlice";
 
 const ManageArtworks = () => {
   const dispatch = useDispatch();
   const { artworks, loading, error } = useSelector((state) => state.artwork);
 
+  const [feedback, setFeedback] = useState("");
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
+
+  const handleApproval = (artwork, status) => {
+    console.log("Selected Artwork:", artwork); // Debugging log
+    const data = { approval_status: status };
+  
+    if (status === "rejected") {
+      data.feedback = feedback; // Include feedback for rejection
+    }
+  
+    // Ensure artwork.id is defined
+    if (!artwork.id) {
+      console.error("Artwork ID is missing!");
+      return;
+    }
+  
+    dispatch(editArtwork({ id: artwork.id, data }))
+      .then(() => {
+        dispatch(fetchArtworks());
+        setFeedback(""); // Clear feedback after submission
+        setSelectedArtwork(null); // Clear selected artwork
+      })
+      .catch((error) => console.error("Error updating artwork:", error));
+  };
+  
+    
+  
   const [editingArtwork, setEditingArtwork] = useState(null);
 
   useEffect(() => {
     dispatch(fetchArtworks());
   }, [dispatch]);
-
+  
   const handleEdit = (artwork) => {
     setEditingArtwork(artwork);
   };
@@ -42,11 +70,46 @@ const ManageArtworks = () => {
       <h2 className="text-xl font-semibold mt-4">Artworks List</h2>
       {loading && <p>Loading artworks...</p>}
       {error && <p className="text-red-500">{error}</p>}
+      
+      
+      
       <ul className="list-disc pl-6">
         {Array.isArray(artworks) && artworks.length > 0 ? (
           artworks.map((art) => (
             <li key={art.id}>
-              <p>{art.title} - {art.approval_status}</p>
+              <p>Title: {art.title}</p>
+              <p>Status: {art.approval_status}</p>
+              
+              <button
+              onClick={() => handleApproval(art, "approved")}
+              className="text-green-500 ml-2"
+            >
+              Approve
+            </button>
+            <button
+              onClick={() => setSelectedArtwork(art)}
+              className="text-red-500 ml-2"
+            >
+              Reject
+            </button>
+
+            {selectedArtwork?.id === art.id && (
+              <div>
+                <textarea
+                  placeholder="Enter feedback for rejection"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  className="border p-2 w-full"
+                ></textarea>
+                <button
+                  onClick={() => handleApproval(art, "rejected")}
+                  className="bg-red-500 text-white px-4 py-2 mt-2"
+                >
+                  Submit Rejection
+                </button>
+              </div>
+            )}
+              
               <button
                 onClick={() => handleEdit(art)}
                 className="text-blue-500 ml-2"

@@ -26,14 +26,26 @@ export const addArtwork = createAsyncThunk("artwork/add", async (formData, thunk
 });
 
 // Update artwork
-export const editArtwork = createAsyncThunk("artwork/edit", async ({ id, data }, thunkAPI) => {
-  try {
-    const response = await updateArtwork(id, data);
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || "Failed to update artwork");
+export const editArtwork = createAsyncThunk(
+  "artwork/editArtwork",
+  async ({ id, data }, { rejectWithValue }) => {
+    try {
+      // Check ID and Data before making API call
+      console.log("Updating Artwork ID:", id);
+      console.log("Data being sent:", data);
+      
+      // Ensure ID is valid before making request
+      if (!id) throw new Error("Artwork ID is required for updating.");
+
+      // API Call
+      const response = await updateArtwork(id, data);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating artwork:", error);
+      return rejectWithValue(error.response?.data || error.message);
+    }
   }
-});
+);
 
 // Delete artwork
 export const removeArtwork = createAsyncThunk("artwork/remove", async (id, thunkAPI) => {
