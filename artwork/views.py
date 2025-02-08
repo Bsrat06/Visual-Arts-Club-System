@@ -1,5 +1,5 @@
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from users.pagination import CustomPagination
 from notifications.models import Notification
 from rest_framework import viewsets, filters
@@ -16,7 +16,7 @@ from rest_framework import status
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()#.order_by("-submission_date")
     serializer_class = ArtworkSerializer
-    parser_classes = (MultiPartParser, FormParser)  # ✅ Allow file uploads
+    parser_classes = (MultiPartParser, FormParser, JSONParser)  # ✅ Allow file uploads
     pagination_class = CustomPagination  # Use the custom pagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
@@ -78,13 +78,25 @@ class ArtworkViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated, IsAdminUser])
     def reject(self, request, pk=None):
         artwork = self.get_object()
+        feedback = request.data.get("feedback", "")
+
+        print("Feedback received for rejection:", feedback)  # Debugging log
+
+        if not feedback.strip():
+            return Response(
+                {"error": "Feedback is required when rejecting an artwork."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         artwork.approval_status = 'rejected'
+        artwork.feedback = feedback  # Save the feedback
         artwork.save()
 
-        # Send Notification
+        print("Artwork feedback saved:", artwork.feedback)  # Debugging log
+
         Notification.objects.create(
             recipient=artwork.artist,
-            message=f"Your artwork '{artwork.title}' has been rejected.",
+            message=f"Your artwork '{artwork.title}' has been rejected. Feedback: {feedback}",
             notification_type='artwork_rejected'
         )
         return Response({"message": "Artwork rejected successfully."}, status=status.HTTP_200_OK)

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchArtworks } from "../../redux/slices/artworkSlice";
 import API from "../../services/api";
@@ -6,6 +6,9 @@ import API from "../../services/api";
 const ArtworkApprovals = () => {
     const dispatch = useDispatch();
     const { artworks, loading, error } = useSelector((state) => state.artwork);
+    const [feedback, setFeedback] = useState("");
+    const [selectedArtwork, setSelectedArtwork] = useState(null);
+    const [showModal, setShowModal] = useState(false);
 
     useEffect(() => {
         dispatch(fetchArtworks());
@@ -13,13 +16,30 @@ const ArtworkApprovals = () => {
 
     const handleApproval = async (id, status) => {
         try {
-            const endpoint = status === "approved" ? `artwork/${id}/approve/` : `artwork/${id}/reject/`;
-            await API.patch(endpoint);
+            if (status === "approved") {
+                await API.patch(`artwork/${id}/approve/`);
+            } else {
+                setSelectedArtwork(id);
+                setShowModal(true);
+            }
             dispatch(fetchArtworks()); // Refresh the list
         } catch (error) {
             console.error("Error updating artwork status:", error);
         }
     };
+
+    const handleRejectWithFeedback = async () => {
+        try {
+            console.log("Submitting Feedback for Rejection:", feedback); // Debugging log
+            await API.patch(`artwork/${selectedArtwork}/reject/`, { feedback: feedback });
+            setShowModal(false);
+            setFeedback("");
+            dispatch(fetchArtworks());
+        } catch (error) {
+            console.error("Error rejecting artwork:", error.response?.data || error.message);
+        }
+    };
+    
 
     const pendingArtworks = artworks.filter((art) => art.approval_status === "pending");
 
@@ -55,6 +75,34 @@ const ArtworkApprovals = () => {
                     <p>No pending artworks for approval.</p>
                 )}
             </ul>
+            {showModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                    <div className="bg-white p-6 rounded shadow-lg w-96">
+                        <h2 className="text-xl font-semibold mb-2">Provide Rejection Feedback</h2>
+                        <textarea
+                            className="w-full p-2 border rounded"
+                            rows="3"
+                            value={feedback}
+                            onChange={(e) => setFeedback(e.target.value)}
+                            placeholder="Enter feedback..."
+                        ></textarea>
+                        <div className="flex justify-end space-x-4 mt-4">
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="bg-gray-500 text-white px-4 py-2 rounded"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleRejectWithFeedback}
+                                className="bg-red-500 text-white px-4 py-2 rounded"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

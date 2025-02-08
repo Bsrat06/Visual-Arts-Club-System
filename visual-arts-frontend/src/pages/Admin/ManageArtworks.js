@@ -79,19 +79,7 @@ const ManageArtworks = () => {
             <li key={art.id}>
               <p>Title: {art.title}</p>
               <p>Status: {art.approval_status}</p>
-              
-              <button
-              onClick={() => handleApproval(art, "approved")}
-              className="text-green-500 ml-2"
-            >
-              Approve
-            </button>
-            <button
-              onClick={() => setSelectedArtwork(art)}
-              className="text-red-500 ml-2"
-            >
-              Reject
-            </button>
+              <p>Feedback: {art.feedback}</p>
 
             {selectedArtwork?.id === art.id && (
               <div>
