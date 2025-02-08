@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { FaUser, FaImages, FaCalendar, FaProjectDiagram, FaCog } from "react-icons/fa";
 import AddArtworkForm from "../../components/AddArtworkForm";
 import EditArtworkForm from "../../components/EditArtworkForm";
 import { fetchArtworks, removeArtwork } from "../../redux/slices/artworkSlice";
@@ -33,6 +35,8 @@ const ManageArtworks = () => {
           onClose={() => setEditingArtwork(null)}
         />
       )}
+
+      <Link to="/admin/artwork-approvals" className="flex items-center"><FaImages className="mr-2" /> Approve Artworks</Link>
 
       {/* Display Artworks */}
       <h2 className="text-xl font-semibold mt-4">Artworks List</h2>
