@@ -9,7 +9,7 @@ export const Sidebar = () => {  // ✅ Named export
         <li><Link to="/admin/dashboard" className="flex items-center"><FaUser className="mr-2" /> Dashboard</Link></li>
         <li><Link to="/admin/artwork-approvals" className="flex items-center"><FaImages className="mr-2" /> Approve Artworks</Link></li>
         <li><Link to="/admin/manage-events" className="flex items-center"><FaCalendar className="mr-2" /> Manage Events</Link></li>
-        <li><Link to="/admin/projects" className="flex items-center"><FaProjectDiagram className="mr-2" /> Projects</Link></li>
+        <li><Link to="/admin/project-management" className="flex items-center"><FaProjectDiagram className="mr-2" /> Projects</Link></li>
         <li><Link to="/settings" className="flex items-center"><FaCog className="mr-2" /> Settings</Link></li>
       </ul>
     </aside>
