@@ -16,21 +16,24 @@ const MemberDashboard = () => {
     dispatch(fetchNotifications());
   }, [dispatch]);
 
+  // Filter unread notifications
+  const unreadNotifications = notifications.filter((notification) => !notification.read);
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Member Dashboard</h1>
 
-      {/* Notifications */}
-      <h2 className="text-xl font-semibold mt-4">Notifications</h2>
+      {/* Notifications - Only Unread */}
+      <h2 className="text-xl font-semibold mt-4">Unread Notifications</h2>
       <ul className="list-disc pl-6">
-        {notifications.length > 0 ? (
-          notifications.map((notification) => (
+        {unreadNotifications.length > 0 ? (
+          unreadNotifications.map((notification) => (
             <li key={notification.id}>
               {notification.message} - {notification.notification_type}
             </li>
           ))
         ) : (
-          <p>No notifications available</p>
+          <p>No unread notifications</p>
         )}
       </ul>
 
