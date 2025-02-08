@@ -31,6 +31,8 @@ const Navbar = () => {
           )}
         </Link>
         <Link to="/profile">Profile</Link>
+        <Link to="/member/portfolio">Portfolio</Link>
+        <Link to="/member/event-registration">EventRegistration</Link>
       </div>
     </nav>
   );

@@ -24,7 +24,8 @@ const EventRegistration = () => {
         {Array.isArray(events) && events.length > 0 ? (
           events.map((event) => (
             <li key={event.id}>
-              <p>{event.name} - {event.date}</p>
+              <p>{event.title}</p>
+              <p>due date: {event.date}</p>
               <button
                 onClick={() => handleRegister(event.id)}
                 className="text-blue-500 ml-2"

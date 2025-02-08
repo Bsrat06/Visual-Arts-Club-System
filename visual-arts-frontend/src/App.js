@@ -11,6 +11,8 @@ import NotificationsList from "./pages/General/NotificationsList";
 import RoleGuard from "./components/RoleGuard";
 import AdminDashboard from "./pages/Admin/Dashboard";
 import MemberDashboard from "./pages/Member/MemberDashboard";
+import Portfolio from "./pages/Member/Portfolio";
+import EventRegistration from "./pages/Member/EventRegistration";
 import VisitorHome from "./pages/Visitor/VisitorHome";
 import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -127,6 +129,54 @@ const App = () => {
               </RoleGuard>
             }
           />
+
+          <Route
+            path="/member/portfolio"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <Portfolio />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="/member/event-registration"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <EventRegistration />
+              </RoleGuard>
+            }
+          />
+
+<Route
+            path="/homepage"
+            element={
+              <RoleGuard allowedRoles={["member", "admin", "visitor"]}>
+                <HomePage />
+              </RoleGuard>
+            }
+          />
+
+
+<Route
+            path="/contactus"
+            element={
+              <RoleGuard allowedRoles={["member", "admin", "visitor"]}>
+                <ContactUs />
+              </RoleGuard>
+            }
+          />
+
+
+<Route
+            path="/about"
+            element={
+              <RoleGuard allowedRoles={["member", "admin", "visitor"]}>
+                <AboutUs />
+              </RoleGuard>
+            }
+          />
+
 
           <Route>
             <Route path="/forgot-password" element={<ForgotPassword />} />
