@@ -25,6 +25,12 @@ import ManageProjects from "./pages/Admin/ManageProjects";
 import UserManagement from "./pages/Admin/UserManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
 import AddArtworkForm from "./components/AddArtworkForm";
+import VisitorArtworks from "./pages/Visitor/VisitorArtworks";
+import VisitorEvents from "./pages/Visitor/VisitorEvents";
+import VisitorProjects from "./pages/Visitor/VisitorProjects";
+import VisitorContact from "./pages/Visitor/VisitorContact";
+
+
 
 
 const App = () => {
@@ -197,6 +203,14 @@ const App = () => {
           <Route>
             <Route path="/profile" element={<UserProfile />} />
           </Route>
+
+
+          <Route path="/visitor/artworks" element={<VisitorArtworks />} />
+          <Route path="/visitor/events" element={<VisitorEvents />} />
+          <Route path="/visitor/projects" element={<VisitorProjects />} />
+          <Route path="/visitor/contact" element={<VisitorContact />} />
+
+
 
           {/* Unauthorized Page */}
           <Route path="/unauthorized" element={<Unauthorized />} />

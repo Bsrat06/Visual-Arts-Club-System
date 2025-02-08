@@ -15,7 +15,7 @@ const Navbar = () => {
         <Link to="/about">About</Link>
         <Link to="/contact">Contact</Link>
         <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
+        <Link to="/register">Become a Member</Link>
         {role === "admin" && (
           <Link to="/admin/dashboard" className="hover:underline">Admin Panel</Link>
         )}
