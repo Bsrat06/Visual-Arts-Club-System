@@ -3,12 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchNotifications,
   deleteNotification,
+  markNotificationAsRead,
   markAllAsRead,
 } from "../../redux/slices/notificationsSlice";
 import NotificationForm from "../../components/NotificationForm";
-import "../../styles/styles.css"; // Adjust the path if necessary
-
-
 
 const NotificationManagement = () => {
   const dispatch = useDispatch();
@@ -17,6 +15,10 @@ const NotificationManagement = () => {
   useEffect(() => {
     dispatch(fetchNotifications());
   }, [dispatch]);
+
+  const handleMarkAsRead = (id) => {
+    dispatch(markNotificationAsRead(id));
+  };
 
   const handleMarkAllAsRead = () => {
     dispatch(markAllAsRead());
@@ -37,18 +39,31 @@ const NotificationManagement = () => {
       <ul className="list-disc pl-6">
         {notifications.map((notification) => (
           <li key={notification.id} className={notification.read ? "text-gray-500" : "text-black"}>
-            {notification.message} - {notification.notification_type} -{" "}
-            {notification.read ? "Read" : "Unread"}
-            <button
-              onClick={() => dispatch(deleteNotification(notification.id))}
-              className="text-red-500 ml-2"
-            >
-              Delete
-            </button>
+            <div className="flex justify-between items-center">
+              <div>
+                {notification.message} - {notification.notification_type} -{" "}
+                {notification.read ? "Read" : "Unread"}
+              </div>
+              <div>
+                {!notification.read && (
+                  <button
+                    onClick={() => handleMarkAsRead(notification.id)}
+                    className="bg-blue-500 text-white px-2 py-1 rounded ml-2"
+                  >
+                    Mark as Read
+                  </button>
+                )}
+                <button
+                  onClick={() => dispatch(deleteNotification(notification.id))}
+                  className="bg-red-500 text-white px-2 py-1 rounded ml-2"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
           </li>
         ))}
       </ul>
-
     </div>
   );
 };

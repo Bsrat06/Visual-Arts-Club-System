@@ -53,20 +53,23 @@ export const deleteNotification = createAsyncThunk(
   }
 );
 
-export const markNotificationAsRead = createAsyncThunk("notifications/markAsRead", async (id, thunkAPI) => {
-  try {
-    await API.patch(`notifications/${id}/mark_as_read/`);
-    return id;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || "Failed to mark notification as read");
+export const markNotificationAsRead = createAsyncThunk(
+  "notifications/markAsRead",
+  async (id, thunkAPI) => {
+    try {
+      const response = await API.patch(`notifications/${id}/mark_as_read/`);
+      return { id };
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Failed to mark as read");
+    }
   }
-});
+);
 
 export const markAllAsRead = createAsyncThunk(
   "notifications/markAllAsRead",
   async (_, thunkAPI) => {
     try {
-      const response = await API.patch("notifications/mark-all-as-read/");
+      const response = await API.patch("notifications/mark_all_as_read/");
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response?.data || "Failed to mark all as read");
@@ -89,11 +92,7 @@ const notificationsSlice = createSlice({
       .addCase(fetchNotifications.pending, (state) => {
         state.loading = true;
       })
-      .addCase(markAllAsRead.fulfilled, (state) => {
-        state.notifications.forEach((notification) => {
-          notification.read = true;
-        });
-      })  // <-- Added closing parenthesis and semicolon here
+     
       .addCase(fetchNotifications.fulfilled, (state, action) => {
         state.loading = false;
         state.notifications = action.payload.results || [];
@@ -114,7 +113,24 @@ const notificationsSlice = createSlice({
         state.notifications = state.notifications.filter(
           (notification) => notification.id !== action.payload
         );
+      })
+
+      .addCase(markNotificationAsRead.fulfilled, (state, action) => {
+        const notification = state.notifications.find(
+          (notification) => notification.id === action.payload.id
+        );
+        if (notification) {
+          notification.read = true;
+        }
+      })
+      .addCase(markAllAsRead.fulfilled, (state) => {
+        state.notifications.forEach((notification) => {
+          notification.read = true;
+        });
+
       });
+
+      
   },
   
 });
