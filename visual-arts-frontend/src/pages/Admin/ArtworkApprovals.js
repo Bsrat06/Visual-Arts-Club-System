@@ -1,18 +1,39 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchArtworks } from "../../redux/slices/artworkSlice";
+import { useDispatch } from "react-redux";
 import API from "../../services/api";
 
 const ArtworkApprovals = () => {
     const dispatch = useDispatch();
-    const { artworks, loading, error } = useSelector((state) => state.artwork);
+    const [artworks, setArtworks] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [feedback, setFeedback] = useState("");
     const [selectedArtwork, setSelectedArtwork] = useState(null);
     const [showModal, setShowModal] = useState(false);
 
+    // Function to fetch all artworks (handling pagination)
+    const fetchAllArtworks = async () => {
+        try {
+            let allArtworks = [];
+            let nextPage = "http://127.0.0.1:8000/api/artwork/"; // Change URL if needed
+
+            while (nextPage) {
+                const response = await API.get(nextPage);
+                allArtworks = [...allArtworks, ...response.data.results];
+                nextPage = response.data.next; // Get the next page URL
+            }
+
+            setArtworks(allArtworks);
+            setLoading(false);
+        } catch (err) {
+            setError("Failed to fetch artworks.");
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        dispatch(fetchArtworks());
-    }, [dispatch]);
+        fetchAllArtworks();
+    }, []);
 
     const handleApproval = async (id, status) => {
         try {
@@ -22,7 +43,7 @@ const ArtworkApprovals = () => {
                 setSelectedArtwork(id);
                 setShowModal(true);
             }
-            dispatch(fetchArtworks()); // Refresh the list
+            fetchAllArtworks(); // Refresh artworks after approval/rejection
         } catch (error) {
             console.error("Error updating artwork status:", error);
         }
@@ -30,18 +51,18 @@ const ArtworkApprovals = () => {
 
     const handleRejectWithFeedback = async () => {
         try {
-            console.log("Submitting Feedback for Rejection:", feedback); // Debugging log
-            await API.patch(`artwork/${selectedArtwork}/reject/`, { feedback: feedback });
+            await API.patch(`artwork/${selectedArtwork}/reject/`, { feedback });
             setShowModal(false);
             setFeedback("");
-            dispatch(fetchArtworks());
+            fetchAllArtworks();
         } catch (error) {
-            console.error("Error rejecting artwork:", error.response?.data || error.message);
+            console.error("Error rejecting artwork:", error);
         }
     };
-    
 
+    console.log("Fetched artworks:", artworks);
     const pendingArtworks = artworks.filter((art) => art.approval_status === "pending");
+    console.log("Pending artworks:", pendingArtworks);
 
     return (
         <div className="p-6">

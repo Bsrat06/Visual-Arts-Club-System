@@ -34,12 +34,14 @@ class ArtworkViewSet(viewsets.ModelViewSet):
         if self.action in ['update', 'partial_update', 'destroy']:
             print(f"Permissions checked for admin user: {self.request.user.is_staff}")  # ✅ Debugging log
             permission_classes = [IsAuthenticated, IsAdminUser]
+         
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
     
-
+    def perform_create(self, serializer):
+        serializer.save(artist=self.request.user)
 
     def perform_update(self, serializer):
         print("Updating Artwork with Data:", serializer.validated_data)  # ✅ Debugging log
@@ -58,6 +60,7 @@ class ArtworkViewSet(viewsets.ModelViewSet):
                 message=f"Your artwork '{instance.title}' has been approved.",
                 notification_type='artwork_approved'
             )
+
 
 
     @action(detail=True, methods=['patch'], permission_classes=[IsAuthenticated, IsAdminUser])

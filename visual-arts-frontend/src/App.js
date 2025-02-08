@@ -24,6 +24,7 @@ import ManageEvents from "./pages/Admin/ManageEvents";
 import ManageProjects from "./pages/Admin/ManageProjects";
 import UserManagement from "./pages/Admin/UserManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
+import AddArtworkForm from "./components/AddArtworkForm";
 
 
 const App = () => {
@@ -135,6 +136,15 @@ const App = () => {
             element={
               <RoleGuard allowedRoles={["member", "admin"]}>
                 <Portfolio />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="/member/add-artwork"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <AddArtworkForm />
               </RoleGuard>
             }
           />
