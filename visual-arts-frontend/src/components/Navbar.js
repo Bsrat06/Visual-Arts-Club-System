@@ -17,10 +17,10 @@ const Navbar = () => {
         <Link to="/login">Login</Link>
         <Link to="/register">Register</Link>
         {role === "admin" && (
-          <Link to="/admin" className="hover:underline">Admin Panel</Link>
+          <Link to="/admin/dashboard" className="hover:underline">Admin Panel</Link>
         )}
         {(role === "member" || role === "admin") && (
-          <Link to="/member" className="hover:underline">Member Dashboard</Link>
+          <Link to="/member/dashboard" className="hover:underline">Member Dashboard</Link>
         )}
         <Link to="/notifications" className="relative">
           <span>Notifications</span>

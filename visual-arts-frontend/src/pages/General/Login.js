@@ -14,13 +14,20 @@ const Login = () => {
     e.preventDefault();
     dispatch(loginUser({ email, password })).then((result) => {
       if (result.meta.requestStatus === "fulfilled") {
-        console.log("Login Successful! Token:", localStorage.getItem("token")); // ✅ Debugging log
-        navigate("/admin/dashboard"); // ✅ Redirect after login
+        const userRole = result.payload?.role; // Assuming role is included in payload
+        console.log("Login Successful! Token:", localStorage.getItem("token"));
+        
+        if (userRole === "member") {
+          navigate("/member/dashboard");
+        } else {
+          navigate("/admin/dashboard");
+        }
       } else {
         console.error("Login Failed", result.error);
       }
     });
   };
+  
 
   return (
     <div className="flex flex-col items-center mt-10">
