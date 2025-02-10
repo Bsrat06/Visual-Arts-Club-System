@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.urls import path
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LogoutView
-from .views import CustomAuthToken, UserListView, UserDetailView, UpdateUserRoleView, ProfileUpdateView, ActivityLogListView, UserPreferencesView
+from .views import CustomAuthToken, UserListView, UserDetailView, UpdateUserRoleView, ProfileUpdateView, ActivityLogListView, UserPreferencesView, AnalyticsView
 
 urlpatterns = [
     # Password Reset Endpoints (Manually Defined)
@@ -20,4 +20,9 @@ urlpatterns = [
     path("users/preferences/", UserPreferencesView.as_view(), name="update_preferences"),    
     path("auth/profile/update/", ProfileUpdateView.as_view(), name="profile-update"),
     path('activity-logs/', ActivityLogListView.as_view(), name='activity-logs'),
+]
+
+
+urlpatterns += [
+    path("analytics/", AnalyticsView.as_view(), name="analytics"),
 ]

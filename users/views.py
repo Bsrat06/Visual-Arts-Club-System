@@ -11,6 +11,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework.parsers import MultiPartParser, FormParser
+from django.db.models import Count, Q
+from rest_framework.views import APIView
+from artwork.models import Artwork
+from events.models import Event
+from projects.models import Project
+from django.utils.timezone import now, timedelta
+from django.db.models.functions import TruncMonth
+
+
 
 
 User = get_user_model()
@@ -120,3 +129,53 @@ class UserPreferencesView(APIView):
         request.user.notification_preferences.update(request.data)
         request.user.save()
         return Response(request.user.notification_preferences, status=status.HTTP_200_OK)
+
+
+
+
+
+class AnalyticsView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        # Date Filters (Optional)
+        date_from = request.query_params.get('date_from')
+        date_to = request.query_params.get('date_to')
+
+        if date_from and date_to:
+            date_from = datetime.strptime(date_from, "%Y-%m-%d")
+            date_to = datetime.strptime(date_to, "%Y-%m-%d")
+        else:
+            date_from = now() - timedelta(days=30)  # Default: Last 30 days
+            date_to = now()
+
+        # User Role Distribution
+        user_roles = CustomUser.objects.values('role').annotate(count=Count('role'))
+
+        # Resource Counts
+        total_artworks = Artwork.objects.count()
+        pending_artworks = Artwork.objects.filter(approval_status='pending').count()
+        total_events = Event.objects.count()
+        total_projects = Project.objects.count()
+
+        # Recent Activity Logs
+        recent_logs = ActivityLog.objects.filter(timestamp__range=[date_from, date_to]).order_by('-timestamp')[:10]
+
+        # Monthly Artwork Submissions (Group by Month)
+        monthly_artwork_data = (
+            Artwork.objects.filter(submission_date__range=[date_from, date_to])
+            .annotate(month=TruncMonth('submission_date'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+
+        return Response({
+            "user_roles": user_roles,
+            "total_artworks": total_artworks,
+            "pending_artworks": pending_artworks,
+            "total_events": total_events,
+            "total_projects": total_projects,
+            "recent_logs": ActivityLogSerializer(recent_logs, many=True).data,
+            "monthly_artwork_data": monthly_artwork_data,
+        })
