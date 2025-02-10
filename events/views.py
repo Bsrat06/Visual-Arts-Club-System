@@ -6,7 +6,7 @@ from .models import Event
 from .serializers import EventSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from rest_framework.decorators import action
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -52,3 +52,11 @@ class EventViewSet(viewsets.ModelViewSet):
         print(f"Is Staff: {request.user.is_staff}")  # ✅ Should be True
         print("Request Payload:", request.data)  # Log the payload
         return super().create(request, *args, **kwargs)
+
+
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def my_events(self, request):
+        user_events = self.queryset.filter(creator=request.user)
+        serializer = self.get_serializer(user_events, many=True)
+        return Response(serializer.data)

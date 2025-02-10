@@ -43,6 +43,7 @@ class ArtworkViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(artist=self.request.user)
 
+
     def perform_update(self, serializer):
         print("Updating Artwork with Data:", serializer.validated_data)  # ✅ Debugging log
         instance = serializer.save()
@@ -103,3 +104,10 @@ class ArtworkViewSet(viewsets.ModelViewSet):
             notification_type='artwork_rejected'
         )
         return Response({"message": "Artwork rejected successfully."}, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def my_artworks(self, request):
+        user_artworks = self.queryset.filter(artist=request.user)
+        serializer = self.get_serializer(user_artworks, many=True)
+        return Response(serializer.data)

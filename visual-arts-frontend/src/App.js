@@ -18,6 +18,7 @@ import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import UserProfile from "./pages/Auth/UserProfile";
+import ProfileActivities from "./pages/Member/ProfileActivities";
 import ArtworkApprovals from "./pages/Admin/ArtworkApprovals"; // Added new route
 import ManageArtworks from "./pages/Admin/ManageArtworks";
 import ManageEvents from "./pages/Admin/ManageEvents";
@@ -202,6 +203,10 @@ const App = () => {
           {/* Profile Page */}
           <Route>
             <Route path="/profile" element={<UserProfile />} />
+          </Route>
+
+          <Route>
+            <Route path="/profile-activities" element={<ProfileActivities />} />
           </Route>
 
 
