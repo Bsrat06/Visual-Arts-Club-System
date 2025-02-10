@@ -113,3 +113,16 @@ class ActivityLogListView(ListAPIView):
     queryset = ActivityLog.objects.all().order_by('-timestamp')
     serializer_class = ActivityLogSerializer
     permission_classes = [IsAdminUser]
+    
+    
+    
+class UserPreferencesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response(request.user.notification_preferences, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        request.user.notification_preferences.update(request.data)
+        request.user.save()
+        return Response(request.user.notification_preferences, status=status.HTTP_200_OK)

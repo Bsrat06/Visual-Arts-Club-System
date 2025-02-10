@@ -27,3 +27,15 @@ class ActivityLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ActivityLog
         fields = ['id', 'user', 'action', 'resource', 'timestamp']
+        
+        
+        
+class UserPreferencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ["notification_preferences"]
+
+    def update(self, instance, validated_data):
+        instance.notification_preferences = validated_data.get("notification_preferences", instance.notification_preferences)
+        instance.save()
+        return instance

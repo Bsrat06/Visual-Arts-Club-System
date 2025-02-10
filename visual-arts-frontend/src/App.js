@@ -25,6 +25,7 @@ import ManageEvents from "./pages/Admin/ManageEvents";
 import ManageProjects from "./pages/Admin/ManageProjects";
 import UserManagement from "./pages/Admin/UserManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
+import NotificationPreferences from "./pages/General/NotificationPreferences";
 import AddArtworkForm from "./components/AddArtworkForm";
 import VisitorArtworks from "./pages/Visitor/VisitorArtworks";
 import VisitorEvents from "./pages/Visitor/VisitorEvents";
@@ -165,6 +166,16 @@ const App = () => {
             }
           />
 
+          <Route
+            path="/notification-preferences"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <NotificationPreferences />
+              </RoleGuard>
+            }
+          />
+
+
 <Route
             path="/homepage"
             element={
@@ -205,9 +216,14 @@ const App = () => {
             <Route path="/profile" element={<UserProfile />} />
           </Route>
 
-          <Route>
-            <Route path="/profile-activities" element={<ProfileActivities />} />
-          </Route>
+          <Route
+            path="/profile-activities"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <ProfileActivities />
+              </RoleGuard>
+            }
+          />
 
 
           <Route path="/visitor/artworks" element={<VisitorArtworks />} />
