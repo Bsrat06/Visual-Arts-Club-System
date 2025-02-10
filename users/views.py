@@ -87,25 +87,19 @@ class UpdateUserRoleView(APIView):
 
 class ProfileUpdateView(APIView):
     permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]  # ✅ Allow file uploads
 
     def put(self, request):
-        serializer = ProfileUpdateSerializer(request.user, data=request.data, partial=True)
+        serializer = ProfileUpdateSerializer(request.user, data=request.data, partial=True, context={"request": request})
         if serializer.is_valid():
             serializer.save()
-            # Include the updated profile picture URL in the response
-            updated_user = serializer.data
-            if request.user.profile_picture:
-                updated_user["profile_picture_url"] = request.user.profile_picture.url
-
             return Response({
                 "detail": "Profile updated successfully",
-                "data": updated_user,
+                "data": serializer.data,  # ✅ Ensure updated user data is returned
             }, status=status.HTTP_200_OK)
-        
-         # Log the profile update action
-        ActivityLog.objects.create(user=request.user, action='update', resource='Profile')
-        
-        return Response(serializer.errors, status=400)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 

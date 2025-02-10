@@ -1,11 +1,12 @@
-import React, { useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateProfile } from "../../redux/slices/userSlice";
 import API from "../../services/api";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
-  const { user } = useSelector((state) => state.auth); // Fetch user data from Redux
-
+  const { user, loading, error } = useSelector((state) => state.auth);
+  
   const [formData, setFormData] = useState({
     username: user?.username || "",
     email: user?.email || "",
@@ -15,46 +16,50 @@ const UserProfile = () => {
   });
 
   const [profilePicture, setProfilePicture] = useState(null);
-  const [message, setMessage] = useState(""); // For success or error messages
-  const [isSuccess, setIsSuccess] = useState(false); // To style the message appropriately
+  const [profilePicturePreview, setProfilePicturePreview] = useState(user?.profile_picture_url || "");
+  const [message, setMessage] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        username: user.username,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        password: "",
+      });
+      setProfilePicturePreview(user.profile_picture_url || "");
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleFileChange = (e) => {
-    setProfilePicture(e.target.files[0]);
+    const file = e.target.files[0];
+    setProfilePicture(file);
+    setProfilePicturePreview(URL.createObjectURL(file));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const updatedFormData = new FormData();
-
-    // Append non-empty fields
+    const updateData = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (value.trim() !== "") {
-        updatedFormData.append(key, value);
+        updateData.append(key, value);
       }
     });
-
-    // Append profile picture if selected
     if (profilePicture) {
-      updatedFormData.append("profile_picture", profilePicture);
+      updateData.append("profile_picture", profilePicture);
     }
 
     try {
-      const response = await API.put("auth/profile/update/", updatedFormData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      setMessage(response.data.detail);
+      dispatch(updateProfile(updateData));
+      setMessage("Profile updated successfully");
       setIsSuccess(true);
-
-      // Fetch updated user data and update Redux
-      const userResponse = await API.get("auth/user/");
-      dispatch({ type: "auth/updateUser", payload: userResponse.data });
-
       setFormData({ ...formData, password: "" });
       setTimeout(() => setMessage(""), 3000);
     } catch (error) {
@@ -64,65 +69,28 @@ const UserProfile = () => {
   };
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h2 className="text-2xl font-bold mb-4">Update Profile</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">User Profile</h1>
+      {message && <p className={`text-${isSuccess ? "green" : "red"}-500`}>{message}</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {loading && <p>Loading...</p>}
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block font-medium">Profile Picture</label>
+          {profilePicturePreview && (
+            <img src={profilePicturePreview} alt="Profile" className="w-32 h-32 rounded-full my-2" />
+          )}
+          <input type="file" accept="image/*" onChange={handleFileChange} className="border p-2 rounded w-full" />
+        </div>
 
-      {message && (
-        <p className={`text-${isSuccess ? "green" : "red"}-500 mb-4`}>
-          {message}
-        </p>
-      )}
+        <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Username" className="border p-2 rounded w-full" />
+        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="border p-2 rounded w-full" />
+        <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="First Name" className="border p-2 rounded w-full" />
+        <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Last Name" className="border p-2 rounded w-full" />
+        <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="New Password (optional)" className="border p-2 rounded w-full" />
 
-      <form onSubmit={handleSubmit} className="space-y-4 w-1/2">
-        <input
-          type="text"
-          name="username"
-          value={formData.username}
-          onChange={handleChange}
-          placeholder="Username"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          placeholder="Email"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="first_name"
-          value={formData.first_name}
-          onChange={handleChange}
-          placeholder="First Name"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="text"
-          name="last_name"
-          value={formData.last_name}
-          onChange={handleChange}
-          placeholder="Last Name"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="New Password (optional)"
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="file"
-          name="profile_picture"
-          onChange={handleFileChange}
-          className="border p-2 rounded w-full"
-        />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
-          Update Profile
-        </button>
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Update Profile</button>
       </form>
     </div>
   );

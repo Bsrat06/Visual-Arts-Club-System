@@ -8,19 +8,33 @@ class UserSerializer(serializers.ModelSerializer):
         
         
 class ProfileUpdateSerializer(serializers.ModelSerializer):
+    profile_picture_url = serializers.SerializerMethodField()  # ✅ Return full image URL
+
     class Meta:
         model = CustomUser
-        fields = ["first_name", "last_name", "email", "password", "profile_picture"]  # ✅ Include profile_picture
+        fields = ["first_name", "last_name", "email", "password", "profile_picture", "profile_picture_url"]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
         }
 
+    def get_profile_picture_url(self, obj):
+        if obj.profile_picture:
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.profile_picture.url)
+        return None  # Return None if no profile picture is set
+
     def update(self, instance, validated_data):
-        # Handle password update if provided
         password = validated_data.pop('password', None)
         if password:
             instance.set_password(password)
-        return super().update(instance, validated_data)
+
+        instance = super().update(instance, validated_data)
+
+        # ✅ Log activity
+        ActivityLog.objects.create(user=instance, action='update', resource='Profile')
+
+        return instance
+
     
     
 class ActivityLogSerializer(serializers.ModelSerializer):
