@@ -31,8 +31,7 @@ import VisitorArtworks from "./pages/Visitor/VisitorArtworks";
 import VisitorEvents from "./pages/Visitor/VisitorEvents";
 import VisitorProjects from "./pages/Visitor/VisitorProjects";
 import VisitorContact from "./pages/Visitor/VisitorContact";
-
-
+import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 
 
 const App = () => {
@@ -122,6 +121,17 @@ const App = () => {
             element={
               <RoleGuard allowedRoles={["admin"]}>
                 <UserManagement />
+              </RoleGuard>
+            }
+          />
+
+
+          
+<Route
+            path="/admin/analytics"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <AnalyticsDashboard />
               </RoleGuard>
             }
           />
