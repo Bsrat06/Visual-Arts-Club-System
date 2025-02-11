@@ -179,3 +179,42 @@ class AnalyticsView(APIView):
             "recent_logs": ActivityLogSerializer(recent_logs, many=True).data,
             "monthly_artwork_data": monthly_artwork_data,
         })
+        
+        
+        
+class MemberStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Ensure it's a member
+        if request.user.role != 'member':
+            return Response({"error": "Only members can view their stats."}, status=403)
+
+        # Total Artworks Submitted
+        total_artworks = Artwork.objects.filter(artist=request.user).count()
+
+        # Approval Rate
+        approved_artworks = Artwork.objects.filter(artist=request.user, approval_status="approved").count()
+        approval_rate = (approved_artworks / total_artworks) * 100 if total_artworks > 0 else 0
+
+        # Category Distribution
+        category_stats = Artwork.objects.filter(artist=request.user).values("category").annotate(
+            count=Count("category")
+        )
+
+        # Recent Activity Logs
+        activity_logs = ActivityLog.objects.filter(user=request.user).order_by("-timestamp")[:5]
+
+        return Response({
+            "total_artworks": total_artworks,
+            "approved_artworks": approved_artworks,
+            "approval_rate": round(approval_rate, 2),
+            "category_distribution": list(category_stats),
+            "recent_activity_logs": [
+                {
+                    "action": log.action,
+                    "resource": log.resource,
+                    "timestamp": log.timestamp,
+                } for log in activity_logs
+            ]
+        })

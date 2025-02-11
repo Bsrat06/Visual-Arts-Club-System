@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/Admin/Dashboard";
 import MemberDashboard from "./pages/Member/MemberDashboard";
 import Portfolio from "./pages/Member/Portfolio";
 import EventRegistration from "./pages/Member/EventRegistration";
+import MemberAnalytics from "./pages/Member/MemberAnalytics";
 import VisitorHome from "./pages/Visitor/VisitorHome";
 import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -175,6 +176,18 @@ const App = () => {
               </RoleGuard>
             }
           />
+
+
+          <Route
+            path="/member/analytics"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <MemberAnalytics />
+              </RoleGuard>
+            }
+          />
+
+
 
           <Route
             path="/notification-preferences"
