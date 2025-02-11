@@ -12,45 +12,63 @@ const ManageArtworks = () => {
 
   const [feedback, setFeedback] = useState("");
   const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [editingArtwork, setEditingArtwork] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  useEffect(() => {
+    dispatch(fetchArtworks(selectedCategory ? { category: selectedCategory } : {}));
+  }, [dispatch, selectedCategory]);
 
   const handleApproval = (artwork, status) => {
-    console.log("Selected Artwork:", artwork); // Debugging log
+    console.log("Selected Artwork:", artwork);
     const data = { approval_status: status };
-  
+
     if (status === "rejected") {
-      data.feedback = feedback; // Include feedback for rejection
+      data.feedback = feedback;
     }
-  
-    // Ensure artwork.id is defined
+
     if (!artwork.id) {
       console.error("Artwork ID is missing!");
       return;
     }
-  
+
     dispatch(editArtwork({ id: artwork.id, data }))
       .then(() => {
         dispatch(fetchArtworks());
-        setFeedback(""); // Clear feedback after submission
-        setSelectedArtwork(null); // Clear selected artwork
+        setFeedback("");
+        setSelectedArtwork(null);
       })
       .catch((error) => console.error("Error updating artwork:", error));
   };
-  
-    
-  
-  const [editingArtwork, setEditingArtwork] = useState(null);
 
-  useEffect(() => {
-    dispatch(fetchArtworks());
-  }, [dispatch]);
-  
   const handleEdit = (artwork) => {
     setEditingArtwork(artwork);
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
   };
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Manage Artworks</h1>
+
+      {/* Category Filter */}
+      <div className="mb-4">
+        <label className="block mb-2 font-semibold">Filter by Category:</label>
+        <select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          className="border p-2 rounded w-1/3"
+        >
+          <option value="">All Categories</option>
+          <option value="sketch">Sketch</option>
+          <option value="canvas">Canvas</option>
+          <option value="wallart">Wall Art</option>
+          <option value="digital">Digital</option>
+          <option value="photography">Photography</option>
+        </select>
+      </div>
 
       {/* Add Artwork */}
       <h2 className="text-xl font-semibold mt-4">Add Artwork</h2>
@@ -64,15 +82,15 @@ const ManageArtworks = () => {
         />
       )}
 
-      <Link to="/admin/artwork-approvals" className="flex items-center"><FaImages className="mr-2" /> Approve Artworks</Link>
+      <Link to="/admin/artwork-approvals" className="flex items-center">
+        <FaImages className="mr-2" /> Approve Artworks
+      </Link>
 
       {/* Display Artworks */}
       <h2 className="text-xl font-semibold mt-4">Artworks List</h2>
       {loading && <p>Loading artworks...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      
-      
-      
+
       <ul className="list-disc pl-6">
         {Array.isArray(artworks) && artworks.length > 0 ? (
           artworks.map((art) => (
@@ -83,23 +101,23 @@ const ManageArtworks = () => {
               <p>Artist: {art.artist}</p>
               <p>Feedback: {art.feedback}</p>
 
-            {selectedArtwork?.id === art.id && (
-              <div>
-                <textarea
-                  placeholder="Enter feedback for rejection"
-                  value={feedback}
-                  onChange={(e) => setFeedback(e.target.value)}
-                  className="border p-2 w-full"
-                ></textarea>
-                <button
-                  onClick={() => handleApproval(art, "rejected")}
-                  className="bg-red-500 text-white px-4 py-2 mt-2"
-                >
-                  Submit Rejection
-                </button>
-              </div>
-            )}
-              
+              {selectedArtwork?.id === art.id && (
+                <div>
+                  <textarea
+                    placeholder="Enter feedback for rejection"
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    className="border p-2 w-full"
+                  ></textarea>
+                  <button
+                    onClick={() => handleApproval(art, "rejected")}
+                    className="bg-red-500 text-white px-4 py-2 mt-2"
+                  >
+                    Submit Rejection
+                  </button>
+                </div>
+              )}
+
               <button
                 onClick={() => handleEdit(art)}
                 className="text-blue-500 ml-2"
@@ -115,7 +133,7 @@ const ManageArtworks = () => {
             </li>
           ))
         ) : (
-          <p>No artworks available</p>
+          <p>No artworks available for the selected category.</p>
         )}
       </ul>
     </div>

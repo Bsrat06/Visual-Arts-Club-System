@@ -2,12 +2,12 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getArtworks, createArtwork, updateArtwork, deleteArtwork } from "../../services/api";
 import API from "../../services/api";
 
-// Fetch all artworks
-export const fetchArtworks = createAsyncThunk("artwork/fetchAll", async (_, thunkAPI) => {
+// Fetch all artworks (with optional filters)
+export const fetchArtworks = createAsyncThunk("artwork/fetchAll", async (filters = {}, thunkAPI) => {
   try {
-    const response = await getArtworks();
-    console.log("API Response (Artworks):", response.data); // ✅ Debugging log
-    return response.data.results || []; // ✅ Extract `results` array
+    const params = new URLSearchParams(filters).toString(); // Convert filters to query string
+    const response = await API.get(`artwork/?${params}`); // Pass filters as query parameters
+    return response.data.results || [];
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch artworks");
   }
