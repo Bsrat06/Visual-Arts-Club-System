@@ -11,7 +11,8 @@ from rest_framework.permissions import IsAuthenticated
 from users.permissions import IsAdminUser
 from rest_framework.decorators import action
 from rest_framework import status
-
+from django.db import models
+from django.db.models import Count
 
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()#.order_by("-submission_date")
@@ -112,3 +113,19 @@ class ArtworkViewSet(viewsets.ModelViewSet):
         user_artworks = self.queryset.filter(artist=request.user)
         serializer = self.get_serializer(user_artworks, many=True)
         return Response(serializer.data)
+    
+    
+    
+    @action(detail=False, methods=["get"], permission_classes=[IsAdminUser])
+    def category_analytics(self, request):
+        analytics = (
+            Artwork.objects.values("category")
+            .annotate(
+                total=Count("id"),
+                approved=Count("id", filter=models.Q(approval_status="approved")),
+                pending=Count("id", filter=models.Q(approval_status="pending")),
+                rejected=Count("id", filter=models.Q(approval_status="rejected")),
+            )
+            .order_by("category")
+        )
+        return Response(analytics, status=200)

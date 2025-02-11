@@ -57,12 +57,25 @@ export const removeArtwork = createAsyncThunk("artwork/remove", async (id, thunk
   }
 });
 
+export const fetchCategoryAnalytics = createAsyncThunk(
+  "artwork/fetchCategoryAnalytics",
+  async (_, thunkAPI) => {
+    try {
+      const response = await API.get("artwork/category_analytics/");
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch category analytics");
+    }
+  }
+);
+
 
 // Redux slice
 const artworkSlice = createSlice({
   name: "artwork",
   initialState: {
     artworks: [],
+    categoryAnalytics: [],
     loading: false,
     error: null,
   },
@@ -76,6 +89,9 @@ const artworkSlice = createSlice({
       .addCase(fetchArtworks.fulfilled, (state, action) => {
         state.loading = false;
         state.artworks = action.payload; // ✅ Now only stores the artworks
+      })
+      .addCase(fetchCategoryAnalytics.fulfilled, (state, action) => {
+        state.categoryAnalytics = action.payload;
       })
       .addCase(addArtwork.fulfilled, (state, action) => {
         state.artworks.push(action.payload);
