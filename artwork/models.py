@@ -2,6 +2,17 @@ from django.db import models
 from users.models import CustomUser
 
 class Artwork(models.Model):
+    
+    
+    CATEGORY_CHOICES = [
+        ('sketch', 'Sketch'),
+        ('canvas', 'Canvas'),
+        ('wallart', 'Wall Art'),
+        ('digital', 'Digital'),
+        ('photography', 'Photography'),
+    ]
+    
+    
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('approved', 'Approved'),
@@ -15,6 +26,8 @@ class Artwork(models.Model):
     submission_date = models.DateTimeField(auto_now_add=True)
     approval_status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     feedback = models.TextField(blank=True, null=True)  # ✅ New field for rejection feedback
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='sketch')
+
 
     def __str__(self):
         return self.title

@@ -51,7 +51,8 @@ const Portfolio = () => {
         <ul className="grid grid-cols-3 gap-4 mt-6">
           {userArtworks.map((art) => (
             <li key={art.id} className="border p-4">
-              <h2 className="font-semibold">{art.title}</h2>
+              <h2 className="font-semibold">Title: {art.title}</h2>
+              <h2 className="font-semibold">Category: {art.category}</h2>
               <img src={art.image} alt={art.title} className="w-full h-auto mt-2" />
               <p>{art.description}</p>
             </li>

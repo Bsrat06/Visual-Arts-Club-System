@@ -7,6 +7,7 @@ const AddArtworkForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [image, setImage] = useState(null);
+  const [category, setCategory] = useState("sketch");
   const dispatch = useDispatch();
   
   const user = useSelector((state) => state.auth.user); // 🔍 Debug this!
@@ -26,6 +27,7 @@ const AddArtworkForm = () => {
     formData.append("description", description);
     formData.append("image", image);
     formData.append("artist", user.pk); // Assign artist
+    formData.append("category", category);
 
     console.log("Submitting Artwork Data:", {
       title,
@@ -39,6 +41,7 @@ const AddArtworkForm = () => {
     setTitle("");
     setDescription("");
     setImage(null);
+    setCategory("sketch");
   };
 
   return (
@@ -64,6 +67,21 @@ const AddArtworkForm = () => {
         required
         className="border p-2 rounded w-full mb-2"
       />
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        required
+        className="border p-2 rounded w-full"
+      >
+        <option value="sketch">Sketch</option>
+        <option value="canvas">Canvas</option>
+        <option value="wallart">Wall Art</option>
+        <option value="digital">Digital</option>
+        <option value="photography">Photography</option>
+      </select>
+
+
       <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
         Submit Artwork
       </button>

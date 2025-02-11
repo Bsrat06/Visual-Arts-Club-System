@@ -78,6 +78,7 @@ const ManageArtworks = () => {
           artworks.map((art) => (
             <li key={art.id}>
               <p>Title: {art.title}</p>
+              <p>Category: {art.category}</p>
               <p>Status: {art.approval_status}</p>
               <p>Artist: {art.artist}</p>
               <p>Feedback: {art.feedback}</p>

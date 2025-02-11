@@ -73,8 +73,9 @@ const ArtworkApprovals = () => {
                 {pendingArtworks.length > 0 ? (
                     pendingArtworks.map((art) => (
                         <li key={art.id} className="mb-4">
-                            <h3 className="text-lg font-semibold">{art.title}</h3>
-                            <p>{art.description}</p>
+                            <h3 className="text-lg font-semibold">Title: {art.title}</h3>
+                            <p>description: {art.description}</p>
+                            <p>category: {art.category}</p>
                             <img src={art.image} alt={art.title} className="w-48 h-auto my-2" />
                             <div className="flex space-x-4">
                                 <button

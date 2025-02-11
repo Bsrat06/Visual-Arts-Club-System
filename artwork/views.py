@@ -19,6 +19,7 @@ class ArtworkViewSet(viewsets.ModelViewSet):
     parser_classes = (MultiPartParser, FormParser, JSONParser)  # ✅ Allow file uploads
     pagination_class = CustomPagination  # Use the custom pagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['approval_status', 'artist', 'category']
     
     # Enable filtering by approval status and artist
     filterset_fields = ['approval_status', 'artist']
