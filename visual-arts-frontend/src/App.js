@@ -27,7 +27,7 @@ import UserManagement from "./pages/Admin/UserManagement";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
 import NotificationPreferences from "./pages/General/NotificationPreferences";
 import AddArtworkForm from "./components/AddArtworkForm";
-import VisitorArtworks from "./pages/Visitor/VisitorArtworks";
+import VisitorGallery from "./pages/Visitor/VisitorGallery";
 import VisitorEvents from "./pages/Visitor/VisitorEvents";
 import VisitorProjects from "./pages/Visitor/VisitorProjects";
 import VisitorContact from "./pages/Visitor/VisitorContact";
@@ -236,7 +236,7 @@ const App = () => {
           />
 
 
-          <Route path="/visitor/artworks" element={<VisitorArtworks />} />
+          <Route path="/visitor/artworks" element={<VisitorGallery />} />
           <Route path="/visitor/events" element={<VisitorEvents />} />
           <Route path="/visitor/projects" element={<VisitorProjects />} />
           <Route path="/visitor/contact" element={<VisitorContact />} />
