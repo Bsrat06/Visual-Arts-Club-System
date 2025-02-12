@@ -9,6 +9,7 @@ import activityLogReducer from "./slices/activityLogSlice";
 import memberStatsReducer from "./slices/memberStatsSlice";
 import eventStatsReducer from "./slices/eventStatsSlice";
 import projectStatsReducer from "./slices/projectStatsSlice";
+import notificationPreferencesReducer from "./slices/notificationPreferencesSlice";
 
 
 const store = configureStore({
@@ -18,6 +19,7 @@ const store = configureStore({
     events: eventsReducer,
     projects: projectsReducer,
     notifications: notificationsReducer,
+    notificationPreferences: notificationPreferencesReducer,
     users: userReducer,
     activityLogs: activityLogReducer,
     memberStats: memberStatsReducer,

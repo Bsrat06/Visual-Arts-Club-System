@@ -3,17 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects } from "../../redux/slices/projectsSlice";
 import { fetchEvents } from "../../redux/slices/eventsSlice";
 import { fetchNotifications } from "../../redux/slices/notificationsSlice";
+import { fetchMemberStats } from "../../redux/slices/memberStatsSlice";
 
 const MemberDashboard = () => {
   const dispatch = useDispatch();
   const { projects } = useSelector((state) => state.projects);
   const { events } = useSelector((state) => state.events);
   const { notifications } = useSelector((state) => state.notifications);
+  const { stats, loading: statsLoading, error: statsError } = useSelector((state) => state.memberStats);
 
   useEffect(() => {
     dispatch(fetchProjects());
     dispatch(fetchEvents());
     dispatch(fetchNotifications());
+    dispatch(fetchMemberStats());
   }, [dispatch]);
 
   // Filter unread notifications
@@ -62,6 +65,39 @@ const MemberDashboard = () => {
           <p>No upcoming events</p>
         )}
       </ul>
+
+      {/* Member Analytics */}
+      <h2 className="text-xl font-semibold mt-6">My Analytics</h2>
+      {statsLoading && <p>Loading stats...</p>}
+      {statsError && <p className="text-red-500">{statsError}</p>}
+      {stats && (
+        <div>
+          <p>
+            <strong>Total Artworks:</strong> {stats.total_artworks}
+          </p>
+          <p>
+            <strong>Approval Rate:</strong> {stats.approval_rate}%
+          </p>
+          <h3 className="text-lg mt-4">Category Distribution</h3>
+          <ul className="list-disc pl-6">
+            {stats.category_distribution.map((cat) => (
+              <li key={cat.category}>
+                {cat.category}: {cat.count}
+              </li>
+            ))}
+          </ul>
+
+          <h3 className="text-lg mt-4">Recent Activity</h3>
+          <ul className="list-disc pl-6">
+            {stats.recent_activity_logs.map((log, index) => (
+              <li key={index}>
+                {log.action} {log.resource && `on ${log.resource}`} at{" "}
+                {new Date(log.timestamp).toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

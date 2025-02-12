@@ -37,7 +37,7 @@ import VisitorEvents from "./pages/Visitor/VisitorEvents";
 import VisitorProjects from "./pages/Visitor/VisitorProjects";
 import VisitorContact from "./pages/Visitor/VisitorContact";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
-
+import Settings from "./pages/Other/Settings";
 
 const App = () => {
   return (
@@ -230,6 +230,18 @@ const App = () => {
           />
 
 
+          
+<Route
+            path="/settings"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <Settings />
+              </RoleGuard>
+            }
+          />
+
+
+
 <Route
             path="/homepage"
             element={
@@ -291,7 +303,7 @@ const App = () => {
           />
 
 
-          <Route path="/visitor/artworks" element={<VisitorGallery />} />
+          <Route path="/visitor/gallery" element={<VisitorGallery />} />
           <Route path="/visitor/events" element={<VisitorEvents />} />
           <Route path="/visitor/projects" element={<VisitorProjects />} />
           <Route path="/visitor/contact" element={<VisitorContact />} />
