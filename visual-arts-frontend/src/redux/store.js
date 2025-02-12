@@ -7,6 +7,9 @@ import notificationsReducer from "./slices/notificationsSlice";
 import userReducer from "./slices/userSlice";
 import activityLogReducer from "./slices/activityLogSlice";
 import memberStatsReducer from "./slices/memberStatsSlice";
+import eventStatsReducer from "./slices/eventStatsSlice";
+import projectStatsReducer from "./slices/projectStatsSlice";
+
 
 const store = configureStore({
   reducer: {
@@ -18,6 +21,8 @@ const store = configureStore({
     users: userReducer,
     activityLogs: activityLogReducer,
     memberStats: memberStatsReducer,
+    eventStats: eventStatsReducer,
+    projectStats: projectStatsReducer,
   },
 });
 

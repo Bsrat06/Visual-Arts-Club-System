@@ -8,6 +8,16 @@ class Event(models.Model):
     date = models.DateField()
     attendees = models.ManyToManyField(CustomUser, related_name="events_attending", blank=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="events_created")  # ✅ Ensure creator is properly defined
+    is_completed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title
+
+
+class EventRegistration(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="event_registrations")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="registrations")
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.email} registered for {self.event.title}"

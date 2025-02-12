@@ -187,8 +187,8 @@ class MemberStatsView(APIView):
 
     def get(self, request):
         # Ensure it's a member
-        if request.user.role != 'member':
-            return Response({"error": "Only members can view their stats."}, status=403)
+        if request.user.role not in ["member", "admin"]:
+            return Response({"error": "Access denied"}, status=403)
 
         # Total Artworks Submitted
         total_artworks = Artwork.objects.filter(artist=request.user).count()

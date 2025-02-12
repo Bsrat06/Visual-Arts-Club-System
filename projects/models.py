@@ -9,6 +9,7 @@ class Project(models.Model):
     end_date = models.DateField(null=True, blank=True)  # ✅ Allow null values
     members = models.ManyToManyField(CustomUser, related_name="projects_participating", blank=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="projects_created")
+    is_completed = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

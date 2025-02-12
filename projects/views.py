@@ -6,7 +6,7 @@ from .models import Project
 from .serializers import ProjectSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
+from rest_framework.views import APIView
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
@@ -53,3 +53,31 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 message=f"You have been added to the project '{instance.title}'.",
                 notification_type='project_invite'
             )
+            
+            
+            
+class ProjectStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Total Projects
+        total_projects = Project.objects.count()
+
+        # Ongoing Projects
+        ongoing_projects = Project.objects.filter(is_completed=False).count()
+
+        # Completed Projects
+        completed_projects = Project.objects.filter(is_completed=True).count()
+
+        # Member-Specific Contributions
+        if request.user.role == "member":
+            user_contributions = Project.objects.filter(contributors=request.user).count()
+        else:
+            user_contributions = 0  # Not applicable for admins
+
+        return Response({
+            "total_projects": total_projects,
+            "ongoing_projects": ongoing_projects,
+            "completed_projects": completed_projects,
+            "user_contributions": user_contributions,
+        })

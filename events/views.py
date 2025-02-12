@@ -2,11 +2,14 @@ from notifications.models import Notification
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from users.permissions import IsAdminUser
-from .models import Event
 from .serializers import EventSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.views import APIView
+from .models import Event, EventRegistration
+from django.db import models
+from django.db.models import Count
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -62,3 +65,26 @@ class EventViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     
     
+
+
+class EventStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        total_events = Event.objects.count()
+        completed_events = Event.objects.filter(is_completed=True).count()
+        upcoming_events = Event.objects.filter(is_completed=False).count()
+
+        # Participation statistics
+        participation_stats = (
+            EventRegistration.objects.values("event__title")
+            .annotate(participant_count=Count("user"))
+            .order_by("-participant_count")
+        )
+
+        return Response({
+            "total_events": total_events,
+            "completed_events": completed_events,
+            "upcoming_events": upcoming_events,
+            "participation_stats": list(participation_stats),
+        })

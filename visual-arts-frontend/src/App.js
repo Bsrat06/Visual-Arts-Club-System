@@ -14,6 +14,9 @@ import MemberDashboard from "./pages/Member/MemberDashboard";
 import Portfolio from "./pages/Member/Portfolio";
 import EventRegistration from "./pages/Member/EventRegistration";
 import MemberAnalytics from "./pages/Member/MemberAnalytics";
+import EventStats from "./pages/Admin/EventStats";
+import EventAnalytics from "./pages/Admin/EventAnalytics";
+import ProjectAnalytics from "./pages/Admin/ProjectAnalytics";
 import VisitorHome from "./pages/Visitor/VisitorHome";
 import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -138,7 +141,34 @@ const App = () => {
           />
 
 
+          <Route
+            path="/admin/event-analytics"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <EventAnalytics />
+              </RoleGuard>
+            }
+          />
 
+
+          <Route
+            path="/admin/event-stats"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <EventStats />
+              </RoleGuard>
+            }
+          />
+
+
+          <Route
+            path="/admin/project-analytics"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <ProjectAnalytics />
+              </RoleGuard>
+            }
+          />
 
 
           <Route

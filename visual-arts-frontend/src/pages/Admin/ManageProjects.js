@@ -3,16 +3,32 @@ import { useDispatch, useSelector } from "react-redux";
 import AddProjectForm from "../../components/AddProjectForm";
 import EditProjectForm from "../../components/EditProjectForm";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
+import API from "../../services/api"; // Import API service for fetching stats
 
 const ManageProjects = () => {
   const dispatch = useDispatch();
   const { projects, loading, error } = useSelector((state) => state.projects);
 
   const [editingProject, setEditingProject] = useState(null);
+  const [projectStats, setProjectStats] = useState(null); // State for project stats
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
 
   useEffect(() => {
     dispatch(fetchProjects());
+    fetchProjectStats();
   }, [dispatch]);
+
+  const fetchProjectStats = async () => {
+    try {
+      const response = await API.get("/project-stats/");
+      setProjectStats(response.data);
+      setStatsLoading(false);
+    } catch (err) {
+      setStatsError(err.response?.data || "Failed to load project statistics.");
+      setStatsLoading(false);
+    }
+  };
 
   const handleEdit = (project) => {
     setEditingProject(project);
@@ -21,6 +37,29 @@ const ManageProjects = () => {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Manage Projects</h1>
+
+      {/* Project Statistics */}
+      <h2 className="text-xl font-semibold mt-4">Project Statistics</h2>
+      {statsLoading ? (
+        <p>Loading project statistics...</p>
+      ) : statsError ? (
+        <p className="text-red-500">{statsError}</p>
+      ) : (
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-blue-100 p-4 rounded shadow">
+            <h2 className="text-xl font-semibold">Total Projects</h2>
+            <p className="text-2xl">{projectStats.total_projects}</p>
+          </div>
+          <div className="bg-green-100 p-4 rounded shadow">
+            <h2 className="text-xl font-semibold">Completed Projects</h2>
+            <p className="text-2xl">{projectStats.completed_projects}</p>
+          </div>
+          <div className="bg-yellow-100 p-4 rounded shadow">
+            <h2 className="text-xl font-semibold">Ongoing Projects</h2>
+            <p className="text-2xl">{projectStats.ongoing_projects}</p>
+          </div>
+        </div>
+      )}
 
       {/* Add Project */}
       <h2 className="text-xl font-semibold mt-4">Add Project</h2>
@@ -66,4 +105,3 @@ const ManageProjects = () => {
 };
 
 export default ManageProjects;
-
