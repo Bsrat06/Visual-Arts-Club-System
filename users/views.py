@@ -18,6 +18,7 @@ from events.models import Event
 from projects.models import Project
 from django.utils.timezone import now, timedelta
 from django.db.models.functions import TruncMonth
+from rest_framework.pagination import PageNumberPagination
 
 
 
@@ -55,23 +56,26 @@ class CustomAuthToken(ObtainAuthToken):
 
 
 
+class UserPagination(PageNumberPagination):
+    page_size = 10
+
 class UserListView(ListAPIView):
     queryset = CustomUser.objects.all()
-    permission_classes = [IsAdminUser]  # ✅ Only admins can view the user list
+    permission_classes = [IsAdminUser]
     serializer_class = UserSerializer
+    pagination_class = UserPagination
 
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]  # ✅ Enable image uploads
+    parser_classes = [MultiPartParser, FormParser]
 
-    def get(self, request):
-        print("UserDetailView accessed!")  # Debugging line
-        print("User:", request.user)  # Check if user is retrieved correctly
-
-        serializer = UserSerializer(request.user)
-        print("Serialized Data:", serializer.data)  # Debugging line
-
-        return Response(serializer.data)
+    def get(self, request, pk):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 

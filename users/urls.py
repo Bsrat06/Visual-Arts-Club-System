@@ -13,9 +13,9 @@ urlpatterns = [
     # Custom Authentication Paths
     path('auth/registration/', include('dj_rest_auth.registration.urls')),  # Registration
     path('auth/login/', CustomAuthToken.as_view(), name='api_login'),  # Custom login with role
-    path("auth/user/", UserDetailView.as_view(), name="user-detail"),  # Custom user detail
+    # path("auth/user/", UserDetailView.as_view(), name="user-detail"),  # Custom user detail
     path("users/", UserListView.as_view(), name="user-list"),  # Admin user list
-    # path("users/<int:pk>/", UserDetailView.as_view(), name="user-detail"),
+    path("users/<int:pk>/", UserDetailView.as_view(), name="user-detail"),
     path("users/<int:pk>/deactivate/", DeactivateUserView.as_view(), name="deactivate-user"),
     path("users/<int:pk>/activate/", ActivateUserView.as_view(), name="activate-user"),
     path("users/<int:pk>/update-role/", UpdateUserRoleView.as_view(), name="update-user-role"),

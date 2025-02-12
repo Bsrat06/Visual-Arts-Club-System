@@ -17,6 +17,7 @@ import MemberAnalytics from "./pages/Member/MemberAnalytics";
 import EventStats from "./pages/Admin/EventStats";
 import EventAnalytics from "./pages/Admin/EventAnalytics";
 import ProjectAnalytics from "./pages/Admin/ProjectAnalytics";
+import DetailedUserProfile from "./pages/Admin/DetailedUserProfile";
 import VisitorHome from "./pages/Visitor/VisitorHome";
 import Unauthorized from "./pages/Other/Unauthorized";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
@@ -268,6 +269,17 @@ const App = () => {
           <Route>
             <Route path="/profile" element={<UserProfile />} />
           </Route>
+
+
+          <Route
+            path="/admin/user/:id"
+            element={
+              <RoleGuard allowedRoles={["admin"]}>
+                <DetailedUserProfile />
+              </RoleGuard>
+            }
+          />
+
 
           <Route
             path="/profile-activities"
