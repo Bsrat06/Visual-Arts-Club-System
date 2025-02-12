@@ -9,7 +9,7 @@ import Login from "./pages/General/Login";
 import Register from "./pages/General/Register";
 import NotificationsList from "./pages/General/NotificationsList";
 import RoleGuard from "./components/RoleGuard";
-import AdminDashboard from "./pages/Admin/Dashboard";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 import MemberDashboard from "./pages/Member/MemberDashboard";
 import Portfolio from "./pages/Member/Portfolio";
 import EventRegistration from "./pages/Member/EventRegistration";
