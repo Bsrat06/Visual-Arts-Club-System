@@ -67,15 +67,19 @@ class UserListView(ListAPIView):
 
 class UserDetailView(APIView):
     permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [MultiPartParser, FormParser]  # ✅ Enable image uploads
 
-    def get(self, request, pk):
+    def get(self, request, pk=None):  # ✅ Accept pk argument
         try:
-            user = CustomUser.objects.get(pk=pk)
+            if pk:
+                user = CustomUser.objects.get(pk=pk)
+            else:
+                user = request.user  # Default to current user if no pk is provided
+
             serializer = UserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data)
         except CustomUser.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 
