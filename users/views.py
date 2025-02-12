@@ -75,6 +75,33 @@ class UserDetailView(APIView):
 
 
 
+class DeactivateUserView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+            user.is_active = False
+            user.save()
+            return Response({"message": "User deactivated successfully."}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+class ActivateUserView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def patch(self, request, pk):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+            user.is_active = True
+            user.save()
+            return Response({"message": "User activated successfully."}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
 class UpdateUserRoleView(APIView):
     permission_classes = [IsAdminUser]  # Only admins can update roles
 

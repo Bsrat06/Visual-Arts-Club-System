@@ -4,7 +4,7 @@ from .models import CustomUser, ActivityLog
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ["pk", "username", "email", "first_name", "last_name", "is_staff", "is_superuser", "role"]
+        fields = ["pk", "username", "email", "first_name", "last_name", "is_staff", "is_superuser", "role", "is_active"]
         
         
 class ProfileUpdateSerializer(serializers.ModelSerializer):

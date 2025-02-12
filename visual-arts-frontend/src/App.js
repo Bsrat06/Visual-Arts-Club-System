@@ -27,7 +27,7 @@ import ArtworkApprovals from "./pages/Admin/ArtworkApprovals"; // Added new rout
 import ManageArtworks from "./pages/Admin/ManageArtworks";
 import ManageEvents from "./pages/Admin/ManageEvents";
 import ManageProjects from "./pages/Admin/ManageProjects";
-import UserManagement from "./pages/Admin/UserManagement";
+import ManageUsers from "./pages/Admin/ManageUsers";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
 import NotificationPreferences from "./pages/General/NotificationPreferences";
 import AddArtworkForm from "./components/AddArtworkForm";
@@ -124,7 +124,7 @@ const App = () => {
             path="/admin/user-management"
             element={
               <RoleGuard allowedRoles={["admin"]}>
-                <UserManagement />
+                <ManageUsers />
               </RoleGuard>
             }
           />

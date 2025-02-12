@@ -34,6 +34,31 @@ export const updateProfile = createAsyncThunk("user/updateProfile", async (formD
   }
 });
 
+
+// Activate user
+export const activateUser = createAsyncThunk("users/activate", async (id, thunkAPI) => {
+  try {
+    const response = await API.patch(`/users/${id}/activate/`);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to activate user");
+  }
+});
+
+// Deactivate user
+export const deactivateUser = createAsyncThunk("users/deactivate", async (id, thunkAPI) => {
+  try {
+    const response = await API.patch(`/users/${id}/deactivate/`);
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to deactivate user");
+  }
+});
+
+
+
+
+// Users Slice
 const userSlice = createSlice({
   name: "users",
   initialState: {
@@ -80,6 +105,16 @@ const userSlice = createSlice({
       .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      .addCase(activateUser.fulfilled, (state, action) => {
+        state.users = state.users.map((user) =>
+          user.pk === action.meta.arg ? { ...user, is_active: true } : user
+        );
+      })
+      .addCase(deactivateUser.fulfilled, (state, action) => {
+        state.users = state.users.map((user) =>
+          user.pk === action.meta.arg ? { ...user, is_active: false } : user
+        );
       });
   },
 });
