@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { editProject } from "../redux/slices/projectsSlice";
-import API from "../services/api";
+import { editProject } from "../../redux/slices/projectsSlice";
+import API from "../../services/api";
 
 const EditProjectForm = ({ project, onClose }) => {
   const dispatch = useDispatch();

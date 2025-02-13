@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { FaUser, FaImages, FaCalendar, FaProjectDiagram, FaCog } from "react-icons/fa";
-import AddArtworkForm from "../../components/AddArtworkForm";
-import EditArtworkForm from "../../components/EditArtworkForm";
+import AddArtworkForm from "../../components/Admin/AddArtworkForm";
+import EditArtworkForm from "../../components/Admin/EditArtworkForm";
 import { fetchArtworks, removeArtwork, editArtwork } from "../../redux/slices/artworkSlice";
 
 const ManageArtworks = () => {

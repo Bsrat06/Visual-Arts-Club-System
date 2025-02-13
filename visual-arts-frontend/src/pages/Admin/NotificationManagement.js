@@ -6,7 +6,7 @@ import {
   markNotificationAsRead,
   markAllAsRead,
 } from "../../redux/slices/notificationsSlice";
-import NotificationForm from "../../components/NotificationForm";
+import NotificationForm from "../../components/Admin/NotificationForm";
 
 const NotificationManagement = () => {
   const dispatch = useDispatch();

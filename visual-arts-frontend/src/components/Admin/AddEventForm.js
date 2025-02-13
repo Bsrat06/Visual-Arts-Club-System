@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addEvent } from "../redux/slices/eventsSlice";
-import API from "../services/api"; // ✅ Import API for fetching attendee IDs
+import { addEvent } from "../../redux/slices/eventsSlice";
+import API from "../../services/api"; // ✅ Import API for fetching attendee IDs
 
 const AddEventForm = () => {
   const dispatch = useDispatch();

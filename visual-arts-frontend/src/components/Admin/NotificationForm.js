@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addNotification } from "../redux/slices/notificationsSlice";
+import { addNotification } from "../../redux/slices/notificationsSlice";
 
 const NotificationForm = () => {
   const [message, setMessage] = useState("");

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AddProjectForm from "../../components/AddProjectForm";
-import EditProjectForm from "../../components/EditProjectForm";
+import AddProjectForm from "../../components/Admin/AddProjectForm";
+import EditProjectForm from "../../components/Admin/EditProjectForm";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
 import API from "../../services/api"; // Import API service for fetching stats
 

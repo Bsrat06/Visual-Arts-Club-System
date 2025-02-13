@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { addProject } from "../redux/slices/projectsSlice";
-import API from "../services/api";
+import { addProject } from "../../redux/slices/projectsSlice";
+import API from "../../services/api";
 
 const AddProjectForm = () => {
   const dispatch = useDispatch();

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AddEventForm from "../../components/AddEventForm";
-import EditEventForm from "../../components/EditEventForm";
+import AddEventForm from "../../components/Admin/AddEventForm";
+import EditEventForm from "../../components/Admin/EditEventForm";
 import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
 import API from "../../services/api"; // Import API service for fetching stats
 

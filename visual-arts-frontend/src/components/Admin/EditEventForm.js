@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { editEvent } from "../redux/slices/eventsSlice";
-import API from "../services/api";
+import { editEvent } from "../../redux/slices/eventsSlice";
+import API from "../../services/api";
 
 const EditEventForm = ({ event, onClose }) => {
   const dispatch = useDispatch();

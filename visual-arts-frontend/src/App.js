@@ -1,14 +1,14 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Layout from "./components/Layout";
+import Layout from "./components/Layout/Layout";
 import HomePage from "./pages/General/HomePage";
 import AboutUs from "./pages/General/AboutUs";
 import ContactUs from "./pages/General/ContactUs";
-import Login from "./pages/General/Login";
-import Register from "./pages/General/Register";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
 import NotificationsList from "./pages/General/NotificationsList";
-import RoleGuard from "./components/RoleGuard";
+import RoleGuard from "./components/Admin/RoleGuard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import MemberDashboard from "./pages/Member/MemberDashboard";
 import Portfolio from "./pages/Member/Portfolio";
@@ -31,13 +31,13 @@ import ManageProjects from "./pages/Admin/ManageProjects";
 import ManageUsers from "./pages/Admin/ManageUsers";
 import NotificationManagement from "./pages/Admin/NotificationManagement";
 import NotificationPreferences from "./pages/General/NotificationPreferences";
-import AddArtworkForm from "./components/AddArtworkForm";
+import AddArtworkForm from "./components/Admin/AddArtworkForm";
 import VisitorGallery from "./pages/Visitor/VisitorGallery";
 import VisitorEvents from "./pages/Visitor/VisitorEvents";
 import VisitorProjects from "./pages/Visitor/VisitorProjects";
 import VisitorContact from "./pages/Visitor/VisitorContact";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
-import Settings from "./pages/Other/Settings";
+import Settings from "./pages/General/Settings";
 
 const App = () => {
   return (
