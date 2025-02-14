@@ -1,17 +1,34 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
+  const navItems = [
+    { name: "Dashboard", path: "/admin/dashboard" },
+    { name: "Manage Users", path: "/admin/manage-users" },
+    { name: "Manage Artworks", path: "/admin/manage-artworks" },
+    { name: "Manage Events", path: "/admin/manage-events" },
+    { name: "Analytics", path: "/admin/analytics" },
+  ];
+
   return (
-    <aside className="w-64 h-screen bg-white shadow fixed">
-      <ul className="space-y-4 p-4">
-        <li><Link to="/admin/dashboard" className="text-secondary">Dashboard</Link></li>
-        <li><Link to="/admin/manage-artworks" className="text-secondary">Artworks</Link></li>
-        <li><Link to="/admin/manage-events" className="text-secondary">Events</Link></li>
-        <li><Link to="/admin/manage-projects" className="text-secondary">Projects</Link></li>
-        <li><Link to="/admin/notifications" className="text-secondary">Notifications</Link></li>
+    <div className="fixed left-0 top-0 h-full bg-gray-900 text-white w-64">
+      <h2 className="text-xl font-bold p-4">Admin Panel</h2>
+      <ul className="space-y-2">
+        {navItems.map((item) => (
+          <li key={item.path}>
+            <NavLink
+              to={item.path}
+              className={({ isActive }) =>
+                `block py-2 px-4 rounded ${
+                  isActive ? "bg-orange-500 text-white" : "text-gray-300"
+                }`
+              }
+            >
+              {item.name}
+            </NavLink>
+          </li>
+        ))}
       </ul>
-    </aside>
+    </div>
   );
 };
 
