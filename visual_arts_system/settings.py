@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -101,9 +102,12 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React frontend
-]
+    ]
+
+
 
 
 ROOT_URLCONF = 'visual_arts_system.urls'
@@ -194,3 +198,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'placeholder@example.com'  # Replace with your email
 EMAIL_HOST_PASSWORD = 'placeholder'  # Replace with your password
 DEFAULT_FROM_EMAIL = 'Visual Arts <visualarts@gmail.com>'
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -20,6 +20,7 @@ const VisitorGallery = () => {
         const response = await API.get(
           `artwork/?approval_status=approved&page=${currentPage}`
         );
+        console.log("Artworks:", response.data.results);
         setArtworks(response.data.results || []);
         setFilteredArtworks(response.data.results || []);
         extractCategories(response.data.results || []);
@@ -104,10 +105,11 @@ const VisitorGallery = () => {
               onClick={() => handleArtworkClick(artwork)}
             >
               <img
-                src={artwork.image}
-                alt={artwork.title}
-                className="w-full h-48 object-cover"
-              />
+  src={artwork.image}
+  alt={artwork.title}
+  className="w-full h-48 object-cover"
+/>
+
               <div className="p-4">
                 <h2 className="text-lg font-semibold">{artwork.title}</h2>
                 <p className="text-gray-500">{artwork.category}</p>
