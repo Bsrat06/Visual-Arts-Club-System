@@ -15,3 +15,50 @@
   background-color: #f9fafb; /* Light background */
   color: #1f2937; /* Dark gray text */
 }
+
+
+
+
+/* Event Cards */
+.grid li {
+  list-style: none;
+}
+
+/* Modal */
+.modal {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+
+/* Gallery Grid */
+.grid div {
+  overflow: hidden;
+}
+
+.grid img {
+  transition: transform 0.3s ease-in-out;
+}
+
+.grid div:hover img {
+  transform: scale(1.05);
+}
+
+/* Buttons */
+button {
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+}
