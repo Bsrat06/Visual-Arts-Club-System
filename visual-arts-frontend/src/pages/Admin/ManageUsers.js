@@ -48,7 +48,7 @@ const ManageUsers = () => {
               <td className="border px-4 py-2">
                 <select
                   value={user.role}
-                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                  onChange={(e) => handleRoleChange(user.pk, e.target.value)}
                   className="border rounded px-2 py-1"
                 >
                   <option value="admin">Admin</option>
