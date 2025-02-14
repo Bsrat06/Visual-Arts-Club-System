@@ -38,6 +38,12 @@ import VisitorProjects from "./pages/Visitor/VisitorProjects";
 import VisitorContact from "./pages/Visitor/VisitorContact";
 import AnalyticsDashboard from "./pages/Admin/AnalyticsDashboard";
 import Settings from "./pages/General/Settings";
+// import "./styles/styles.css";
+import "./index.css";
+
+
+
+
 
 const App = () => {
   return (
