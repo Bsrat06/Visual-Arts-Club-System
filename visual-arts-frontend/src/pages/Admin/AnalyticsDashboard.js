@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Pie, Bar } from "react-chartjs-2";
 import API from "../../services/api";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCategoryAnalytics } from "../../redux/slices/artworkSlice";
+import BarChart from "../../components/Shared/BarChart";
+import PieChart from "../../components/Shared/PieChart";
+import Loading from "../../components/Shared/Loading";
+import Error from "../../components/Shared/Error";
 import {
   Chart as ChartJS,
   ArcElement,
@@ -25,6 +28,9 @@ ChartJS.register(
   Title
 );
 
+
+
+
 const AnalyticsDashboard = () => {
   const [analyticsData, setAnalyticsData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +41,7 @@ const AnalyticsDashboard = () => {
     (state) => state.artwork
   );
 
-  // Fetch existing analytics data
+  // Fetch admin analytics
   useEffect(() => {
     API.get("analytics/")
       .then((response) => {
@@ -48,15 +54,14 @@ const AnalyticsDashboard = () => {
       });
   }, []);
 
-  // Fetch category analytics data
   useEffect(() => {
     dispatch(fetchCategoryAnalytics());
   }, [dispatch]);
 
-  if (loading) return <p>Loading analytics...</p>;
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (loading) return <Loading />;
+  if (error) return <Error message={error} />;
 
-  // Prepare Data for Charts
+  // Prepare data for charts
   const userRoleData = {
     labels: analyticsData.user_roles.map((role) => role.role),
     datasets: [
@@ -78,7 +83,6 @@ const AnalyticsDashboard = () => {
     ],
   };
 
-  // Prepare Data for Category Analytics Chart
   const categoryChartData = {
     labels: categoryAnalytics.map((item) => item.category || "Unknown"),
     datasets: [
@@ -117,16 +121,6 @@ const AnalyticsDashboard = () => {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
 
-      {/* Artworks by Category Chart */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-4">Artworks by Category</h2>
-        {categoryLoading && <p>Loading category analytics...</p>}
-        {categoryError && <p className="text-red-500">{categoryError}</p>}
-        {categoryAnalytics.length > 0 && (
-          <Bar data={categoryChartData} options={categoryChartOptions} />
-        )}
-      </div>
-
       {/* Metrics Overview */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         <div className="p-4 bg-green-100 rounded">
@@ -147,31 +141,24 @@ const AnalyticsDashboard = () => {
         </div>
       </div>
 
-      {/* User Role Distribution Chart */}
+      {/* User Role Distribution */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">User Role Distribution</h2>
-        <Pie data={userRoleData} />
+        <PieChart data={userRoleData} />
       </div>
 
-      {/* Monthly Artwork Submissions Chart */}
+      {/* Monthly Artwork Submissions */}
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Monthly Artwork Submissions</h2>
-        <Bar data={artworkSubmissionData} />
+        <BarChart data={artworkSubmissionData} />
       </div>
 
-      
-
-      {/* Recent Activity Logs */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Recent Activities</h2>
-        <ul className="list-disc pl-6">
-          {analyticsData.recent_logs.map((log) => (
-            <li key={log.id}>
-              {log.user.email} performed {log.action} on {log.resource || "N/A"} at{" "}
-              {new Date(log.timestamp).toLocaleString()}
-            </li>
-          ))}
-        </ul>
+      {/* Artworks by Category */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-4">Artworks by Category</h2>
+        {categoryLoading && <Loading />}
+        {categoryError && <Error message={categoryError} />}
+        {categoryAnalytics.length > 0 && <BarChart data={categoryChartData} options={categoryChartOptions} />}
       </div>
     </div>
   );
