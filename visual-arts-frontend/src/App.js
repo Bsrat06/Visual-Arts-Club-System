@@ -59,7 +59,7 @@ const App = () => {
           <Route path="/notifications" element={<NotificationsList />} />
 
           {/* Visitor-Only Route */}
-          <Route path="/visitor" element={<VisitorHome />} />
+          <Route path="/visitor/homepage" element={<VisitorHome />} />
 
           {/* Role-Restricted Routes */}
           <Route

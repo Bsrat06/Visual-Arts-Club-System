@@ -1,33 +1,33 @@
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { FaBars } from "react-icons/fa";
 
 const Sidebar = () => {
-  const navItems = [
-    { name: "Dashboard", path: "/admin/dashboard" },
-    { name: "Manage Users", path: "/admin/manage-users" },
-    { name: "Manage Artworks", path: "/admin/manage-artworks" },
-    { name: "Manage Events", path: "/admin/manage-events" },
-    { name: "Analytics", path: "/admin/analytics" },
-  ];
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed left-0 top-0 h-full bg-gray-900 text-white w-64">
-      <h2 className="text-xl font-bold p-4">Admin Panel</h2>
-      <ul className="space-y-2">
-        {navItems.map((item) => (
-          <li key={item.path}>
-            <NavLink
-              to={item.path}
-              className={({ isActive }) =>
-                `block py-2 px-4 rounded ${
-                  isActive ? "bg-orange-500 text-white" : "text-gray-300"
-                }`
-              }
-            >
-              {item.name}
-            </NavLink>
+    <div className={`bg-gray-800 text-white md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300`}>
+      <button
+        className="block md:hidden p-4"
+        onClick={() => setIsOpen((prev) => !prev)}
+      >
+        <FaBars />
+      </button>
+      <nav className={`${isOpen ? "block" : "hidden"} md:block`}>
+        <ul>
+          <li>
+            <Link to="/admin/dashboard" className="block p-4 hover:bg-gray-700">
+              Dashboard
+            </Link>
           </li>
-        ))}
-      </ul>
+          <li>
+            <Link to="/admin/manage-artworks" className="block p-4 hover:bg-gray-700">
+              Manage Artworks
+            </Link>
+          </li>
+          {/* Add other links as needed */}
+        </ul>
+      </nav>
     </div>
   );
 };
