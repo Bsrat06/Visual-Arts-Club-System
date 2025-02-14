@@ -2,6 +2,8 @@
 from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import Notification
 from .serializers import NotificationSerializer
 
@@ -33,3 +35,23 @@ class NotificationViewSet(viewsets.ModelViewSet):
         return Notification.objects.filter(recipient=self.request.user).order_by('-created_at')
 
 
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated, IsAdminUser])
+    def send_bulk(self, request):
+        role = request.data.get("role")
+        message = request.data.get("message")
+        notification_type = request.data.get("notification_type", "general")
+        
+        if not role or not message:
+            return Response({"error": "Role and message are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        users = CustomUser.objects.filter(role=role)
+        notifications = [
+            Notification(
+                recipient=user,
+                message=message,
+                notification_type=notification_type
+            ) for user in users
+        ]
+        Notification.objects.bulk_create(notifications)
+        return Response({"detail": "Notifications sent successfully"}, status=status.HTTP_200_OK)
