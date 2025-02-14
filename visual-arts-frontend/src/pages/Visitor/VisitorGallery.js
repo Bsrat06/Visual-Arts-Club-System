@@ -151,7 +151,7 @@ const VisitorGallery = () => {
               <strong>Category:</strong> {selectedArtwork.category}
             </p>
             <p>
-              <strong>Artist:</strong> {selectedArtwork.artist_name}
+              <strong>Artist:</strong> {selectedArtwork.artist}
             </p>
             <p className="mt-4">{selectedArtwork.description}</p>
             <img
