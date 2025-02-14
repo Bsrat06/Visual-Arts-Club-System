@@ -19,7 +19,7 @@ from projects.models import Project
 from django.utils.timezone import now, timedelta
 from django.db.models.functions import TruncMonth
 from rest_framework.pagination import PageNumberPagination
-
+from datetime import datetime
 
 
 
@@ -232,6 +232,17 @@ class MemberStatsView(APIView):
         approved_artworks = Artwork.objects.filter(artist=request.user, approval_status="approved").count()
         approval_rate = (approved_artworks / total_artworks) * 100 if total_artworks > 0 else 0
 
+        
+        # Monthly Approval Rate
+        current_year = datetime.now().year
+        monthly_approval_rate = (
+            Artwork.objects.filter(artist=request.user, approval_status="approved", submission_date__year=current_year)
+            .annotate(month=TruncMonth("submission_date"))
+            .values("month")
+            .annotate(approved=Count("id"))
+            .order_by("month")
+        )
+        
         # Category Distribution
         category_stats = Artwork.objects.filter(artist=request.user).values("category").annotate(
             count=Count("category")

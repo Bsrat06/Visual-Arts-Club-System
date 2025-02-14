@@ -11,7 +11,6 @@ import eventStatsReducer from "./slices/eventStatsSlice";
 import projectStatsReducer from "./slices/projectStatsSlice";
 import notificationPreferencesReducer from "./slices/notificationPreferencesSlice";
 
-
 const store = configureStore({
   reducer: {
     auth: authReducer,
