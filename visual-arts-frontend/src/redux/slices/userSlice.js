@@ -56,6 +56,15 @@ export const deactivateUser = createAsyncThunk("users/deactivate", async (id, th
 });
 
 
+// Delete user
+export const deleteUser = createAsyncThunk("users/delete", async (id, thunkAPI) => {
+  try {
+    await API.delete(`users/${id}/`);
+    return id; // Return the ID of the deleted user
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to delete user");
+  }
+});
 
 
 // Users Slice
@@ -115,6 +124,13 @@ const userSlice = createSlice({
         state.users = state.users.map((user) =>
           user.pk === action.meta.arg ? { ...user, is_active: false } : user
         );
+      })
+      // Delete user
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.users = state.users.filter((user) => user.id !== action.payload);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });
