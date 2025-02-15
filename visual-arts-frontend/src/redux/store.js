@@ -10,6 +10,8 @@ import memberStatsReducer from "./slices/memberStatsSlice";
 import eventStatsReducer from "./slices/eventStatsSlice";
 import projectStatsReducer from "./slices/projectStatsSlice";
 import notificationPreferencesReducer from "./slices/notificationPreferencesSlice";
+import profileReducer from "./slices/profileSlice";
+
 
 const store = configureStore({
   reducer: {
@@ -24,6 +26,8 @@ const store = configureStore({
     memberStats: memberStatsReducer,
     eventStats: eventStatsReducer,
     projectStats: projectStatsReducer,
+    profile: profileReducer,
+
   },
 });
 

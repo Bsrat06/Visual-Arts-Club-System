@@ -1,97 +1,136 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { updateProfile } from "../../redux/slices/userSlice";
-import API from "../../services/api";
+import { fetchUserProfile, updateProfile } from "../../redux/slices/profileSlice";
+import { useForm } from "react-hook-form";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
-  const { user, loading, error } = useSelector((state) => state.auth);
-  
-  const [formData, setFormData] = useState({
-    username: user?.username || "",
-    email: user?.email || "",
-    first_name: user?.first_name || "",
-    last_name: user?.last_name || "",
-    password: "",
-  });
+  const profileState = useSelector((state) => state.profile) || {};  
+  const { user, loading } = profileState;
+  const [profilePicPreview, setProfilePicPreview] = useState(null);
 
-  const [profilePicture, setProfilePicture] = useState(null);
-  const [profilePicturePreview, setProfilePicturePreview] = useState(user?.profile_picture_url || "");
-  const [message, setMessage] = useState("");
-  const [isSuccess, setIsSuccess] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    setValue, // ✅ Allows setting form field values dynamically
+    formState: { errors, isSubmitting },
+  } = useForm();
 
+  // ✅ Fetch user data when component loads
+  useEffect(() => {
+    dispatch(fetchUserProfile());
+  }, [dispatch]);
+
+  // ✅ Pre-fill form when user data is available
   useEffect(() => {
     if (user) {
-      setFormData({
-        username: user.username,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-        password: "",
-      });
-      setProfilePicturePreview(user.profile_picture_url || "");
+      setValue("username", user.username);
+      setValue("email", user.email);
+      setValue("first_name", user.first_name);
+      setValue("last_name", user.last_name);
+      setProfilePicPreview(user.profile_picture);
     }
-  }, [user]);
+  }, [user, setValue]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setProfilePicture(file);
-    setProfilePicturePreview(URL.createObjectURL(file));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const updateData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value.trim() !== "") {
-        updateData.append(key, value);
-      }
-    });
-    if (profilePicture) {
-      updateData.append("profile_picture", profilePicture);
-    }
-
+  // ✅ Handle Profile Update
+  const onSubmit = async (data) => {
     try {
-      dispatch(updateProfile(updateData));
-      setMessage("Profile updated successfully");
-      setIsSuccess(true);
-      setFormData({ ...formData, password: "" });
-      setTimeout(() => setMessage(""), 3000);
+      const formData = new FormData();
+      if (data.username) formData.append("username", data.username);
+      if (data.email) formData.append("email", data.email);
+      if (data.first_name) formData.append("first_name", data.first_name);
+      if (data.last_name) formData.append("last_name", data.last_name);
+      if (data.password) formData.append("password", data.password);
+      if (data.profile_picture.length > 0) {
+        formData.append("profile_picture", data.profile_picture[0]); // ✅ Profile picture update is optional
+      }
+
+      await dispatch(updateProfile(formData)).unwrap();
+      alert("Profile updated successfully!");
     } catch (error) {
-      setMessage("Error updating profile. Please try again.");
-      setIsSuccess(false);
+      alert("Profile update failed.");
     }
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">User Profile</h1>
-      {message && <p className={`text-${isSuccess ? "green" : "red"}-500`}>{message}</p>}
-      {error && <p className="text-red-500">{error}</p>}
-      {loading && <p>Loading...</p>}
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-medium">Profile Picture</label>
-          {profilePicturePreview && (
-            <img src={profilePicturePreview} alt="Profile" className="w-32 h-32 rounded-full my-2" />
+    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold text-center mb-4">My Profile</h2>
+
+      {loading ? (
+        <p>Loading profile...</p>
+      ) : (
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Profile Picture Preview */}
+          {profilePicPreview && (
+            <img src={profilePicPreview} alt="Profile" className="w-24 h-24 rounded-full mx-auto" />
           )}
-          <input type="file" accept="image/*" onChange={handleFileChange} className="border p-2 rounded w-full" />
-        </div>
 
-        <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder="Username" className="border p-2 rounded w-full" />
-        <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="border p-2 rounded w-full" />
-        <input type="text" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="First Name" className="border p-2 rounded w-full" />
-        <input type="text" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Last Name" className="border p-2 rounded w-full" />
-        <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="New Password (optional)" className="border p-2 rounded w-full" />
+          {/* Profile Picture Upload */}
+          <div>
+            <label className="block text-sm font-medium">Profile Picture</label>
+            <input type="file" {...register("profile_picture")} className="w-full p-2 border rounded-md" />
+          </div>
 
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">Update Profile</button>
-      </form>
+          {/* Username */}
+          <div>
+            <label className="block text-sm font-medium">Username</label>
+            <input
+              type="text"
+              {...register("username")}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <input
+              type="email"
+              {...register("email")}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+
+          {/* First Name */}
+          <div>
+            <label className="block text-sm font-medium">First Name</label>
+            <input
+              type="text"
+              {...register("first_name")}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+
+          {/* Last Name */}
+          <div>
+            <label className="block text-sm font-medium">Last Name</label>
+            <input
+              type="text"
+              {...register("last_name")}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+
+          {/* Password (Optional) */}
+          <div>
+            <label className="block text-sm font-medium">New Password (optional)</label>
+            <input
+              type="password"
+              {...register("password")}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600"
+          >
+            {isSubmitting ? "Updating..." : "Update Profile"}
+          </button>
+        </form>
+      )}
     </div>
   );
 };
