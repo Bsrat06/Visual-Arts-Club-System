@@ -11,6 +11,7 @@ import NotificationsList from "./pages/General/NotificationsList";
 import RoleGuard from "./components/Admin/RoleGuard";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import MemberDashboard from "./pages/Member/MemberDashboard";
+import NewArtworkForm from "./pages/Member/NewArtworkForm";
 import Portfolio from "./pages/Member/Portfolio";
 import EventRegistration from "./pages/Member/EventRegistration";
 import MemberAnalytics from "./pages/Member/MemberAnalytics";
@@ -183,6 +184,15 @@ const App = () => {
             element={
               <RoleGuard allowedRoles={["member", "admin"]}>
                 <MemberDashboard />
+              </RoleGuard>
+            }
+          />
+
+<Route
+            path="/member/new-artwork"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <NewArtworkForm />
               </RoleGuard>
             }
           />

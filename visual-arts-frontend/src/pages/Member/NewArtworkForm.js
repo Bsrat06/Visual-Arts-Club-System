@@ -1,90 +1,81 @@
 import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { addArtwork } from "../../redux/slices/artworkSlice";
+import FormInput from "../../components/Shared/FormInput";
+import { useForm } from "react-hook-form";
 
 const NewArtworkForm = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [category, setCategory] = useState("sketch");
   const dispatch = useDispatch();
+  const [image, setImage] = useState(null);
+  const [category, setCategory] = useState("sketch"); // 🔹 Default category
 
-  const user = useSelector((state) => state.auth.user); // 🔍 Debug this!
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm();
 
-  console.log("Current User in Redux:", user); // ✅ Check if user exists
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    setImage(file);
+    setValue("image", file);
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!user) {
-      alert("You must be logged in to submit artwork."); // ❌ This should not trigger if user exists
-      return;
-    }
-
-    // Create FormData for file upload
+  const onSubmit = (data) => {
     const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("image", image);
-    formData.append("artist", user.pk); // Assign artist
-    formData.append("category", category);
-
-    console.log("Submitting Artwork Data:", {
-      title,
-      description,
-      image,
-      artist: user.pk,
+    Object.keys(data).forEach((key) => {
+      formData.append(key, data[key]);
     });
-    
-    
-    dispatch(addArtwork(formData));
+    formData.append("category", category); // 🔹 Include category
 
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setImage(null);
-    setCategory("sketch");
+    dispatch(addArtwork(formData));
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Artwork Title"
-        required
-        className="border p-2 rounded w-full"
-      />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Artwork Description"
-        required
-        className="border p-2 rounded w-full"
-      ></textarea>
-      <input
-        type="file"
-        onChange={(e) => setImage(e.target.files[0])}
-        required
-        className="border p-2 rounded"
-      />
-      <select
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        required
-        className="border p-2 rounded w-full"
-      >
-        <option value="sketch">Sketch</option>
-        <option value="canvas">Canvas</option>
-        <option value="wallart">Wall Art</option>
-        <option value="digital">Digital</option>
-        <option value="photography">Photography</option>
-      </select>
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Submit Artwork
-      </button>
-    </form>
+    <div className="max-w-lg mx-auto p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold text-center mb-4">Submit New Artwork</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <FormInput
+          label="Title"
+          {...register("title", { required: "Title is required" })}
+          error={errors.title?.message}
+        />
+        <FormInput
+          label="Description"
+          {...register("description", { required: "Description is required" })}
+          error={errors.description?.message}
+        />
+        
+        {/* Category Selection Dropdown */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="border p-2 rounded w-full"
+            required
+          >
+            <option value="sketch">Sketch</option>
+            <option value="canvas">Canvas</option>
+            <option value="wallart">Wall Art</option>
+            <option value="digital">Digital</option>
+            <option value="photography">Photography</option>
+          </select>
+        </div>
+
+        {/* Image Upload */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Artwork Image</label>
+          <input type="file" accept="image/*" onChange={handleImageChange} className="mt-1" />
+          {image && <p className="text-gray-600 text-sm">Selected: {image.name}</p>}
+        </div>
+
+        <button type="submit" className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600">
+          Submit
+        </button>
+      </form>
+    </div>
   );
 };
 

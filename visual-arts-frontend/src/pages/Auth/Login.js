@@ -1,43 +1,46 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useForm } from "react-hook-form";
+import FormInput from "../../components/Shared/FormInput";
+import API from "../../services/api";
+import { useDispatch } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
-import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { loading, error } = useSelector((state) => state.auth);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(loginUser({ email, password })).then((result) => {
-      if (result.meta.requestStatus === "fulfilled") {
-        const userRole = result.payload?.role; // Assuming role is included in payload
-        console.log("Login Successful! Token:", localStorage.getItem("token"));
-        
-        if (userRole === "member") {
-          navigate("/member/dashboard");
-        } else {
-          navigate("/admin/dashboard");
-        }
-      } else {
-        console.error("Login Failed", result.error);
-      }
-    });
+  const onSubmit = async (data) => {
+    try {
+      const response = await API.post("auth/login/", data);
+      dispatch(loginUser(response.data));
+      alert("Login successful!");
+    } catch (error) {
+      alert("Login failed: " + error.response?.data?.error || "Unknown error");
+    }
   };
-  
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h2 className="text-2xl font-bold mb-4">Login</h2>
-      {error && <p className="text-red-500">{error.detail}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-        <button type="submit" disabled={loading} className="bg-blue-600 text-white px-4 py-2">
-          {loading ? "Logging in..." : "Login"}
+    <div className="max-w-md mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+      <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <FormInput
+          label="Email"
+          type="email"
+          {...register("email", { required: "Email is required" })}
+          error={errors.email?.message}
+        />
+        <FormInput
+          label="Password"
+          type="password"
+          {...register("password", { required: "Password is required" })}
+          error={errors.password?.message}
+        />
+        <button type="submit" className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600">
+          Login
         </button>
       </form>
     </div>
