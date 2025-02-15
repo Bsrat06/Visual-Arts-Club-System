@@ -44,7 +44,7 @@ class CustomAuthToken(ObtainAuthToken):
         token, created = Token.objects.get_or_create(user=user)
 
          # Log the login action
-        ActivityLog.objects.create(user=request.user, action='login')
+        ActivityLog.objects.create(user=user, action='login')
 
         
         return Response({

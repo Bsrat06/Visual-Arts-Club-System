@@ -1,31 +1,53 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { FaBars } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { FaBars, FaTimes, FaPaintBrush, FaUserCog, FaChartPie, FaImages, FaUser } from "react-icons/fa";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const user = useSelector((state) => state.auth.user);
+
+  // ✅ Sidebar Menu Based on User Role
+  const adminLinks = [
+    { path: "/admin/dashboard", label: "Dashboard", icon: <FaChartPie /> },
+    { path: "/admin/manage-artworks", label: "Manage Artworks", icon: <FaPaintBrush /> },
+    { path: "/admin/manage-users", label: "Manage Users", icon: <FaUserCog /> },
+    { path: "/admin/reports", label: "Reports", icon: <FaImages /> },
+  ];
+
+  const memberLinks = [
+    { path: "/member/dashboard", label: "My Dashboard", icon: <FaChartPie /> },
+    { path: "/member/portfolio", label: "My Portfolio", icon: <FaPaintBrush /> },
+    { path: "/member/profile", label: "My Profile", icon: <FaUser /> },
+  ];
+
+  // Select appropriate menu based on user role
+  const sidebarLinks = user?.role === "admin" ? adminLinks : memberLinks;
 
   return (
-    <div className={`bg-gray-800 text-white md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300`}>
-      <button
-        className="block md:hidden p-4"
-        onClick={() => setIsOpen((prev) => !prev)}
-      >
-        <FaBars />
+    <div className={`bg-gray-900 text-white md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300 min-h-screen flex flex-col pt-16`}>
+      {/* Toggle Button for Mobile */}
+      <button className="md:hidden p-4 text-white focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
+        {isOpen ? <FaTimes /> : <FaBars />}
       </button>
+
+      {/* Sidebar Menu */}
       <nav className={`${isOpen ? "block" : "hidden"} md:block`}>
-        <ul>
-          <li>
-            <Link to="/admin/dashboard" className="block p-4 hover:bg-gray-700">
-              Dashboard
-            </Link>
-          </li>
-          <li>
-            <Link to="/admin/manage-artworks" className="block p-4 hover:bg-gray-700">
-              Manage Artworks
-            </Link>
-          </li>
-          {/* Add other links as needed */}
+        <ul className="space-y-2">
+          {sidebarLinks.map((item) => (
+            <li key={item.path}>
+              <Link
+                to={item.path}
+                className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${
+                  location.pathname === item.path ? "bg-orange-500" : ""
+                }`}
+              >
+                {item.icon}
+                {isOpen && <span>{item.label}</span>}
+              </Link>
+            </li>
+          ))}
         </ul>
       </nav>
     </div>
