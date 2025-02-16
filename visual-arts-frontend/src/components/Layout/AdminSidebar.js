@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { FaBars, FaTimes, FaPaintBrush, FaUserCog, FaChartPie, FaImages, FaUser } from "react-icons/fa";
+import { FaBars, FaTimes, FaPaintBrush, FaUserCog, FaChartPie, FaImages, FaCalendarAlt, FaProjectDiagram } from "react-icons/fa";
 
 const AdminSidebar = () => {
   const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
-  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const handleResize = () => {
@@ -16,38 +14,54 @@ const AdminSidebar = () => {
     };
 
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize); // Cleanup
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
-  
-  // Sidebar Menu Based on User Role
-  const sidebarLinks = [
-    { path: "/admin/dashboard", label: "Dashboard", icon: <FaChartPie /> },
-    { path: "/admin/manage-artworks", label: "Manage Artworks", icon: <FaPaintBrush /> },
-    { path: "/admin/manage-users", label: "Manage Users", icon: <FaUserCog /> },
-    { path: "/admin/reports", label: "Reports", icon: <FaImages /> },
-  ];
 
   return (
-    <div className={`bg-white text-black md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300 min-h-screen flex flex-col pt-16`}>
-      {/* Toggle Button for Mobile */}
-      <button className="md:hidden p-4 text-black focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
+    <div className={`bg-gray-900 text-white md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300 min-h-screen flex flex-col`}>
+      <button className="md:hidden p-4 text-white focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? <FaTimes /> : <FaBars />}
       </button>
 
-      {/* Sidebar Menu */}
+      {/* Admin Sidebar Menu */}
       <nav className={`${isOpen ? "block" : "hidden"} md:block`}>
         <ul className="space-y-2">
-          {sidebarLinks.map((item) => (
-            <li key={item.path}>
-              <Link
-                to={item.path}
-                className={`flex items-center space-x-2 p-4 hover:bg-gray-300 transition ${location.pathname === item.path ? "bg-orange-500" : ""}`}
-              >
-                {item.icon}
-                {isOpen && <span>{item.label}</span>}
-              </Link>
-            </li>
-          ))}
+          <li>
+            <Link to="/admin/dashboard" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/dashboard" ? "bg-orange-500" : ""}`}>
+              <FaChartPie />
+              {isOpen && <span>Dashboard</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/manage-artworks" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/manage-artworks" ? "bg-orange-500" : ""}`}>
+              <FaPaintBrush />
+              {isOpen && <span>Manage Artworks</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/manage-users" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/manage-users" ? "bg-orange-500" : ""}`}>
+              <FaUserCog />
+              {isOpen && <span>Manage Users</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/manage-events" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/manage-events" ? "bg-orange-500" : ""}`}>
+              <FaCalendarAlt />
+              {isOpen && <span>Manage Events</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/manage-projects" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/manage-projects" ? "bg-orange-500" : ""}`}>
+              <FaProjectDiagram />
+              {isOpen && <span>Manage Projects</span>}
+            </Link>
+          </li>
+          <li>
+            <Link to="/admin/reports" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/reports" ? "bg-orange-500" : ""}`}>
+              <FaImages />
+              {isOpen && <span>Reports</span>}
+            </Link>
+          </li>
         </ul>
       </nav>
     </div>

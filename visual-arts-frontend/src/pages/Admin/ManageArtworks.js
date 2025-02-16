@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchArtworks } from "../../redux/slices/artworkSlice";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import AdminSidebar from "../../components/Layout/AdminSidebar";
 
 const ManageArtworks = () => {
   const dispatch = useDispatch();

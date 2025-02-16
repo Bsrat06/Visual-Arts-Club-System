@@ -1,24 +1,36 @@
 import React from "react";
-import Sidebar from "./Sidebar";
+import { useSelector } from "react-redux";
+import AdminSidebar from "./AdminSidebar";
+import MemberSidebar from "./MemberSidebar";
 import Navbar from "./Navbar";
-import { useDispatch } from "react-redux";
-import { logout } from "../../redux/slices/authSlice";
 
 const Layout = ({ children }) => {
-  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth?.user || {});
+  
+  
+  
+  const role = useSelector((state) => state.auth.role); // Get the role from Redux
+    
+    
+  
+  
+  
+  
+  console.log("Layout::User Role is: ", role);
+  console.log("Local Storage User: ", JSON.parse(localStorage.getItem("user")));
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar (Fixed on Large Screens) */}
-      <Sidebar />
+      {/* Sidebar: Show AdminSidebar for Admins & MemberSidebar for Members */}
+      {role === "admin" ? <AdminSidebar /> : <MemberSidebar />}
 
       {/* Right Section (Navbar & Content) */}
       <div className="flex flex-col flex-grow">
         {/* ✅ Navbar Stays Fixed at the Top */}
-        <Navbar onLogout={() => dispatch(logout())} />
+        <Navbar />
 
-        {/* ✅ Page Content Adjusted to Avoid Overlapping */}
-        <main className="flex-grow p-6 pt-24 md:ml-20">{children}</main>
+        {/* ✅ Adjusted Content to Avoid Sidebar Overlapping */}
+        <main className="flex-grow p-6 md:ml-64">{children}</main>
       </div>
     </div>
   );

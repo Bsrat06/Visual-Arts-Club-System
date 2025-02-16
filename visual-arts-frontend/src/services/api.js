@@ -21,7 +21,21 @@ API.interceptors.request.use(
     return config;
   },
   (error) => Promise.reject(error)
+  
 );
+
+
+API.interceptors.response.use(
+  (response) => {
+    console.log("Response Data:", response.data); // ✅ Correct way to log response data
+    return response;
+  },
+  (error) => {
+    console.error("API Error:", error);
+    return Promise.reject(error);
+  }
+);
+
 
 
 // CRUD for Artworks

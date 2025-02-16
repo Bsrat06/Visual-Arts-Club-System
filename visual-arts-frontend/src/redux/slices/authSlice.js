@@ -30,7 +30,7 @@ export const loginUser = createAsyncThunk("auth/login", async (credentials, thun
 
     localStorage.setItem("role", role);
     localStorage.setItem("user", JSON.stringify(userData));
-
+    console.log("userROOLLEE: ", role);
     return { token, role, user: userData };
   } catch (error) {
     console.error("Login Error:", error.response?.data || error.message);

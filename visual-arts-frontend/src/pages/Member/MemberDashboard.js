@@ -5,7 +5,8 @@ import { fetchEvents } from "../../redux/slices/eventsSlice";
 import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 import { fetchMemberStats } from "../../redux/slices/memberStatsSlice";
 import Card from "../../components/Shared/Card";
-import Sidebar from "../../components/Layout/Sidebar";
+import MemberSidebar from "../../components/Layout/MemberSidebar";
+
 
 const MemberDashboard = () => {
   const dispatch = useDispatch();
