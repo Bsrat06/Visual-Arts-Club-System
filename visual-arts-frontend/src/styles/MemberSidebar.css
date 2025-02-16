@@ -1,0 +1,11 @@
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 306px;
+    height: 100vh;
+    background-color: white;
+    box-shadow: 4px 0px 10px rgba(0, 0, 0, 0.1); /* Sidebar shadow */
+    z-index: 50; /* Ensures sidebar stays in front of navbar */
+  }
+  
