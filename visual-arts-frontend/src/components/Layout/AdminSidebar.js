@@ -39,7 +39,7 @@ const AdminSidebar = () => {
             </Link>
           </li>
           <li>
-            <Link to="/admin/manage-users" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/manage-users" ? "bg-orange-500" : ""}`}>
+            <Link to="/admin/user-management" className={`flex items-center space-x-2 p-4 hover:bg-gray-700 transition ${location.pathname === "/admin/manage-users" ? "bg-orange-500" : ""}`}>
               <FaUserCog />
               {isOpen && <span>Manage Users</span>}
             </Link>

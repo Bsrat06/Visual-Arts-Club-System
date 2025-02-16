@@ -30,7 +30,7 @@ const Layout = ({ children }) => {
         <Navbar />
 
         {/* ✅ Adjusted Content to Avoid Sidebar Overlapping */}
-        <main className="flex-grow p-6 md:ml-64">{children}</main>
+        <main className="flex-grow p-6 md:ml-20">{children}</main>
       </div>
     </div>
   );

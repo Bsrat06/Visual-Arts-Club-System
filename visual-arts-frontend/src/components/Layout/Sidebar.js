@@ -23,7 +23,7 @@ const Sidebar = () => {
   const adminLinks = [
     { path: "/admin/dashboard", label: "Dashboard", icon: <FaChartPie /> },
     { path: "/admin/manage-artworks", label: "Manage Artworks", icon: <FaPaintBrush /> },
-    { path: "/admin/manage-users", label: "Manage Users", icon: <FaUserCog /> },
+    { path: "/admin/user-management", label: "Manage Users", icon: <FaUserCog /> },
     { path: "/admin/reports", label: "Reports", icon: <FaImages /> },
   ];
 
