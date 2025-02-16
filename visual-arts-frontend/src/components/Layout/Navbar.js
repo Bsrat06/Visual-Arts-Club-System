@@ -5,12 +5,13 @@ import { useSelector } from "react-redux";
 const Navbar = ({ onLogout }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const user = useSelector((state) => state.auth.user);
-
+  const role = useSelector((state) => state.auth.role); // Get the role from Redux
+  
   return (
     <header className="bg-white shadow px-6 py-4 flex justify-between items-center fixed top-0 left-0 w-full z-50">
       {/* ✅ Dynamic Navbar Title Based on Role */}
       <h1 className="text-xl font-bold text-gray-800">
-        {user?.role === "admin" ? "Admin Panel" : "Member Dashboard"}
+        {role === "admin" ? "Admin Panel" : "Member Dashboard"}
       </h1>
 
       {/* ✅ Profile Section */}
