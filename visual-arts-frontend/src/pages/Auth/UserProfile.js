@@ -1,20 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, updateProfile } from "../../redux/slices/profileSlice";
-import { useForm } from "react-hook-form";
+import { Form, Input, Button, Avatar, Upload, Card, Row, Col, Switch } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
-  const profileState = useSelector((state) => state.profile) || {};  
-  const { user, loading } = profileState;
-  const [profilePicPreview, setProfilePicPreview] = useState(null);
-
-  const {
-    register,
-    handleSubmit,
-    setValue, // ✅ Allows setting form field values dynamically
-    formState: { errors, isSubmitting },
-  } = useForm();
+  const { user, loading } = useSelector((state) => state.profile) || {};
+  const [form] = Form.useForm();
+  const [isEditing, setIsEditing] = useState(false);
+  const [profilePicPreview, setProfilePicPreview] = useState(user?.profile_picture || "/default-avatar.png");
 
   // ✅ Fetch user data when component loads
   useEffect(() => {
@@ -24,114 +19,130 @@ const UserProfile = () => {
   // ✅ Pre-fill form when user data is available
   useEffect(() => {
     if (user) {
-      setValue("username", user.username);
-      setValue("email", user.email);
-      setValue("first_name", user.first_name);
-      setValue("last_name", user.last_name);
-      setProfilePicPreview(user.profile_picture);
+      form.setFieldsValue({
+        username: user.username,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      });
+      setProfilePicPreview(user.profile_picture || "/default-avatar.png");
     }
-  }, [user, setValue]);
+  }, [user, form]);
 
   // ✅ Handle Profile Update
-  const onSubmit = async (data) => {
+  const handleUpdateProfile = async (values) => {
     try {
       const formData = new FormData();
-      if (data.username) formData.append("username", data.username);
-      if (data.email) formData.append("email", data.email);
-      if (data.first_name) formData.append("first_name", data.first_name);
-      if (data.last_name) formData.append("last_name", data.last_name);
-      if (data.password) formData.append("password", data.password);
-      if (data.profile_picture.length > 0) {
-        formData.append("profile_picture", data.profile_picture[0]); // ✅ Profile picture update is optional
-      }
+      Object.entries(values).forEach(([key, value]) => {
+        if (value) formData.append(key, value);
+      });
 
       await dispatch(updateProfile(formData)).unwrap();
       alert("Profile updated successfully!");
+      setIsEditing(false); // Disable editing after successful update
     } catch (error) {
       alert("Profile update failed.");
     }
   };
 
+  // ✅ Handle Profile Picture Change
+  const handleFileChange = ({ file }) => {
+    if (file) {
+      setProfilePicPreview(URL.createObjectURL(file)); // Preview selected image
+    }
+  };
+
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <Card className="max-w-lg mx-auto mt-6 shadow-md">
       <h2 className="text-2xl font-bold text-center mb-4">My Profile</h2>
 
       {loading ? (
         <p>Loading profile...</p>
       ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          {/* Profile Picture Preview */}
-          {profilePicPreview && (
-            <img src={profilePicPreview} alt="Profile" className="w-24 h-24 rounded-full mx-auto" />
-          )}
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleUpdateProfile}
+        >
+          {/* Profile Picture & Edit Toggle */}
+          <Row align="middle" justify="center" className="mb-4">
+            <Avatar size={80} src={profilePicPreview} />
+          </Row>
+
+          <Row justify="center">
+            <Switch
+              checked={isEditing}
+              onChange={(checked) => setIsEditing(checked)}
+              className="mb-4"
+            />
+            <span className="ml-2 text-gray-600">
+              {isEditing ? "Editing Enabled" : "Editing Disabled"}
+            </span>
+          </Row>
 
           {/* Profile Picture Upload */}
-          <div>
-            <label className="block text-sm font-medium">Profile Picture</label>
-            <input type="file" {...register("profile_picture")} className="w-full p-2 border rounded-md" />
-          </div>
+          <Form.Item label="Profile Picture" name="profile_picture">
+            <Upload beforeUpload={() => false} onChange={handleFileChange}>
+              <Button icon={<UploadOutlined />} disabled={!isEditing}>
+                Upload New Picture
+              </Button>
+            </Upload>
+          </Form.Item>
 
-          {/* Username */}
-          <div>
-            <label className="block text-sm font-medium">Username</label>
-            <input
-              type="text"
-              {...register("username")}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
+          <Row gutter={16}>
+            {/* Username */}
+            <Col span={12}>
+              <Form.Item
+                label="Username"
+                name="username"
+                rules={[{ required: true, message: "Please enter your username" }]}
+              >
+                <Input disabled={!isEditing} />
+              </Form.Item>
+            </Col>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium">Email</label>
-            <input
-              type="email"
-              {...register("email")}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
+            {/* Email */}
+            <Col span={12}>
+              <Form.Item
+                label="Email"
+                name="email"
+                rules={[{ required: true, message: "Please enter your email" }]}
+              >
+                <Input disabled={!isEditing} />
+              </Form.Item>
+            </Col>
+          </Row>
 
-          {/* First Name */}
-          <div>
-            <label className="block text-sm font-medium">First Name</label>
-            <input
-              type="text"
-              {...register("first_name")}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
+          <Row gutter={16}>
+            {/* First Name */}
+            <Col span={12}>
+              <Form.Item label="First Name" name="first_name">
+                <Input disabled={!isEditing} />
+              </Form.Item>
+            </Col>
 
-          {/* Last Name */}
-          <div>
-            <label className="block text-sm font-medium">Last Name</label>
-            <input
-              type="text"
-              {...register("last_name")}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
+            {/* Last Name */}
+            <Col span={12}>
+              <Form.Item label="Last Name" name="last_name">
+                <Input disabled={!isEditing} />
+              </Form.Item>
+            </Col>
+          </Row>
 
           {/* Password (Optional) */}
-          <div>
-            <label className="block text-sm font-medium">New Password (optional)</label>
-            <input
-              type="password"
-              {...register("password")}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
+          <Form.Item label="New Password (optional)" name="password">
+            <Input.Password disabled={!isEditing} />
+          </Form.Item>
 
           {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600"
-          >
-            {isSubmitting ? "Updating..." : "Update Profile"}
-          </button>
-        </form>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block disabled={!isEditing}>
+              Update Profile
+            </Button>
+          </Form.Item>
+        </Form>
       )}
-    </div>
+    </Card>
   );
 };
 

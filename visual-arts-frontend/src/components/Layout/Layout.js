@@ -1,39 +1,51 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import AdminSidebar from "./AdminSidebar";
-import MemberSidebar from "./MemberSidebar";
+import React, { useState } from "react";
+import { Layout } from "antd";
+import { useSelector, useDispatch } from "react-redux";
+import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { logout } from "../../redux/slices/authSlice";
 
-const Layout = ({ children }) => {
-  const user = useSelector((state) => state.auth?.user || {});
-  
-  
-  
-  const role = useSelector((state) => state.auth.role); // Get the role from Redux
-    
-    
-  
-  
-  
-  
-  console.log("Layout::User Role is: ", role);
-  console.log("Local Storage User: ", JSON.parse(localStorage.getItem("user")));
+const { Content, Footer } = Layout;
+
+const AppLayout = ({ children }) => {
+  const dispatch = useDispatch();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar: Show AdminSidebar for Admins & MemberSidebar for Members */}
-      {role === "admin" ? <AdminSidebar /> : <MemberSidebar />}
+    <Layout style={{ minHeight: "100vh" }}>
+      {/* Sidebar */}
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-      {/* Right Section (Navbar & Content) */}
-      <div className="flex flex-col flex-grow">
-        {/* ✅ Navbar Stays Fixed at the Top */}
-        <Navbar />
+      {/* Right Section */}
+      <Layout
+        className="site-layout"
+        style={{
+          marginLeft: collapsed ? 80 : 200, // ✅ Adjust content width based on sidebar collapse
+          transition: "margin-left 0.3s ease",
+        }}
+      >
+        {/* Navbar */}
+        <Navbar onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
 
-        {/* ✅ Adjusted Content to Avoid Sidebar Overlapping */}
-        <main className="flex-grow p-20 md:ml-18">{children}</main>
-      </div>
-    </div>
+        {/* Content */}
+        <Content
+          style={{
+            margin: "80px 16px 16px",
+            padding: 24,
+            background: "#fff",
+            minHeight: "85vh",
+          }}
+        >
+          {children}
+        </Content>
+
+        {/* Footer */}
+        <Footer style={{ textAlign: "center" }}>
+          © {new Date().getFullYear()} My Club Management System
+        </Footer>
+      </Layout>
+    </Layout>
   );
 };
 
-export default Layout;
+export default AppLayout;

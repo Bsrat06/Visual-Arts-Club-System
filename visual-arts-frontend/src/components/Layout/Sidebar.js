@@ -1,65 +1,68 @@
-import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import React from "react";
+import { Layout, Menu } from "antd";
+import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { FaBars, FaTimes, FaPaintBrush, FaUserCog, FaChartPie, FaImages, FaUser } from "react-icons/fa";
+import {
+  PieChartOutlined,
+  UserOutlined,
+  AppstoreOutlined,
+  CalendarOutlined,
+  ProjectOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 
-const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
-  const location = useLocation();
-  const user = useSelector((state) => state.auth.user);
+const { Sider } = Layout;
 
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) {
-        setIsOpen(true); // Expand on larger screens
-      }
-    };
+const Sidebar = ({ collapsed, setCollapsed }) => {
+  const userRole = useSelector((state) => state.auth?.role);
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize); // Cleanup
-  }, []);
-  
-  // Sidebar Menu Based on User Role
-  const adminLinks = [
-    { path: "/admin/dashboard", label: "Dashboard", icon: <FaChartPie /> },
-    { path: "/admin/manage-artworks", label: "Manage Artworks", icon: <FaPaintBrush /> },
-    { path: "/admin/user-management", label: "Manage Users", icon: <FaUserCog /> },
-    { path: "/admin/reports", label: "Reports", icon: <FaImages /> },
+  const adminMenu = [
+    { key: "1", path: "/admin/dashboard", label: "Dashboard", icon: <PieChartOutlined /> },
+    { key: "2", path: "/admin/user-management", label: "Manage Users", icon: <UserOutlined /> },
+    { key: "3", path: "/admin/manage-artworks", label: "Manage Artworks", icon: <AppstoreOutlined /> },
+    { key: "4", path: "/admin/manage-events", label: "Manage Events", icon: <CalendarOutlined /> },
+    { key: "5", path: "/admin/project-management", label: "Manage Projects", icon: <ProjectOutlined /> },
+    { key: "6", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
-  const memberLinks = [
-    { path: "/member/dashboard", label: "My Dashboard", icon: <FaChartPie /> },
-    { path: "/member/portfolio", label: "My Portfolio", icon: <FaPaintBrush /> },
-    { path: "/profile", label: "My Profile", icon: <FaUser /> },
+  const memberMenu = [
+    { key: "1", path: "/member/dashboard", label: "My Dashboard", icon: <PieChartOutlined /> },
+    { key: "2", path: "/member/portfolio", label: "My Portfolio", icon: <AppstoreOutlined /> },
+    { key: "3", path: "/member/events", label: "My Events", icon: <CalendarOutlined /> },
+    { key: "4", path: "/member/projects", label: "My Projects", icon: <ProjectOutlined /> },
+    { key: "5", path: "/profile", label: "My Profile", icon: <UserOutlined /> },
+    { key: "6", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
-
-  // Select appropriate menu based on user role
-  const sidebarLinks = user?.role === "admin" ? adminLinks : memberLinks;
 
   return (
-    <div className={`bg-white text-black md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300 min-h-screen flex flex-col pt-16`}>
-      {/* Toggle Button for Mobile */}
-      <button className="md:hidden p-4 text-black focus:outline-none" onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? <FaTimes /> : <FaBars />}
-      </button>
+    <Sider
+      collapsible
+      collapsed={collapsed}
+      onCollapse={(value) => setCollapsed(value)}
+      style={{ height: "100vh", transition: "width 0.3s ease" }} // ✅ Smooth transition
+    >
+      <div
+        className="logo"
+        style={{
+          height: 64,
+          textAlign: "center",
+          padding: 16,
+          color: "white",
+          fontSize: 20,
+          transition: "opacity 0.3s ease",
+        }}
+      >
+        {collapsed ? "🖼️" : "ArtClub"}
+      </div>
 
-      {/* Sidebar Menu */}
-      <nav className={`${isOpen ? "block" : "hidden"} md:block`}>
-        <ul className="space-y-2">
-          {sidebarLinks.map((item) => (
-            <li key={item.path}>
-              <Link
-                to={item.path}
-                className={`flex items-center space-x-2 p-4 hover:bg-gray-300 transition ${location.pathname === item.path ? "bg-orange-500" : ""}`}
-              >
-                {item.icon}
-                {isOpen && <span>{item.label}</span>}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
+      <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
+        {(userRole === "admin" ? adminMenu : memberMenu).map((item) => (
+          <Menu.Item key={item.key} icon={item.icon}>
+            <Link to={item.path}>{item.label}</Link>
+          </Menu.Item>
+        ))}
+      </Menu>
+    </Sider>
   );
 };
 

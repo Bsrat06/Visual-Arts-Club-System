@@ -1,15 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUsers, deactivateUser, updateUserRole } from "../../redux/slices/userSlice";
-import Table from "../../components/Shared/Table";
-import Pagination from "../../components/Shared/Pagination";
-import { FaUserSlash, FaEye } from "react-icons/fa";
+import { Table, Button, Space, Avatar, Select, Tag } from "antd";
+import { FaUsers, FaUserCheck, FaUser, FaEye, FaUserSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
+const { Option } = Select;
 
 const ManageUsers = () => {
   const dispatch = useDispatch();
   const { users, loading, error } = useSelector((state) => state.users);
   const navigate = useNavigate();
+  const [filteredInfo, setFilteredInfo] = useState({});
+  const [sortedInfo, setSortedInfo] = useState({});
 
   useEffect(() => {
     dispatch(fetchUsers());
@@ -27,63 +30,128 @@ const ManageUsers = () => {
     navigate(`/admin/user/${pk}`);
   };
 
-  // Define the headers for the table
-  const headers = ["Avatar", "Name", "Email", "Role", "Status", "Actions"];
+  // ✅ Compute User Statistics
+  const totalUsers = users.length;
+  const totalMembers = users.filter((user) => user.role === "member").length;
+  const totalActiveUsers = users.filter((user) => user.is_active).length;
 
-  // Prepare the data for the table
-  const tableData = users.map((user) => [
-    <img
-      src={user.avatar || "/default-avatar.png"}
-      alt="Avatar"
-      className="w-10 h-10 rounded-full mx-auto"
-    />,
-    `${user.first_name} ${user.last_name}`,
-    user.email,
-    <select
-      value={user.role}
-      onChange={(e) => handleRoleChange(user.pk, e.target.value)}
-      className="border rounded px-2 py-1"
-    >
-      <option value="admin">Admin</option>
-      <option value="member">Member</option>
-      <option value="visitor">Visitor</option>
-    </select>,
-    <span
-      className={`px-3 py-1 rounded-full text-white text-sm ${user.is_active ? "bg-green-500" : "bg-red-500"}`}
-    >
-      {user.is_active ? "Active" : "Inactive"}
-    </span>,
-    <div className="flex justify-center space-x-3">
-      <button
-        onClick={() => handleViewProfile(user.pk)}
-        className="text-blue-500 hover:text-blue-700"
-      >
-        <FaEye size={18} />
-      </button>
-      <button
-        onClick={() => handleDeactivateUser(user.pk)}
-        className="text-red-500 hover:text-red-700"
-      >
-        <FaUserSlash size={18} />
-      </button>
-    </div>,
-  ]);
+  // ✅ User Statistics Data
+  const statistics = [
+    { title: "Total Users", value: totalUsers, icon: <FaUsers /> },
+    { title: "Total Members", value: totalMembers, icon: <FaUser /> },
+    { title: "Active Users", value: totalActiveUsers, icon: <FaUserCheck /> },
+  ];
+
+  // ✅ Handle Table Sorting & Filtering
+  const handleChange = (pagination, filters, sorter) => {
+    setFilteredInfo(filters);
+    setSortedInfo(sorter);
+  };
+
+  // ✅ Define Table Columns
+  const columns = [
+    {
+      title: "Avatar",
+      dataIndex: "avatar",
+      key: "avatar",
+      render: (avatar) => <Avatar src={avatar || "/default-avatar.png"} />,
+    },
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      sorter: (a, b) => a.name.localeCompare(b.name),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      filters: [
+        { text: "Admin", value: "admin" },
+        { text: "Member", value: "member" },
+        { text: "Visitor", value: "visitor" },
+      ],
+      filteredValue: filteredInfo.role || null,
+      onFilter: (value, record) => record.role === value,
+      render: (role, record) => (
+        <Select value={role} onChange={(newRole) => handleRoleChange(record.pk, newRole)}>
+          <Option value="admin">Admin</Option>
+          <Option value="member">Member</Option>
+          <Option value="visitor">Visitor</Option>
+        </Select>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "is_active",
+      key: "is_active",
+      filters: [
+        { text: "Active", value: true },
+        { text: "Inactive", value: false },
+      ],
+      filteredValue: filteredInfo.is_active || null,
+      onFilter: (value, record) => record.is_active === value,
+      render: (is_active) => (
+        <Tag color={is_active ? "green" : "red"}>{is_active ? "Active" : "Inactive"}</Tag>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Button icon={<FaEye />} onClick={() => handleViewProfile(record.pk)} />
+          <Button icon={<FaUserSlash />} danger onClick={() => handleDeactivateUser(record.pk)} />
+        </Space>
+      ),
+    },
+  ];
+
+  // ✅ Transform Data for Ant Design Table
+  const tableData = users.map((user) => ({
+    key: user.pk,
+    avatar: user.avatar,
+    name: `${user.first_name} ${user.last_name}`,
+    email: user.email,
+    role: user.role,
+    is_active: user.is_active,
+    pk: user.pk,
+  }));
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Manage Users</h1>
+      {/* ✅ User Statistics */}
+      <div className="flex justify-between items-center bg-white w-[968px] h-[151px] mx-auto p-4 shadow-lg"
+           style={{ gap: "114px", border: "1px solid #F0F0F0" }}>
+        {statistics.map((stat, index) => (
+          <div key={index} className="flex items-center gap-4 relative h-[87px]">
+            <div className="w-[84px] h-[84px] flex items-center justify-center rounded-full bg-orange-100">
+              <div className="w-[42px] h-[42px] flex items-center justify-center text-orange-500">{stat.icon}</div>
+            </div>
+            <div>
+              <p className="text-[#ACACAC] text-[14px] tracking-[-1%]">{stat.title}</p>
+              <p className="text-[#333333] text-[32px] font-semibold tracking-[-1%]">{stat.value}</p>
+            </div>
+            {index < statistics.length - 1 && (
+              <div className="absolute right-[-57px] top-1/2 transform -translate-y-1/2 w-[1px] h-[87px] bg-[#F0F0F0]"></div>
+            )}
+          </div>
+        ))}
+      </div>
 
-      {loading && <p>Loading users...</p>}
-      {error && <p className="text-red-500">{error}</p>}
-
-      <Table headers={headers} data={tableData} />
-      
-      {/* Pagination */}
-      <Pagination
-        totalItems={users.length}
-        itemsPerPage={10}
-        currentPage={1}
-        onPageChange={(page) => console.log("Go to page:", page)}
+      {/* ✅ Ant Design Table */}
+      <Table
+        columns={columns}
+        dataSource={tableData}
+        onChange={handleChange}
+        pagination={{ pageSize: 10 }}
+        loading={loading}
+        bordered
       />
     </div>
   );
