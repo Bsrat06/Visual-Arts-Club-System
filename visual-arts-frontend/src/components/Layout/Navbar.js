@@ -73,14 +73,14 @@ const Navbar = ({ onLogout, isSidebarCollapsed }) => {
           </button>
 
           {/* 🔽 Dropdown Menu */}
-          {dropdownOpen && !isMobile && (
+          {dropdownOpen && (
             <div className="absolute right-0 mt-2 w-48 bg-white border shadow-lg rounded-md z-10">
               <ul className="py-2">
                 <li>
-                  <Link to="/settings" className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100">
+                  <a href="/settings" className="flex items-center space-x-2 px-4 py-2 hover:bg-gray-100">
                     <FaCog />
                     <span>Settings</span>
-                  </Link>
+                  </a>
                 </li>
                 <li>
                   <button
