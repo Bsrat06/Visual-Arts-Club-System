@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchArtworks } from "../../redux/slices/artworkSlice";
 import { FaCheck, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import AdminSidebar from "../../components/Layout/AdminSidebar";
+import Table from "../../components/Shared/Table";
+import Pagination from "../../components/Shared/Pagination";
 
 const ManageArtworks = () => {
   const dispatch = useDispatch();
@@ -30,12 +31,41 @@ const ManageArtworks = () => {
     currentPage * itemsPerPage
   );
 
+  // ✅ Define Table Headers
+  const headers = ["Preview", "Title", "Category", "Artist", "Status", "Actions"];
+
+  // ✅ Prepare Data for Table
+  const tableData = paginatedArtworks.map((art) => [
+    <img src={art.image_url} alt={art.title} className="w-16 h-16 object-cover mx-auto" />,
+    art.title,
+    art.category,
+    art.artist,
+    <span
+      className={`px-3 py-1 rounded-full text-white text-sm ${
+        art.approval_status === "approved"
+          ? "bg-green-500"
+          : art.approval_status === "pending"
+          ? "bg-yellow-500"
+          : "bg-red-500"
+      }`}
+    >
+      {art.approval_status}
+    </span>,
+    <div className="flex justify-center gap-2">
+      <button className="text-green-600">
+        <FaCheck />
+      </button>
+      <button className="text-red-600">
+        <FaTimes />
+      </button>
+    </div>,
+  ]);
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Manage Artworks</h1>
-      
-      
-      {/* Search and Filter */}
+
+      {/* ✅ Search & Filter */}
       <div className="flex flex-col md:flex-row gap-4 mb-4">
         <input
           type="text"
@@ -55,70 +85,34 @@ const ManageArtworks = () => {
           <option value="rejected">Rejected</option>
         </select>
       </div>
-      {/* Add Artwork Button */}
+
+      {/* ✅ Add Artwork Button */}
       <button
+        type="submit"
         onClick={() => navigate("/member/new-artwork/")}
-        className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
+        className="mb-4 px-4 bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600"
+        // className="mb-4 px-4 py-2 bg-blue-600 text-white rounded"
       >
         Add New Artwork
       </button>
 
-      {/* Artworks Table */}
+      {/* ✅ Artworks Table */}
       {loading && <p>Loading artworks...</p>}
       {error && <p className="text-red-500">{error}</p>}
-      {filteredArtworks.length > 0 ? (
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border p-2">Preview</th>
-              <th className="border p-2">Title</th>
-              <th className="border p-2">Category</th>
-              <th className="border p-2">Artist</th>
-              <th className="border p-2">Status</th>
-              <th className="border p-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedArtworks.map((art) => (
-              <tr key={art.id} className="text-center border">
-                <td className="border p-2">
-                  <img src={art.image_url} alt={art.title} className="w-16 h-16 object-cover" />
-                </td>
-                <td className="border p-2">{art.title}</td>
-                <td className="border p-2">{art.category}</td>
-                <td className="border p-2">{art.artist}</td>
-                <td className="border p-2">{art.approval_status}</td>
-                <td className="border p-2 flex justify-center gap-2">
-                  <button className="text-green-600"><FaCheck /></button>
-                  <button className="text-red-600"><FaTimes /></button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p>No artworks found</p>
-      )}
+      <Table headers={headers} data={tableData} />
 
-      {/* Pagination & Total Count */}
+      {/* ✅ Pagination */}
       <div className="flex justify-between items-center mt-4">
-        <p>Showing data {itemsPerPage * (currentPage - 1) + 1} to {Math.min(itemsPerPage * currentPage, filteredArtworks.length)} of {filteredArtworks.length} entries</p>
-        <div className="flex gap-2">
-          <button
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage(currentPage - 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
-          <button
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage(currentPage + 1)}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
-            Next
-          </button>
-        </div>
+        <p>
+          Showing {itemsPerPage * (currentPage - 1) + 1} to{" "}
+          {Math.min(itemsPerPage * currentPage, filteredArtworks.length)} of {filteredArtworks.length} entries
+        </p>
+        <Pagination
+          totalItems={filteredArtworks.length}
+          itemsPerPage={itemsPerPage}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+        />
       </div>
     </div>
   );

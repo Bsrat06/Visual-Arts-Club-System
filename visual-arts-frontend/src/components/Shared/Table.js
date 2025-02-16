@@ -9,7 +9,7 @@ const Table = ({ headers = [], data = [] }) => {
   return (
     <table className="table-auto w-full border-collapse border border-gray-200">
       <thead>
-        <tr className="text-sm text-[#B5B7C0] bg-white">
+        <tr className="text-sm text-[#B5B7C0] bg-white border-b">
           {headers.map((header, index) => (
             <th key={index} className="px-4 py-2">{header}</th>
           ))}
@@ -18,13 +18,13 @@ const Table = ({ headers = [], data = [] }) => {
       <tbody>
         {data.length === 0 ? (
           <tr>
-            <td colSpan={headers.length} className="text-center py-4">
+            <td colSpan={headers.length} className="text-center py-4" >
               No data available.
             </td>
           </tr>
         ) : (
           data.map((row, index) => (
-            <tr key={index} className="text-center border-b border-[#EEEEEE]">
+            <tr key={index} className="text-center border-b border-[#EEEEEE] hover:bg-gray-50">
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex} className="px-4 py-2">{cell}</td>
               ))}
