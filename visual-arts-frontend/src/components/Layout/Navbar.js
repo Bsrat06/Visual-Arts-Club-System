@@ -24,7 +24,7 @@ const Navbar = ({ onLogout }) => {
             alt="Profile"
             className="w-8 h-8 rounded-full border"
           />
-          <span className="hidden md:inline">{user?.username || "User"}</span>
+          <span className="hidden md:inline">{user?.first_name + " " + user?.last_name || "User"}</span>
         </button>
 
         {/* ✅ Dropdown Menu */}

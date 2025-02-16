@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import Sidebar from "../../components/Layout/Sidebar";
 import Card from "../../components/Shared/Card";
+import AdminSidebar from "../../components/Layout/AdminSidebar";
 import Tabs from "../../components/Shared/Tab";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchArtworks } from "../../redux/slices/artworkSlice";
@@ -20,7 +20,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex">
-      <Sidebar />
+      <AdminSidebar />
       <div className="flex-grow p-6">
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
 

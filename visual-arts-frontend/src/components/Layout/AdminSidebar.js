@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { FaBars, FaTimes, FaPaintBrush, FaUserCog, FaChartPie, FaImages, FaUser } from "react-icons/fa";
 
-const Sidebar = () => {
+const AdminSidebar = () => {
   const [isOpen, setIsOpen] = useState(window.innerWidth >= 768);
   const location = useLocation();
   const user = useSelector((state) => state.auth.user);
@@ -20,21 +20,12 @@ const Sidebar = () => {
   }, []);
   
   // Sidebar Menu Based on User Role
-  const adminLinks = [
+  const sidebarLinks = [
     { path: "/admin/dashboard", label: "Dashboard", icon: <FaChartPie /> },
     { path: "/admin/manage-artworks", label: "Manage Artworks", icon: <FaPaintBrush /> },
     { path: "/admin/manage-users", label: "Manage Users", icon: <FaUserCog /> },
     { path: "/admin/reports", label: "Reports", icon: <FaImages /> },
   ];
-
-  const memberLinks = [
-    { path: "/member/dashboard", label: "My Dashboard", icon: <FaChartPie /> },
-    { path: "/member/portfolio", label: "My Portfolio", icon: <FaPaintBrush /> },
-    { path: "/profile", label: "My Profile", icon: <FaUser /> },
-  ];
-
-  // Select appropriate menu based on user role
-  const sidebarLinks = user?.role === "admin" ? adminLinks : memberLinks;
 
   return (
     <div className={`bg-white text-black md:w-64 ${isOpen ? "w-64" : "w-16"} transition-all duration-300 min-h-screen flex flex-col pt-16`}>
@@ -63,4 +54,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default AdminSidebar;

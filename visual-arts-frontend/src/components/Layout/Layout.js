@@ -18,7 +18,7 @@ const Layout = ({ children }) => {
         <Navbar onLogout={() => dispatch(logout())} />
 
         {/* ✅ Page Content Adjusted to Avoid Overlapping */}
-        <main className="flex-grow p-6 pt-24 md:ml-64">{children}</main>
+        <main className="flex-grow p-6 pt-24 md:ml-20">{children}</main>
       </div>
     </div>
   );
