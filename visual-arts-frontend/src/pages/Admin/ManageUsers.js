@@ -126,7 +126,7 @@ const ManageUsers = () => {
   return (
     <div className="p-6">
       {/* ✅ User Statistics */}
-      <div className="flex justify-between items-center bg-white w-[968px] h-[151px] mx-auto p-4 shadow-lg"
+      <div className="flex justify-between items-center bg-white w-[840px] h-[151px] mx-auto p-16 shadow-lg"
            style={{ gap: "114px", border: "1px solid #F0F0F0" }}>
         {statistics.map((stat, index) => (
           <div key={index} className="flex items-center gap-4 relative h-[87px]">
