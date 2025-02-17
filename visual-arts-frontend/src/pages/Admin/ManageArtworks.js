@@ -8,6 +8,8 @@ import API from "../../services/api";
 
 const { Option } = Select;
 
+
+
 const ManageArtworks = () => {
   const dispatch = useDispatch();
   const { artworks, loading, error } = useSelector((state) => state.artwork);
@@ -77,8 +79,8 @@ const ManageArtworks = () => {
   const columns = [
     {
       title: "Preview",
-      dataIndex: "image_url",
-      key: "image_url",
+      dataIndex: "image",
+      key: "image",
       render: (image) => <Image width={50} height={50} src={image} alt="Artwork" />,
     },
     {

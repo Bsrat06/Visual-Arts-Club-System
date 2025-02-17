@@ -55,7 +55,7 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
         </Link>
 
         {/* Profile Dropdown */}
-        <Dropdown overlay={menu} trigger={["click"]}>
+        <Dropdown menu={menu} trigger={["click"]}>
           <Avatar src={user?.profile_picture || "/default-avatar.png"} className="cursor-pointer" />
         </Dropdown>
       </div>

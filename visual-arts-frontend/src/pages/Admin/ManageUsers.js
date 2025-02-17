@@ -54,7 +54,7 @@ const ManageUsers = () => {
       title: "Avatar",
       dataIndex: "avatar",
       key: "avatar",
-      render: (avatar) => <Avatar src={avatar || "/default-avatar.png"} />,
+      render: (avatar) => <Avatar src={avatar || "/default-avatar.png"} alt="User Avatar" />,
     },
     {
       title: "Name",
@@ -115,7 +115,7 @@ const ManageUsers = () => {
   // ✅ Transform Data for Ant Design Table
   const tableData = users.map((user) => ({
     key: user.pk,
-    avatar: user.avatar,
+    avatar: user.profile_picture,
     name: `${user.first_name} ${user.last_name}`,
     email: user.email,
     role: user.role,
