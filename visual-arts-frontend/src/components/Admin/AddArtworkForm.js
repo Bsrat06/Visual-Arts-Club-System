@@ -1,91 +1,118 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { Form, Input, Upload, Select, Button, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { addArtwork } from "../../redux/slices/artworkSlice";
+import { UploadOutlined } from "@ant-design/icons";
 
+const { TextArea } = Input;
+const { Option } = Select;
 
-const AddArtworkForm = () => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null);
-  const [category, setCategory] = useState("sketch");
+const AddArtworkForm = ({ onArtworkAdded }) => {
   const dispatch = useDispatch();
-  
-  const user = useSelector((state) => state.auth.user); // 🔍 Debug this!
+  const [form] = Form.useForm();
+  const user = useSelector((state) => state.auth.user);
+  const [preview, setPreview] = useState(null);
 
-  console.log("Current User in Redux:", user); // ✅ Check if user exists
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!user) {
-      alert("You must be logged in to submit artwork."); // ❌ This should not trigger if user exists
-      return;
+  // ✅ Handle Image Upload Preview
+  const handleImageChange = (info) => {
+    if (info.file.status === "done") {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreview(e.target.result);
+      };
+      reader.readAsDataURL(info.file.originFileObj);
     }
+  };
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("image", image);
-    formData.append("artist", user.pk); // Assign artist
-    formData.append("category", category);
+  // ✅ Handle Form Submission
+  const onFinish = async (values) => {
+    try {
+      if (!user) {
+        message.error("You must be logged in to submit artwork.");
+        return;
+      }
 
-    console.log("Submitting Artwork Data:", {
-      title,
-      description,
-      image,
-      artist: user.pk,
-    });
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+      formData.append("category", values.category);
+      formData.append("artist", user.pk);
+      if (values.image.file.originFileObj) {
+        formData.append("image", values.image.file.originFileObj);
+      }
 
-    dispatch(addArtwork(formData));
+      console.log("Submitting Artwork Data:", Object.fromEntries(formData.entries()));
 
-    setTitle("");
-    setDescription("");
-    setImage(null);
-    setCategory("sketch");
+      dispatch(addArtwork(formData));
+      message.success("Artwork added successfully! 🎨");
+
+      // ✅ Reset form and clear preview
+      form.resetFields();
+      setPreview(null);
+      onArtworkAdded();
+    } catch (error) {
+      message.error("Failed to add artwork. Please try again.");
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter Artwork Title"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Enter Artwork Description"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <input
-        type="file"
-        onChange={(e) => setImage(e.target.files[0])}
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-
-      <select
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        required
-        className="border p-2 rounded w-full"
+    <Form layout="vertical" form={form} onFinish={onFinish}>
+      {/* Title */}
+      <Form.Item
+        label="Artwork Title"
+        name="title"
+        rules={[{ required: true, message: "Artwork title is required" }]}
       >
-        <option value="sketch">Sketch</option>
-        <option value="canvas">Canvas</option>
-        <option value="wallart">Wall Art</option>
-        <option value="digital">Digital</option>
-        <option value="photography">Photography</option>
-      </select>
+        <Input placeholder="Enter artwork title" />
+      </Form.Item>
 
+      {/* Description */}
+      <Form.Item
+        label="Description"
+        name="description"
+        rules={[{ required: true, message: "Description is required" }]}
+      >
+        <TextArea rows={3} placeholder="Enter artwork description" />
+      </Form.Item>
 
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Submit Artwork
-      </button>
-    </form>
+      {/* Category Selection */}
+      <Form.Item
+        label="Category"
+        name="category"
+        rules={[{ required: true, message: "Please select a category" }]}
+      >
+        <Select placeholder="Select artwork category">
+          <Option value="sketch">Sketch</Option>
+          <Option value="canvas">Canvas</Option>
+          <Option value="wallart">Wall Art</Option>
+          <Option value="digital">Digital</Option>
+          <Option value="photography">Photography</Option>
+        </Select>
+      </Form.Item>
+
+      {/* Image Upload */}
+      <Form.Item
+        label="Upload Artwork"
+        name="image"
+        rules={[{ required: true, message: "Please upload an artwork image" }]}
+      >
+        <Upload
+          beforeUpload={() => false} // Prevent auto-upload
+          onChange={handleImageChange}
+          showUploadList={false}
+        >
+          <Button icon={<UploadOutlined />}>Click to Upload</Button>
+        </Upload>
+        {preview && <img src={preview} alt="Preview" className="mt-4 w-32 h-32 object-cover rounded" />}
+      </Form.Item>
+
+      {/* Submit Button */}
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block>
+          Submit Artwork
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 

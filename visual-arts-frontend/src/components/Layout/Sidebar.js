@@ -52,7 +52,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           transition: "opacity 0.3s ease",
         }}
       >
-        {collapsed ? "🖼️" : "ArtClub"}
+        {collapsed ? "🎨" : "ArtClub"}
       </div>
 
       <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>

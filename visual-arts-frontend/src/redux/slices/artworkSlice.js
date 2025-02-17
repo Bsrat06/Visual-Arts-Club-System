@@ -3,15 +3,24 @@ import { getArtworks, createArtwork, updateArtwork, deleteArtwork } from "../../
 import API from "../../services/api";
 
 // Fetch all artworks (with optional filters)
-export const fetchArtworks = createAsyncThunk("artwork/fetchAll", async (filters = {}, thunkAPI) => {
+export const fetchAllArtworks = createAsyncThunk("artwork/fetchAll", async (_, thunkAPI) => {
   try {
-    const params = new URLSearchParams(filters).toString(); // Convert filters to query string
-    const response = await API.get(`artwork/?${params}`); // Pass filters as query parameters
-    return response.data.results || [];
+    let allArtworks = [];
+    let nextPage = "artwork/";
+
+    while (nextPage) {
+      const response = await API.get(nextPage);
+      allArtworks = [...allArtworks, ...response.data.results]; // ✅ Append new results
+      nextPage = response.data.next; // ✅ Move to next page
+    }
+
+    return allArtworks; // ✅ Store all artworks in Redux
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch artworks");
   }
 });
+
+
 
 // Create new artwork
 export const addArtwork = createAsyncThunk("artwork/add", async (formData, thunkAPI) => {
@@ -82,11 +91,11 @@ const artworkSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-    .addCase(fetchArtworks.pending, (state) => {
+    .addCase(fetchAllArtworks.pending, (state) => {
         state.loading = true;
       })
 
-      .addCase(fetchArtworks.fulfilled, (state, action) => {
+      .addCase(fetchAllArtworks.fulfilled, (state, action) => {
         state.loading = false;
         state.artworks = action.payload; // ✅ Now only stores the artworks
       })

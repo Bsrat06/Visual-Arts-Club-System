@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchArtworks } from "../../redux/slices/artworkSlice";
+import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
 import { fetchEvents } from "../../redux/slices/eventsSlice";
 import { fetchProjects } from "../../redux/slices/projectsSlice";
 import Button from "../../components/Shared/Button";
@@ -14,7 +14,7 @@ const HomePage = () => {
   const { projects } = useSelector((state) => state.projects);
 
   useEffect(() => {
-    dispatch(fetchArtworks());
+    dispatch(fetchAllArtworks());
     dispatch(fetchEvents());
     dispatch(fetchProjects());
   }, [dispatch]);

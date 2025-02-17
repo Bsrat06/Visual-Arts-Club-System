@@ -1,36 +1,76 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchArtworks } from "../../redux/slices/artworkSlice";
-import { Table, Input, Select, Button, Tag, Space, Image } from "antd";
-import { FaCheck, FaTimes } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
+import { Table, Input, Select, Button, Tag, Space, Image, Modal, message } from "antd";
+import { CheckOutlined, CloseOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
+import AddArtworkForm from "../../components/Admin/AddArtworkForm";
+import API from "../../services/api";
 
 const { Option } = Select;
 
 const ManageArtworks = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { artworks, loading, error } = useSelector((state) => state.artwork);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [filteredInfo, setFilteredInfo] = useState({});
-  const [sortedInfo, setSortedInfo] = useState({});
+  const [filterStatus, setFilterStatus] = useState(""); // Filter for status
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
+  const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+  const [selectedArtwork, setSelectedArtwork] = useState(null);
+  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
-    dispatch(fetchArtworks());
-  }, [dispatch]);
+    dispatch(fetchAllArtworks()); // ✅ Fetch ALL artworks, including pending & rejected
+    console.log("Current Artworks: ", artworks);
+  
+  
+  },[dispatch]);
 
-  // ✅ Handle Table Sorting & Filtering
-  const handleChange = (pagination, filters, sorter) => {
-    setFilteredInfo(filters);
-    setSortedInfo(sorter);
+  // ✅ Show "Add Artwork" Modal
+  const showModal = () => setIsModalVisible(true);
+  const closeModal = () => setIsModalVisible(false);
+
+  // ✅ Show "View Artwork" Modal
+  const viewArtwork = (artwork) => {
+    setSelectedArtwork(artwork);
+    setIsViewModalVisible(true);
   };
 
-  // ✅ Handle Search & Filtering
+  // ✅ Show "Reject Artwork" Modal
+  const rejectArtwork = (artwork) => {
+    setSelectedArtwork(artwork);
+    setIsRejectModalVisible(true);
+  };
+
+  // ✅ Approve Artwork
+  const approveArtwork = async (id) => {
+    try {
+      await API.patch(`artwork/${id}/approve/`);
+      message.success("Artwork approved successfully!");
+      dispatch(fetchAllArtworks());
+    } catch (error) {
+      message.error("Failed to approve artwork.");
+    }
+  };
+
+  // ✅ Reject Artwork with Feedback
+  const handleRejectWithFeedback = async () => {
+    try {
+      await API.patch(`artwork/${selectedArtwork.id}/reject/`, { feedback });
+      message.success("Artwork rejected with feedback!");
+      setIsRejectModalVisible(false);
+      setFeedback("");
+      dispatch(fetchAllArtworks());
+    } catch (error) {
+      message.error("Failed to reject artwork.");
+    }
+  };
+
+  // ✅ Filter Artworks Based on Search & Status
   const filteredArtworks = artworks.filter(
     (art) =>
       art.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (filterStatus === "" || art.approval_status === filterStatus)
+      (filterStatus === "" || art.approval_status === filterStatus) // ✅ Ensure correct filtering
   );
 
   // ✅ Define Table Columns
@@ -51,12 +91,6 @@ const ManageArtworks = () => {
       title: "Category",
       dataIndex: "category",
       key: "category",
-      filters: [...new Set(artworks.map((art) => art.category))].map((category) => ({
-        text: category,
-        value: category,
-      })),
-      filteredValue: filteredInfo.category || null,
-      onFilter: (value, record) => record.category === value,
     },
     {
       title: "Artist",
@@ -72,7 +106,7 @@ const ManageArtworks = () => {
         { text: "Pending", value: "pending" },
         { text: "Rejected", value: "rejected" },
       ],
-      filteredValue: filteredInfo.approval_status || null,
+      filteredValue: filterStatus ? [filterStatus] : null,
       onFilter: (value, record) => record.approval_status === value,
       render: (status) => {
         const color = status === "approved" ? "green" : status === "pending" ? "orange" : "red";
@@ -84,35 +118,28 @@ const ManageArtworks = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button icon={<FaCheck />} type="primary" onClick={() => approveArtwork(record.id)}>
-            Approve
+          {/* ✅ View Details */}
+          <Button icon={<EyeOutlined />} onClick={() => viewArtwork(record)}>
+            View
           </Button>
-          <Button icon={<FaTimes />} danger onClick={() => rejectArtwork(record.id)}>
-            Reject
-          </Button>
+
+          {/* ✅ Approve (Only for Pending & Rejected Artworks) */}
+          {(record.approval_status === "pending" || record.approval_status === "rejected") && (
+            <Button icon={<CheckOutlined />} type="primary" onClick={() => approveArtwork(record.id)}>
+              Approve
+            </Button>
+          )}
+
+          {/* ✅ Reject (Only for Pending Artworks) */}
+          {record.approval_status === "pending" && (
+            <Button icon={<CloseOutlined />} danger onClick={() => rejectArtwork(record)}>
+              Reject
+            </Button>
+          )}
         </Space>
       ),
     },
   ];
-
-  // ✅ Transform Data for Ant Design Table
-  const tableData = filteredArtworks.map((art) => ({
-    key: art.id,
-    image_url: art.image_url,
-    title: art.title,
-    category: art.category,
-    artist: art.artist,
-    approval_status: art.approval_status,
-  }));
-
-  // ✅ Action Handlers
-  const approveArtwork = (id) => {
-    console.log(`Approving artwork with ID: ${id}`);
-  };
-
-  const rejectArtwork = (id) => {
-    console.log(`Rejecting artwork with ID: ${id}`);
-  };
 
   return (
     <div className="p-6">
@@ -128,6 +155,7 @@ const ManageArtworks = () => {
         />
         <Select
           placeholder="Filter by status"
+          value={filterStatus}
           onChange={(value) => setFilterStatus(value)}
           className="md:w-1/4"
           allowClear
@@ -138,24 +166,47 @@ const ManageArtworks = () => {
         </Select>
       </div>
 
-      {/* ✅ Add Artwork Button */}
-      <Button
-        type="primary"
-        onClick={() => navigate("/member/new-artwork/")}
-        className="mb-4"
-      >
+      {/* ✅ Add Artwork Button (Opens Modal) */}
+      <Button type="primary" icon={<PlusOutlined />} onClick={showModal} className="mb-4">
         Add New Artwork
       </Button>
 
       {/* ✅ Ant Design Table */}
       <Table
         columns={columns}
-        dataSource={tableData}
-        onChange={handleChange}
+        dataSource={filteredArtworks} // ✅ Use filtered artworks
         pagination={{ pageSize: 8 }}
         loading={loading}
         bordered
       />
+
+      {/* ✅ Add Artwork Modal */}
+      <Modal title="Add New Artwork" visible={isModalVisible} onCancel={closeModal} footer={null}>
+        <AddArtworkForm onArtworkAdded={closeModal} />
+      </Modal>
+
+      {/* ✅ View Artwork Modal */}
+      <Modal title="Artwork Details" visible={isViewModalVisible} onCancel={() => setIsViewModalVisible(false)} footer={null}>
+        {selectedArtwork && (
+          <div>
+            <Image width={250} src={selectedArtwork.image_url} />
+            <p><strong>Title:</strong> {selectedArtwork.title}</p>
+            <p><strong>Category:</strong> {selectedArtwork.category}</p>
+            <p><strong>Artist:</strong> {selectedArtwork.artist}</p>
+            <p><strong>Description:</strong> {selectedArtwork.description}</p>
+          </div>
+        )}
+      </Modal>
+
+      {/* ✅ Reject Artwork Modal */}
+      <Modal title="Reject Artwork" visible={isRejectModalVisible} onCancel={() => setIsRejectModalVisible(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsRejectModalVisible(false)}>Cancel</Button>,
+          <Button key="reject" type="primary" danger onClick={handleRejectWithFeedback}>Submit</Button>
+        ]}
+      >
+        <textarea className="w-full p-2 border rounded" rows="3" value={feedback} onChange={(e) => setFeedback(e.target.value)} placeholder="Enter feedback..."></textarea>
+      </Modal>
     </div>
   );
 };

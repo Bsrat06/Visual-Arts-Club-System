@@ -1,7 +1,7 @@
 // Portfolio.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchArtworks } from "../../redux/slices/artworkSlice";
+import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
 import { Link } from "react-router-dom";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 
@@ -14,7 +14,7 @@ const Portfolio = () => {
   const artworksPerPage = 5;
 
   useEffect(() => {
-    dispatch(fetchArtworks(selectedCategory ? { category: selectedCategory, artist: user?.pk } : { artist: user?.pk }));
+    dispatch(fetchAllArtworks(selectedCategory ? { category: selectedCategory, artist: user?.pk } : { artist: user?.pk }));
   }, [dispatch, selectedCategory, user]);
 
   const handleCategoryChange = (e) => {

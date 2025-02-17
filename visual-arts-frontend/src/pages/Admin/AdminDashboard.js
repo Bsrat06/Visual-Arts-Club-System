@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchArtworks } from "../../redux/slices/artworkSlice";
+import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
 import { fetchUsers } from "../../redux/slices/userSlice";
 import { Card, Tabs } from "antd";
 import AnalyticsDashboard from "./AnalyticsDashboard";
@@ -14,7 +14,7 @@ const AdminDashboard = () => {
   const { users } = useSelector((state) => state.users);
 
   useEffect(() => {
-    dispatch(fetchArtworks());
+    dispatch(fetchAllArtworks());
     dispatch(fetchUsers());
   }, [dispatch]);
 

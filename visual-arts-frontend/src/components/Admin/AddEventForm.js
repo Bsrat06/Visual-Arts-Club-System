@@ -1,109 +1,117 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { Form, Input, DatePicker, Button, Select, message } from "antd";
+import { useDispatch } from "react-redux";
 import { addEvent } from "../../redux/slices/eventsSlice";
-import API from "../../services/api"; // ✅ Import API for fetching attendee IDs
+import API from "../../services/api";
+import dayjs from "dayjs";
 
-const AddEventForm = () => {
+const { TextArea } = Input;
+const { Option } = Select;
+
+const AddEventForm = ({ onEventAdded }) => {
   const dispatch = useDispatch();
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [date, setDate] = useState("");
-  const [attendees, setAttendees] = useState(""); // Collect emails
+  const [form] = Form.useForm();
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!title || !description || !location || !date) {
-      alert("Please fill in all required fields.");
-      return;
-    }
-
-    try {
-      // Convert emails to user IDs
-      const emails = attendees.split(",").map((email) => email.trim());
-      const response = await API.get("users/"); // ✅ Fetch all users from API
-      console.log("API Response:", response.data);
-      
-      const users = response.data.results; // ✅ Extract the array correctly
-      const userMap = {};
-      users.forEach((user) => {
-        userMap[user.email] = user.pk;
-      });
-
-      console.log("User Mapping:", userMap);
-
-      const attendeeIds = emails.map((email) => userMap[email]).filter((id) => id !== undefined);
-
-      console.log("Mapped Attendee IDs:", attendeeIds); // ✅ Debug log
-
-      // ✅ Convert datetime input (`YYYY-MM-DDTHH:MM`) to `YYYY-MM-DD`
-    const formattedDate = date.split("T")[0]; // ✅ Extract only YYYY-MM-DD
-
-    const eventData = {
-      title,
-      description,
-      location,
-      date: formattedDate, // ✅ Use corrected format
-      attendees: attendeeIds,
+  // ✅ Fetch users when component mounts
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoadingUsers(true);
+        const response = await API.get("users/");
+        setUsers(response.data.results || []);
+      } catch (error) {
+        console.error("Failed to fetch users:", error);
+      } finally {
+        setLoadingUsers(false);
+      }
     };
+
+    fetchUsers();
+  }, []);
+
+  // ✅ Handle form submission
+  const onFinish = async (values) => {
+    try {
+      const eventData = {
+        ...values,
+        date: values.date.format("YYYY-MM-DD"), // ✅ Ensure correct date format
+      };
 
       console.log("Submitting Event Data:", eventData);
       dispatch(addEvent(eventData));
+      message.success("Event added successfully! 🎉");
 
-      setTitle("");
-      setDescription("");
-      setLocation("");
-      setDate("");
-      setAttendees("");
+      // ✅ Reset form & notify parent component
+      form.resetFields();
+      onEventAdded();
     } catch (error) {
-      console.error("Error fetching user IDs:", error);
+      message.error("Failed to add event. Please try again.");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter Event Title"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Enter Event Description"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <input
-        type="text"
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
-        placeholder="Enter Location"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <input
-        type="datetime-local" // ✅ Ensure correct date format
-        value={date}
-        onChange={(e) => setDate(e.target.value)}
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <input
-        type="text"
-        value={attendees}
-        onChange={(e) => setAttendees(e.target.value)}
-        placeholder="Enter Attendee Emails (comma-separated)"
-        className="border p-2 rounded w-full mb-2"
-      />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-        Submit Event
-      </button>
-    </form>
+    <Form layout="vertical" form={form} onFinish={onFinish}>
+      {/* Title */}
+      <Form.Item
+        label="Event Title"
+        name="title"
+        rules={[{ required: true, message: "Event title is required" }]}
+      >
+        <Input placeholder="Enter event title" />
+      </Form.Item>
+
+      {/* Description */}
+      <Form.Item
+        label="Event Description"
+        name="description"
+        rules={[{ required: true, message: "Description is required" }]}
+      >
+        <TextArea rows={3} placeholder="Enter event description" />
+      </Form.Item>
+
+      {/* Location */}
+      <Form.Item
+        label="Location"
+        name="location"
+        rules={[{ required: true, message: "Location is required" }]}
+      >
+        <Input placeholder="Enter event location" />
+      </Form.Item>
+
+      {/* Date Picker */}
+      <Form.Item
+        label="Event Date"
+        name="date"
+        rules={[{ required: true, message: "Please select a date" }]}
+      >
+        <DatePicker format="YYYY-MM-DD" style={{ width: "100%" }} />
+      </Form.Item>
+
+      {/* Attendees (Select Users) */}
+      <Form.Item label="Attendees" name="attendees">
+        <Select
+          mode="multiple"
+          placeholder="Select attendees"
+          loading={loadingUsers}
+          allowClear
+        >
+          {users.map((user) => (
+            <Option key={user.pk} value={user.pk}>
+              {user.first_name} {user.last_name} ({user.email})
+            </Option>
+          ))}
+        </Select>
+      </Form.Item>
+
+      {/* Submit Button */}
+      <Form.Item>
+        <Button type="primary" htmlType="submit" block>
+          Add Event
+        </Button>
+      </Form.Item>
+    </Form>
   );
 };
 
