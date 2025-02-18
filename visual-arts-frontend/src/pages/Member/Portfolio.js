@@ -99,27 +99,37 @@ const Portfolio = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">My Portfolio</h1>
+      {/* ✅ Title Section */}
+      <div className="w-full bg-white h-[130px] flex flex-col md:flex-row justify-between items-center px-6 shadow-md rounded-md mb-4">
+        <div>
+          <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+            Portfolio
+          </h2>
+          <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+            Portfolio &gt; My Artworks
+          </p>
+        </div>
 
-      {/* ✅ Category Filter & Add Button */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
-        <Select
-          placeholder="Filter by category"
-          onChange={handleCategoryChange}
-          className="w-full md:w-1/3"
-          allowClear
-        >
-          <Option value="sketch">Sketch</Option>
-          <Option value="canvas">Canvas</Option>
-          <Option value="wallart">Wall Art</Option>
-          <Option value="digital">Digital</Option>
-          <Option value="photography">Photography</Option>
-        </Select>
-        <Link to="/member/new-artwork">
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add New Artwork
-          </Button>
-        </Link>
+        {/* ✅ Category Filter & Add Button (Right Side) */}
+        <div className="flex gap-4">
+          <Select
+            placeholder="Filter by category"
+            onChange={handleCategoryChange}
+            className="w-40"
+            allowClear
+          >
+            <Option value="sketch">Sketch</Option>
+            <Option value="canvas">Canvas</Option>
+            <Option value="wallart">Wall Art</Option>
+            <Option value="digital">Digital</Option>
+            <Option value="photography">Photography</Option>
+          </Select>
+          <Link to="/member/new-artwork">
+            <Button type="primary" icon={<PlusOutlined />}>
+              Add New Artwork
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* ✅ Artwork Table */}

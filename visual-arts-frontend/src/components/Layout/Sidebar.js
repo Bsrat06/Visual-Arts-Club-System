@@ -1,6 +1,6 @@
 import React from "react";
-import { Layout, Menu } from "antd";
-import { Link } from "react-router-dom";
+import { Layout, Menu, Button } from "antd";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import {
   PieChartOutlined,
@@ -9,12 +9,16 @@ import {
   CalendarOutlined,
   ProjectOutlined,
   SettingOutlined,
+  RightOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
 
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const userRole = useSelector((state) => state.auth?.role);
+  const location = useLocation();
 
   const adminMenu = [
     { key: "1", path: "/admin/dashboard", label: "Dashboard", icon: <PieChartOutlined /> },
@@ -34,31 +38,77 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { key: "6", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
+  const menuItems = userRole === "admin" ? adminMenu : memberMenu;
+
   return (
     <Sider
-      collapsible
+      width={300} // Fixed width
       collapsed={collapsed}
-      onCollapse={(value) => setCollapsed(value)}
-      style={{ height: "100vh", transition: "width 0.3s ease" }} // ✅ Smooth transition
+      onCollapse={setCollapsed}
+      style={{
+        height: "100vh",
+        background: "#FFFFFF",
+        boxShadow: "0px 10px 60px rgba(226, 236, 249, 0.5)",
+        transition: "width 0.3s ease",
+      }}
     >
+      {/* Collapse Icon */}
       <div
-        className="logo"
         style={{
-          height: 64,
-          textAlign: "center",
-          padding: 16,
-          color: "white",
-          fontSize: 20,
-          transition: "opacity 0.3s ease",
+          padding: "16px",
+          display: "flex",
+          justifyContent: "flex-start",
         }}
       >
-        {collapsed ? "🎨" : "ArtClub"}
+        <Button
+          type="text"
+          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          onClick={() => setCollapsed(!collapsed)}
+          style={{
+            fontSize: "16px",
+            color: "#333",
+            padding: 0,
+          }}
+        />
       </div>
 
-      <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-        {(userRole === "admin" ? adminMenu : memberMenu).map((item) => (
-          <Menu.Item key={item.key} icon={item.icon}>
-            <Link to={item.path}>{item.label}</Link>
+      
+
+      {/* Sidebar Menu */}
+      <Menu
+        mode="inline"
+        defaultSelectedKeys={["1"]}
+        style={{
+          fontFamily: "Poppins, sans-serif",
+          fontSize: "14px",
+          fontWeight: "500",
+          letterSpacing: "-1%",
+          marginTop: "20px", // Added margin-top to move the menu down a bit
+        }}
+      >
+        {menuItems.map((item) => (
+          <Menu.Item
+            key={item.key}
+            icon={item.icon}
+            style={{
+              marginBottom: "15px", // Spacing between items
+              color: location.pathname === item.path ? "#FFFFFF" : "#9197B3", // Active text color
+              backgroundColor: location.pathname === item.path ? "#FFA500" : "transparent", // Active background color
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Link to={item.path} style={{ color: "inherit", display: "flex", alignItems: "center", width: "100%" }}>
+              <span>{item.label}</span>
+              <RightOutlined
+                style={{
+                  marginLeft: "auto",
+                  color: location.pathname === item.path ? "#FFFFFF" : "#9197B3",
+                }}
+              />
+            </Link>
           </Menu.Item>
         ))}
       </Menu>

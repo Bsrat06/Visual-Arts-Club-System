@@ -9,7 +9,7 @@ const { Option } = Select;
 
 const ManageUsers = () => {
   const dispatch = useDispatch();
-  const { users, loading, error } = useSelector((state) => state.users);
+  const { users, loading } = useSelector((state) => state.users);
   const navigate = useNavigate();
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
@@ -30,37 +30,33 @@ const ManageUsers = () => {
     navigate(`/admin/user/${pk}`);
   };
 
-  // ✅ Compute User Statistics
   const totalUsers = users.length;
   const totalMembers = users.filter((user) => user.role === "member").length;
   const totalActiveUsers = users.filter((user) => user.is_active).length;
 
-  // ✅ User Statistics Data
   const statistics = [
     { title: "Total Users", value: totalUsers, icon: <FaUsers /> },
     { title: "Total Members", value: totalMembers, icon: <FaUser /> },
     { title: "Active Users", value: totalActiveUsers, icon: <FaUserCheck /> },
   ];
 
-  // ✅ Handle Table Sorting & Filtering
   const handleChange = (pagination, filters, sorter) => {
     setFilteredInfo(filters);
     setSortedInfo(sorter);
   };
 
-  // ✅ Define Table Columns
   const columns = [
-    {
-      title: "Avatar",
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (avatar) => <Avatar src={avatar || "/default-avatar.png"} alt="User Avatar" />,
-    },
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
       sorter: (a, b) => a.name.localeCompare(b.name),
+      render: (text, record) => (
+        <Space>
+          <Avatar src={record.avatar || "/default-avatar.png"} alt="User Avatar" />
+          {text}
+        </Space>
+      ),
     },
     {
       title: "Email",
@@ -112,7 +108,6 @@ const ManageUsers = () => {
     },
   ];
 
-  // ✅ Transform Data for Ant Design Table
   const tableData = users.map((user) => ({
     key: user.pk,
     avatar: user.profile_picture,
@@ -125,7 +120,6 @@ const ManageUsers = () => {
 
   return (
     <div className="p-6">
-      {/* ✅ User Statistics */}
       <div className="flex justify-between items-center bg-white w-[840px] h-[151px] mx-auto p-16 shadow-lg"
            style={{ gap: "114px", border: "1px solid #F0F0F0" }}>
         {statistics.map((stat, index) => (
@@ -144,7 +138,6 @@ const ManageUsers = () => {
         ))}
       </div>
 
-      {/* ✅ Ant Design Table */}
       <Table
         columns={columns}
         dataSource={tableData}

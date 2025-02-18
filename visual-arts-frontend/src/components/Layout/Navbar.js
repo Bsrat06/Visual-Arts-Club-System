@@ -2,7 +2,14 @@ import React from "react";
 import { Layout, Avatar, Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { SettingOutlined, LogoutOutlined, BellOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from "@ant-design/icons";
+import {
+  SettingOutlined,
+  LogoutOutlined,
+  BellOutlined,
+  DownOutlined,
+  MenuUnfoldOutlined,
+  MenuFoldOutlined,
+} from "@ant-design/icons";
 
 const { Header } = Layout;
 
@@ -25,38 +32,66 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
 
   return (
     <Header
-      className="flex justify-between items-center bg-white shadow-sm px-6 fixed w-full z-10"
+      className="flex justify-between items-center bg-white px-6 fixed top-0"
       style={{
-        left: collapsed ? 80 : 200, // ✅ Adjust navbar position when sidebar collapses
-        transition: "left 0.3s ease",
-        width: `calc(100% - ${collapsed ? 80 : 200}px)`,
+        left: collapsed ? 80 : 300, // ✅ Matches Sidebar Width
+        width: `calc(100% - ${collapsed ? 80 : 300}px)`, // ✅ Adjusts Responsively
+        height: "80px", // ✅ Increased Navbar Height
+        transition: "left 0.3s ease, width 0.3s ease",
+        zIndex: 10, // ✅ Stays Behind Sidebar Shadow
+        fontFamily: "'Poppins', sans-serif", // ✅ Poppins Applied Globally
       }}
     >
       {/* Sidebar Toggle Button */}
-      <div
-        className="cursor-pointer text-lg"
+      {/* <div
+        className="cursor-pointer text-lg mr-4"
         onClick={() => setCollapsed(!collapsed)}
+        style={{ marginRight: collapsed ? "10px" : "20px" }} // ✅ Space for Greeting
       >
         {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+      </div> */}
+
+      {/* Left Section - Greeting */}
+      <div
+        className="text-black font-medium"
+        style={{
+          fontSize: "24px",
+          letterSpacing: "0%",
+          flexGrow: 1, // ✅ Pushes Content to Right
+        }}
+      >
+        Hello, {user?.first_name || "User"}
       </div>
 
-      {/* Navbar Title */}
-      <h1 className="text-xl font-bold">
-        {userRole === "admin" ? "Admin Panel" : "Member Panel"}
-      </h1>
-
+      {/* Right Section - Notifications & Profile */}
       <div className="flex items-center space-x-6">
         {/* 🔔 Notifications */}
-        <Link to="/notifications" className="relative">
+        <Link to="/notifications" className="relative mr-4">
           <BellOutlined style={{ fontSize: 20, color: "#333" }} />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
             3
           </span>
         </Link>
 
-        {/* Profile Dropdown */}
+        {/* Profile Info & Dropdown */}
         <Dropdown menu={menu} trigger={["click"]}>
-          <Avatar src={user?.profile_picture || "/default-avatar.png"} className="cursor-pointer" />
+          <div className="flex items-center cursor-pointer">
+            {/* Avatar */}
+            <Avatar src={user?.profile_picture || "/default-avatar.png"} size={40} className="mr-3" />
+
+            {/* User Info */}
+            <div className="flex flex-col justify-center text-right">
+              <span className="text-black text-[14px] font-medium leading-none">
+                {user?.first_name} {user?.last_name}
+              </span>
+              <span className="text-[#757575] text-[12px] leading-none">
+                {userRole?.charAt(0).toUpperCase() + userRole?.slice(1) || "Member"}
+              </span>
+            </div>
+
+            {/* Dropdown Icon ( > ) */}
+            <DownOutlined style={{ color: "#757575", fontSize: "14px", fontWeight: "bold", marginLeft: "8px" }} />
+          </div>
         </Dropdown>
       </div>
     </Header>
