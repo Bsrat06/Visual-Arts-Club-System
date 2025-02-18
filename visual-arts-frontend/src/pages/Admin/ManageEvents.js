@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
-import { Input, Button, Space, Modal, message, Select, Card, Spin, Alert, Tag } from "antd";
+import { Input, Button, Space, Modal, message, Select, Card, Spin, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddEventForm from "../../components/Admin/AddEventForm";
-import EditEventForm from "../../components/Admin/EditEventForm";
-import API from "../../services/api";
 import Table from "../../components/Shared/Table";
+import API from "../../services/api";
 
 const { Option } = Select;
 
 const ManageEvents = () => {
     const dispatch = useDispatch();
-    const { events, loading, error } = useSelector((state) => state.events);
+    const { events, loading } = useSelector((state) => state.events);
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -84,17 +83,17 @@ const ManageEvents = () => {
         },
         {
             title: "Status",
-            dataIndex: "status",
-            key: "status",
+            dataIndex: "is_completed",
+            key: "is_completed",
             filters: [
-                { text: "Upcoming", value: "upcoming" },
-                { text: "Completed", value: "completed" },
+                { text: "Completed", value: true },
+                { text: "Pending", value: false },
             ],
-            filteredValue: filterStatus ? [filterStatus] : null,
-            onFilter: (value, record) => record.status === value,
-            render: (status) => (
-                <Tag color={status === "completed" ? "green" : "orange"}>
-                    {status.toUpperCase()}
+            filteredValue: filterStatus !== "" ? [filterStatus === "completed"] : null,
+            onFilter: (value, record) => record.is_completed === value,
+            render: (is_completed) => (
+                <Tag color={is_completed ? "green" : "orange"}>
+                    {is_completed ? "COMPLETED" : "PENDING"}
                 </Tag>
             ),
         },
@@ -117,22 +116,14 @@ const ManageEvents = () => {
             name: event.title,
             date: event.date,
             location: event.location,
-            status: event.is_completed || "",
+            is_completed: event.is_completed,
         }));
 
     return (
         <div className="p-6">
-            {/* ✅ Title Section */}
-            <div>
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                    Manage Events
-                </h2>
-                <p className="text-green-500 text-sm font-[Poppins] mt-1">
-                    Events &gt; Review & Manage
-                </p>
-            </div>
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Events</h2>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">Events &gt; Review & Manage</p>
 
-            {/* ✅ Event Statistics */}
             {statsLoading ? (
                 <Spin size="large" />
             ) : (
@@ -143,12 +134,10 @@ const ManageEvents = () => {
                 </div>
             )}
 
-            {/* ✅ Table with Drop-shadow */}
             <div className="bg-white shadow-md rounded-lg p-4">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Events</h2>
-                {/* ✅ Search, Filter, and Add Button Inside Table */}
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
                     <div className="flex gap-4">
+                    <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Events</h2>
                         <Input
                             placeholder="Search by event name..."
                             value={searchQuery}
@@ -161,8 +150,8 @@ const ManageEvents = () => {
                             className="w-40"
                             allowClear
                         >
-                            <Option value="upcoming">Upcoming</Option>
                             <Option value="completed">Completed</Option>
+                            <Option value="pending">Pending</Option>
                         </Select>
                     </div>
                     <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
@@ -170,7 +159,6 @@ const ManageEvents = () => {
                     </Button>
                 </div>
 
-                {/* ✅ Events Table */}
                 <Table
                     columns={columns}
                     dataSource={tableData}
@@ -181,7 +169,6 @@ const ManageEvents = () => {
                 />
             </div>
 
-            {/* ✅ Add / Edit Event Modal */}
             <Modal
                 title={editingEvent ? "Edit Event" : "Add New Event"}
                 open={isModalVisible}

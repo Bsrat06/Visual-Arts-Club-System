@@ -75,7 +75,7 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
                 {user?.first_name} {user?.last_name}
               </span>
               <span className="text-[#757575] text-[12px] leading-none">
-                {userRole?.charAt(0).toUpperCase() + userRole?.slice(1) || "Member"}
+                Club {userRole?.charAt(0).toUpperCase() + userRole?.slice(1) || "Member"}
               </span>
             </div>
 
