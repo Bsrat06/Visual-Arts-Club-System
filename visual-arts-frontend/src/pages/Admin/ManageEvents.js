@@ -122,7 +122,7 @@ const ManageEvents = () => {
 
     return (
         <div className="p-6">
-            {/* ✅ Title Section Above the Table */}
+            {/* ✅ Title Section */}
             <div>
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                     Manage Events
@@ -143,37 +143,42 @@ const ManageEvents = () => {
                 </div>
             )}
 
-            {/* ✅ Search & Filter Controls */}
-            <div className="flex gap-4 mb-4">
-                <Input
-                    placeholder="Search by event name..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-40"
-                />
-                <Select
-                    placeholder="Filter by status"
-                    onChange={(value) => setFilterStatus(value)}
-                    className="w-40"
-                    allowClear
-                >
-                    <Option value="upcoming">Upcoming</Option>
-                    <Option value="completed">Completed</Option>
-                </Select>
-                <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                    Add Event
-                </Button>
-            </div>
+            {/* ✅ Table with Drop-shadow */}
+            <div className="bg-white shadow-md rounded-lg p-4">
+                {/* ✅ Search, Filter, and Add Button Inside Table */}
+                <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
+                    <div className="flex gap-4">
+                        <Input
+                            placeholder="Search by event name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-40"
+                        />
+                        <Select
+                            placeholder="Filter by status"
+                            onChange={(value) => setFilterStatus(value)}
+                            className="w-40"
+                            allowClear
+                        >
+                            <Option value="upcoming">Upcoming</Option>
+                            <Option value="completed">Completed</Option>
+                        </Select>
+                    </div>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                        Add Event
+                    </Button>
+                </div>
 
-            {/* ✅ Events Table */}
-            <Table
-                columns={columns}
-                dataSource={tableData}
-                pagination={{ pageSize: 8 }}
-                loading={loading}
-                bordered
-                rowKey="key"
-            />
+                {/* ✅ Events Table */}
+                <Table
+                    columns={columns}
+                    dataSource={tableData}
+                    pagination={{ pageSize: 8 }}
+                    loading={loading}
+                    bordered
+                    rowKey="key"
+                />
+            </div>
 
             {/* ✅ Add / Edit Event Modal */}
             <Modal

@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
-import { Table, Input, Select, Button, Tag, Space, Image, Modal, message, Card, Spin, Alert } from "antd";
+import { Input, Select, Button, Tag, Space, Image, Modal, message, Card, Spin, Alert } from "antd";
 import { CheckOutlined, CloseOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import AddArtworkForm from "../../components/Admin/AddArtworkForm";
 import API from "../../services/api";
+import Table from "../../components/Shared/Table";
+
 
 const { Option } = Select;
 
