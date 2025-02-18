@@ -55,12 +55,13 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
       <div
         className="text-black font-medium"
         style={{
+          fontstyle: "poppins",
           fontSize: "24px",
           letterSpacing: "0%",
           flexGrow: 1, // ✅ Pushes Content to Right
         }}
       >
-        Hello, {user?.first_name || "User"}
+        Hello {user?.first_name || "User"} 👋🏼,
       </div>
 
       {/* Right Section - Notifications & Profile */}
@@ -80,7 +81,7 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
             <Avatar src={user?.profile_picture || "/default-avatar.png"} size={40} className="mr-3" />
 
             {/* User Info */}
-            <div className="flex flex-col justify-center text-right">
+            <div className="flex flex-col justify-center text-left">
               <span className="text-black text-[14px] font-medium leading-none">
                 {user?.first_name} {user?.last_name}
               </span>
@@ -90,7 +91,7 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
             </div>
 
             {/* Dropdown Icon ( > ) */}
-            <DownOutlined style={{ color: "#757575", fontSize: "14px", fontWeight: "bold", marginLeft: "8px" }} />
+            <DownOutlined style={{ width: "40px", color: "#757575", fontSize: "14px", fontWeight: "bold", marginLeft: "32px" }} />
           </div>
         </Dropdown>
       </div>

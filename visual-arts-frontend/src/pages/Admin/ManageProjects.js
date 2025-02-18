@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
-import { Table, Input, Button, Card, Space, Modal, message, Select } from "antd";
+import { Table, Input, Button, Space, Modal, message, Select, Card, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
@@ -74,6 +74,7 @@ const ManageProjects = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
+            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: "Description",
@@ -85,11 +86,13 @@ const ManageProjects = () => {
             title: "Start Date",
             dataIndex: "start_date",
             key: "start_date",
+            sorter: (a, b) => new Date(a.start_date) - new Date(b.start_date),
         },
         {
             title: "End Date",
             dataIndex: "end_date",
             key: "end_date",
+            sorter: (a, b) => new Date(a.end_date) - new Date(b.end_date),
         },
         {
             title: "Status",
@@ -101,13 +104,11 @@ const ManageProjects = () => {
             ],
             filteredValue: filterStatus ? [filterStatus] : null,
             onFilter: (value, record) => record.status === value,
-            render: (status) => {
-                return status ? (
-                    <span className={status === "completed" ? "text-green-500" : "text-orange-500"}>
-                        {status.toUpperCase()}
-                    </span>
-                ) : null;
-            },
+            render: (status) => (
+                <Tag color={status === "completed" ? "green" : "orange"}>
+                    {status.toUpperCase()}
+                </Tag>
+            ),
         },
         {
             title: "Actions",
@@ -128,49 +129,27 @@ const ManageProjects = () => {
         },
     ];
 
-    const tableData = projects.map((project) => ({
-        key: project.id,
-        title: project.title,
-        description: project.description,
-        start_date: project.start_date,
-        end_date: project.end_date,
-        status: project.status || "",
-    }));
+    const tableData = projects
+        .filter((project) => project.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        .map((project) => ({
+            key: project.id,
+            title: project.title,
+            description: project.description,
+            start_date: project.start_date,
+            end_date: project.end_date,
+            status: project.status || "",
+        }));
 
     return (
         <div className="p-6">
             {/* ✅ Title Section Above the Table */}
-            <div className="w-full bg-white h-[130px] flex flex-col md:flex-row justify-between items-center px-6 shadow-md rounded-md mb-4">
-                <div>
-                    <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                        Manage Projects
-                    </h2>
-                    <p className="text-gray-500 text-sm font-[Poppins] mt-1">
-                        Projects &gt; Review & Manage
-                    </p>
-                </div>
-
-                {/* ✅ Search & Filter Controls */}
-                <div className="flex gap-4">
-                    <Input
-                        placeholder="Search by title..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-40"
-                    />
-                    <Select
-                        placeholder="Filter by status"
-                        onChange={(value) => setFilterStatus(value)}
-                        className="w-40"
-                        allowClear
-                    >
-                        <Option value="completed">Completed</Option>
-                        <Option value="ongoing">Ongoing</Option>
-                    </Select>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                        Add Project
-                    </Button>
-                </div>
+            <div>
+                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                    Manage Projects
+                </h2>
+                <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+                    Projects &gt; Review & Manage
+                </p>
             </div>
 
             {/* ✅ Project Statistics */}
@@ -183,6 +162,28 @@ const ManageProjects = () => {
                     <Card title="Ongoing Projects">{projectStats.ongoing_projects}</Card>
                 </div>
             )}
+
+            {/* ✅ Search & Filter Controls */}
+            <div className="flex gap-4 mb-4">
+                <Input
+                    placeholder="Search by project title..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-40"
+                />
+                <Select
+                    placeholder="Filter by status"
+                    onChange={(value) => setFilterStatus(value)}
+                    className="w-40"
+                    allowClear
+                >
+                    <Option value="completed">Completed</Option>
+                    <Option value="ongoing">Ongoing</Option>
+                </Select>
+                <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    Add Project
+                </Button>
+            </div>
 
             {/* ✅ Projects Table */}
             <Table
@@ -197,7 +198,7 @@ const ManageProjects = () => {
             {/* ✅ Add / Edit Project Modal */}
             <Modal
                 title={editingProject ? "Edit Project" : "Add New Project"}
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={closeModal}
                 footer={null}
             >
@@ -207,7 +208,7 @@ const ManageProjects = () => {
             {/* ✅ View Project Modal */}
             <Modal
                 title="Project Details"
-                visible={isViewModalVisible}
+                open={isViewModalVisible}
                 onCancel={() => setIsViewModalVisible(false)}
                 footer={null}
             >

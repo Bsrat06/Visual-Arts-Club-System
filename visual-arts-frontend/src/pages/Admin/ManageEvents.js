@@ -1,148 +1,191 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
-import API from "../../services/api";
-import { Card, Table, Button, Space, Modal, Spin, Alert, Typography, message } from "antd";
+import { Input, Button, Space, Modal, message, Select, Card, Spin, Alert, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddEventForm from "../../components/Admin/AddEventForm";
 import EditEventForm from "../../components/Admin/EditEventForm";
+import API from "../../services/api";
+import Table from "../../components/Shared/Table";
 
-const { Title } = Typography;
+const { Option } = Select;
 
 const ManageEvents = () => {
-  const dispatch = useDispatch();
-  const { events, loading, error } = useSelector((state) => state.events);
+    const dispatch = useDispatch();
+    const { events, loading, error } = useSelector((state) => state.events);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterStatus, setFilterStatus] = useState("");
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [editingEvent, setEditingEvent] = useState(null);
+    const [eventStats, setEventStats] = useState({});
+    const [statsLoading, setStatsLoading] = useState(true);
 
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [eventStats, setEventStats] = useState(null);
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [statsError, setStatsError] = useState(null);
-  const [isAddEventModalVisible, setIsAddEventModalVisible] = useState(false);
-  const [isEditEventModalVisible, setIsEditEventModalVisible] = useState(false);
+    useEffect(() => {
+        dispatch(fetchEvents());
+        fetchEventStats();
+    }, [dispatch]);
 
-  useEffect(() => {
-    dispatch(fetchEvents());
-    fetchEventStats();
-  }, [dispatch]);
+    const fetchEventStats = async () => {
+        try {
+            const response = await API.get("/event-stats/");
+            setEventStats(response.data);
+            setStatsLoading(false);
+        } catch (err) {
+            message.error("Failed to load event statistics.");
+            setStatsLoading(false);
+        }
+    };
 
-  const fetchEventStats = async () => {
-    try {
-      const response = await API.get("/event-stats/");
-      setEventStats(response.data);
-      setStatsLoading(false);
-    } catch (err) {
-      setStatsError(err.response?.data || "Failed to load event statistics.");
-      setStatsLoading(false);
-    }
-  };
+    const showModal = () => setIsModalVisible(true);
+    const closeModal = () => {
+        setIsModalVisible(false);
+        setEditingEvent(null);
+    };
 
-  const handleEdit = (event) => {
-    setEditingEvent(event);
-    setIsEditEventModalVisible(true);
-  };
+    const deleteEvent = (id) => {
+        Modal.confirm({
+            title: "Are you sure you want to delete this event?",
+            okText: "Yes, Delete",
+            okType: "danger",
+            onOk: async () => {
+                try {
+                    await dispatch(removeEvent(id));
+                    message.success("Event deleted successfully!");
+                    dispatch(fetchEvents());
+                } catch (error) {
+                    message.error("Failed to delete event.");
+                }
+            },
+        });
+    };
 
-  const handleDelete = (eventId) => {
-    Modal.confirm({
-      title: "Are you sure you want to delete this event?",
-      content: "This action cannot be undone.",
-      okText: "Yes, Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk: () => dispatch(removeEvent(eventId)),
-    });
-  };
+    const editEvent = (event) => {
+        setEditingEvent(event);
+        showModal();
+    };
 
-  // ✅ Handle Event Creation Success
-  const handleEventAdded = () => {
-    setIsAddEventModalVisible(false);
-    message.success("Event added successfully! 🎉");
-    dispatch(fetchEvents()); // Refresh events list
-    fetchEventStats(); // Refresh stats
-  };
+    const columns = [
+        {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a, b) => a.name.localeCompare(b.name),
+        },
+        {
+            title: "Date",
+            dataIndex: "date",
+            key: "date",
+            sorter: (a, b) => new Date(a.date) - new Date(b.date),
+        },
+        {
+            title: "Location",
+            dataIndex: "location",
+            key: "location",
+        },
+        {
+            title: "Status",
+            dataIndex: "status",
+            key: "status",
+            filters: [
+                { text: "Upcoming", value: "upcoming" },
+                { text: "Completed", value: "completed" },
+            ],
+            filteredValue: filterStatus ? [filterStatus] : null,
+            onFilter: (value, record) => record.status === value,
+            render: (status) => (
+                <Tag color={status === "completed" ? "green" : "orange"}>
+                    {status.toUpperCase()}
+                </Tag>
+            ),
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <Space>
+                    <Button icon={<EditOutlined />} onClick={() => editEvent(record)}>Edit</Button>
+                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteEvent(record.id)}>Delete</Button>
+                </Space>
+            ),
+        },
+    ];
 
-  return (
-    <div className="p-6">
-      {/* ✅ Page Title */}
-      <Title level={2}>Manage Events</Title>
+    const tableData = events
+        .filter((event) => event.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        .map((event) => ({
+            key: event.id,
+            name: event.title,
+            date: event.date,
+            location: event.location,
+            status: event.is_completed || "",
+        }));
 
-      {/* ✅ Event Statistics */}
-      <Title level={4} className="mt-4">Event Statistics</Title>
-      {statsLoading ? (
-        <Spin size="large" />
-      ) : statsError ? (
-        <Alert message={statsError} type="error" showIcon />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card title="Total Events" variant className="shadow-lg">
-            <Title level={3}>{eventStats.total_events}</Title>
-          </Card>
-          <Card title="Completed Events" variant className="shadow-lg">
-            <Title level={3}>{eventStats.completed_events}</Title>
-          </Card>
-          <Card title="Upcoming Events" variant className="shadow-lg">
-            <Title level={3}>{eventStats.upcoming_events}</Title>
-          </Card>
-        </div>
-      )}
+    return (
+        <div className="p-6">
+            {/* ✅ Title Section Above the Table */}
+            <div>
+                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                    Manage Events
+                </h2>
+                <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+                    Events &gt; Review & Manage
+                </p>
+            </div>
 
-      {/* ✅ Add Event Button */}
-      <Space className="my-4">
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddEventModalVisible(true)}>
-          Add Event
-        </Button>
-      </Space>
-
-      {/* ✅ Events Table */}
-      <Title level={4} className="mt-4">Events List</Title>
-      {loading ? (
-        <Spin size="large" />
-      ) : error ? (
-        <Alert message={error} type="error" showIcon />
-      ) : (
-        <Table
-          dataSource={events}
-          rowKey="id"
-          variant
-          pagination={{ pageSize: 5 }}
-        >
-          <Table.Column title="Name" dataIndex="name" key="name" />
-          <Table.Column title="Date" dataIndex="date" key="date" />
-          <Table.Column title="Location" dataIndex="location" key="location" />
-          <Table.Column title="Status" dataIndex="status" key="status" />
-          <Table.Column
-            title="Actions"
-            key="actions"
-            render={(text, record) => (
-              <Space>
-                <Button type="primary" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-                <Button type="danger" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
-              </Space>
+            {/* ✅ Event Statistics */}
+            {statsLoading ? (
+                <Spin size="large" />
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                    <Card title="Total Events">{eventStats.total_events}</Card>
+                    <Card title="Completed Events">{eventStats.completed_events}</Card>
+                    <Card title="Upcoming Events">{eventStats.upcoming_events}</Card>
+                </div>
             )}
-          />
-        </Table>
-      )}
 
-      {/* ✅ Add Event Modal */}
-      <Modal
-        title="Add New Event"
-        open={isAddEventModalVisible}
-        footer={null}
-        onCancel={() => setIsAddEventModalVisible(false)}
-      >
-        <AddEventForm onEventAdded={handleEventAdded} />
-      </Modal>
+            {/* ✅ Search & Filter Controls */}
+            <div className="flex gap-4 mb-4">
+                <Input
+                    placeholder="Search by event name..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-40"
+                />
+                <Select
+                    placeholder="Filter by status"
+                    onChange={(value) => setFilterStatus(value)}
+                    className="w-40"
+                    allowClear
+                >
+                    <Option value="upcoming">Upcoming</Option>
+                    <Option value="completed">Completed</Option>
+                </Select>
+                <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    Add Event
+                </Button>
+            </div>
 
-      {/* ✅ Edit Event Modal */}
-      <Modal
-        title="Edit Event"
-        open={isEditEventModalVisible}
-        footer={null}
-        onCancel={() => setIsEditEventModalVisible(false)}
-      >
-        <EditEventForm event={editingEvent} onClose={() => setIsEditEventModalVisible(false)} />
-      </Modal>
-    </div>
-  );
+            {/* ✅ Events Table */}
+            <Table
+                columns={columns}
+                dataSource={tableData}
+                pagination={{ pageSize: 8 }}
+                loading={loading}
+                bordered
+                rowKey="key"
+            />
+
+            {/* ✅ Add / Edit Event Modal */}
+            <Modal
+                title={editingEvent ? "Edit Event" : "Add New Event"}
+                open={isModalVisible}
+                onCancel={closeModal}
+                footer={null}
+            >
+                <AddEventForm event={editingEvent} onClose={closeModal} />
+            </Modal>
+        </div>
+    );
 };
 
 export default ManageEvents;
