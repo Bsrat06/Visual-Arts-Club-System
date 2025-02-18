@@ -127,7 +127,7 @@ const ManageEvents = () => {
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                     Manage Events
                 </h2>
-                <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+                <p className="text-green-500 text-sm font-[Poppins] mt-1">
                     Events &gt; Review & Manage
                 </p>
             </div>
@@ -145,6 +145,7 @@ const ManageEvents = () => {
 
             {/* ✅ Table with Drop-shadow */}
             <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Events</h2>
                 {/* ✅ Search, Filter, and Add Button Inside Table */}
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
                     <div className="flex gap-4">

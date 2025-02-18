@@ -7,12 +7,11 @@ import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
 
-
 const { Option } = Select;
 
 const ManageProjects = () => {
     const dispatch = useDispatch();
-    const { projects, loading, error } = useSelector((state) => state.projects);
+    const { projects, loading } = useSelector((state) => state.projects);
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -117,15 +116,9 @@ const ManageProjects = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button icon={<EyeOutlined />} onClick={() => viewProject(record)}>
-                        View
-                    </Button>
-                    <Button icon={<EditOutlined />} onClick={() => editProject(record)}>
-                        Edit
-                    </Button>
-                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>
-                        Delete
-                    </Button>
+                    <Button icon={<EyeOutlined />} onClick={() => viewProject(record)}>View</Button>
+                    <Button icon={<EditOutlined />} onClick={() => editProject(record)}>Edit</Button>
+                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
                 </Space>
             ),
         },
@@ -144,12 +137,12 @@ const ManageProjects = () => {
 
     return (
         <div className="p-6">
-            {/* ✅ Title Section Above the Table */}
+            {/* ✅ Title Section */}
             <div>
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                     Manage Projects
                 </h2>
-                <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+                <p className="text-green-500 text-sm font-[Poppins] mt-1">
                     Projects &gt; Review & Manage
                 </p>
             </div>
@@ -165,37 +158,43 @@ const ManageProjects = () => {
                 </div>
             )}
 
-            {/* ✅ Search & Filter Controls */}
-            <div className="flex gap-4 mb-4">
-                <Input
-                    placeholder="Search by project title..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-40"
-                />
-                <Select
-                    placeholder="Filter by status"
-                    onChange={(value) => setFilterStatus(value)}
-                    className="w-40"
-                    allowClear
-                >
-                    <Option value="completed">Completed</Option>
-                    <Option value="ongoing">Ongoing</Option>
-                </Select>
-                <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                    Add Project
-                </Button>
-            </div>
+            {/* ✅ Table with Drop-shadow */}
+            <div className="bg-white shadow-md rounded-lg p-4">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Projects</h2>
+                {/* ✅ Search, Filter, and Add Button Inside Table */}
+                <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
+                    <div className="flex gap-4">
+                        <Input
+                            placeholder="Search by project title..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-40"
+                        />
+                        <Select
+                            placeholder="Filter by status"
+                            onChange={(value) => setFilterStatus(value)}
+                            className="w-40"
+                            allowClear
+                        >
+                            <Option value="completed">Completed</Option>
+                            <Option value="ongoing">Ongoing</Option>
+                        </Select>
+                    </div>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                        Add Project
+                    </Button>
+                </div>
 
-            {/* ✅ Projects Table */}
-            <Table
-                columns={columns}
-                dataSource={tableData}
-                pagination={{ pageSize: 8 }}
-                loading={loading}
-                bordered
-                rowKey="key"
-            />
+                {/* ✅ Projects Table */}
+                <Table
+                    columns={columns}
+                    dataSource={tableData}
+                    pagination={{ pageSize: 8 }}
+                    loading={loading}
+                    bordered
+                    rowKey="key"
+                />
+            </div>
 
             {/* ✅ Add / Edit Project Modal */}
             <Modal
@@ -230,9 +229,7 @@ const ManageProjects = () => {
                         </p>
                         <p>
                             <strong>Status:</strong>{" "}
-                            <span
-                                className={selectedProject.status === "completed" ? "text-green-500" : "text-orange-500"}
-                            >
+                            <span className={selectedProject.status === "completed" ? "text-green-500" : "text-orange-500"}>
                                 {selectedProject.status?.toUpperCase()}
                             </span>
                         </p>

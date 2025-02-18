@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
-import { Input, Select, Button, Tag, Space, Image, Modal, message, Card, Spin, Alert } from "antd";
+import { Input, Select, Button, Tag, Space, Image, Modal, message, Card, Spin } from "antd";
 import { CheckOutlined, CloseOutlined, EyeOutlined, PlusOutlined } from "@ant-design/icons";
 import AddArtworkForm from "../../components/Admin/AddArtworkForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
 
-
 const { Option } = Select;
 
 const ManageArtworks = () => {
   const dispatch = useDispatch();
-  const { artworks, loading, error } = useSelector((state) => state.artwork);
+  const { artworks, loading } = useSelector((state) => state.artwork);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -141,14 +140,11 @@ const ManageArtworks = () => {
   return (
     <div className="p-6">
       {/* ✅ Title Section */}
-       <div>
-          <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-            Manage Artworks
-          </h2>
-          <p className="text-gray-500 text-sm font-[Poppins] mt-1">
-            Artworks &gt; Review & Manage
-          </p>
-        </div>
+      <div>
+        <h2 className="text-black text-[22px] font-medium font-[Poppins]">Manage Artworks</h2>
+        <p className="text-green-500 text-sm font-[Poppins] mt-1">Artworks &gt; Review & Manage</p>
+      </div>
+
       {/* ✅ Artwork Statistics */}
       {statsLoading ? (
         <Spin size="large" />
@@ -160,49 +156,49 @@ const ManageArtworks = () => {
           <Card title="Rejected Artworks">{artworkStats.rejected_artworks}</Card>
         </div>
       )}
-      <div className="w-full bg-white h-[130px] flex flex-col md:flex-row justify-between items-center px-6 shadow-md rounded-md mb-4">
-       
-        {/* ✅ Search & Filter Controls */}
-        <div className="flex gap-4">
-          <Input
-            placeholder="Search by title..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-40"
-          />
-          <Select
-            placeholder="Filter by status"
-            onChange={(value) => setFilterStatus(value)}
-            className="w-40"
-            allowClear
-          >
-            <Option value="approved">Approved</Option>
-            <Option value="pending">Pending</Option>
-            <Option value="rejected">Rejected</Option>
-          </Select>
-          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
-            Add Artwork
-          </Button>
+
+      {/* ✅ Table with Drop-shadow */}
+      <div className="bg-white shadow-md rounded-lg p-4">
+      <h3 className="text-black text-[22px] font-semibold font-[Poppins]">All Artworks</h3>
+        {/* ✅ Search, Filter, and Add Button Inside Table */}
+        <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
+          <div className="flex gap-4">
+            <Input
+              placeholder="Search by title..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-40"
+            />
+            <Select
+              placeholder="Filter by status"
+              onChange={(value) => setFilterStatus(value)}
+              className="w-40"
+              allowClear
+            >
+              <Option value="approved">Approved</Option>
+              <Option value="pending">Pending</Option>
+              <Option value="rejected">Rejected</Option>
+            </Select>
+          </div>
+          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>Add Artwork</Button>
         </div>
+
+        {/* ✅ Artworks Table */}
+        <Table
+          columns={columns}
+          dataSource={filteredArtworks}
+          pagination={{ pageSize: 8 }}
+          loading={loading}
+        />
       </div>
 
-      
-
-      {/* ✅ Artworks Table */}
-      <Table
-        columns={columns}
-        dataSource={filteredArtworks}
-        pagination={{ pageSize: 8 }}
-        loading={loading}
-      />
-
       {/* ✅ Add Artwork Modal */}
-      <Modal title="Add New Artwork" visible={isModalVisible} onCancel={closeModal} footer={null}>
+      <Modal title="Add New Artwork" open={isModalVisible} onCancel={closeModal} footer={null}>
         <AddArtworkForm onArtworkAdded={closeModal} />
       </Modal>
 
       {/* ✅ View Artwork Modal */}
-      <Modal title="Artwork Details" visible={isViewModalVisible} onCancel={() => setIsViewModalVisible(false)} footer={null}>
+      <Modal title="Artwork Details" open={isViewModalVisible} onCancel={() => setIsViewModalVisible(false)} footer={null}>
         {selectedArtwork && (
           <div>
             <Image width={250} src={selectedArtwork.image_url} />

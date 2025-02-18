@@ -7,8 +7,6 @@ import {
   LogoutOutlined,
   BellOutlined,
   DownOutlined,
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
 } from "@ant-design/icons";
 
 const { Header } = Layout;
@@ -34,31 +32,22 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
     <Header
       className="flex justify-between items-center bg-white px-6 fixed top-0"
       style={{
-        left: collapsed ? 80 : 300, // ✅ Matches Sidebar Width
-        width: `calc(100% - ${collapsed ? 80 : 300}px)`, // ✅ Adjusts Responsively
-        height: "80px", // ✅ Increased Navbar Height
+        left: collapsed ? 80 : 300,
+        width: `calc(100% - ${collapsed ? 80 : 300}px)`,
+        height: "80px",
         transition: "left 0.3s ease, width 0.3s ease",
-        zIndex: 10, // ✅ Stays Behind Sidebar Shadow
-        fontFamily: "'Poppins', sans-serif", // ✅ Poppins Applied Globally
+        zIndex: 10,
+        fontFamily: "'Poppins', sans-serif",
       }}
     >
-      {/* Sidebar Toggle Button */}
-      {/* <div
-        className="cursor-pointer text-lg mr-4"
-        onClick={() => setCollapsed(!collapsed)}
-        style={{ marginRight: collapsed ? "10px" : "20px" }} // ✅ Space for Greeting
-      >
-        {collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-      </div> */}
-
       {/* Left Section - Greeting */}
       <div
         className="text-black font-medium"
         style={{
-          fontstyle: "poppins",
+          fontStyle: "poppins",
           fontSize: "24px",
           letterSpacing: "0%",
-          flexGrow: 1, // ✅ Pushes Content to Right
+          flexGrow: 1,
         }}
       >
         Hello {user?.first_name || "User"} 👋🏼,
@@ -75,7 +64,7 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
         </Link>
 
         {/* Profile Info & Dropdown */}
-        <Dropdown menu={menu} trigger={["click"]}>
+        <Dropdown overlay={menu} trigger={["click"]}>
           <div className="flex items-center cursor-pointer">
             {/* Avatar */}
             <Avatar src={user?.profile_picture || "/default-avatar.png"} size={40} className="mr-3" />
