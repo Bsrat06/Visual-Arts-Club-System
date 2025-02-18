@@ -6,7 +6,8 @@ class EventSerializer(serializers.ModelSerializer):
     attendees = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False  # ✅ Handle Many-to-Many attendees correctly
     )
-
+    event_cover = serializers.ImageField(required=False)
+    
     class Meta:
         model = Event
         fields = '__all__'

@@ -10,11 +10,13 @@ from rest_framework.views import APIView
 from .models import Event, EventRegistration
 from django.db import models
 from django.db.models import Count
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
+    parser_classes = (MultiPartParser, FormParser)
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     
     # Enable filtering by date and location

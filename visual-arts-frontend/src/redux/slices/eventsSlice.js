@@ -22,6 +22,7 @@ export const addEvent = createAsyncThunk("events/add", async (data, thunkAPI) =>
     const response = await API.post("events/", data, {
       headers: {
         Authorization: `Token ${token}`, // ✅ Ensure admin token is sent
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;

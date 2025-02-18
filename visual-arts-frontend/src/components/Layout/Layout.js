@@ -41,14 +41,7 @@ const AppLayout = ({ children }) => {
             boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)", // Subtle shadow for depth
           }}
         >
-          <Button
-            type="primary"
-            onClick={toggleSidebar}
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            style={{
-              marginLeft: 16,
-            }}
-          />
+          
           <Navbar onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
         </Header>
 

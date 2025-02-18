@@ -6,6 +6,7 @@ class Event(models.Model):
     description = models.TextField()
     location = models.CharField(max_length=255)
     date = models.DateField()
+    event_cover = models.ImageField(upload_to="event_covers/", null=True, blank=True)
     attendees = models.ManyToManyField(CustomUser, related_name="events_attending", blank=True)
     creator = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="events_created")  # ✅ Ensure creator is properly defined
     is_completed = models.BooleanField(default=False)
