@@ -8,13 +8,11 @@ import API from "../../services/api";
 
 const { Option } = Select;
 
-
-
 const ManageArtworks = () => {
   const dispatch = useDispatch();
   const { artworks, loading, error } = useSelector((state) => state.artwork);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterStatus, setFilterStatus] = useState(""); // Filter for status
+  const [filterStatus, setFilterStatus] = useState("");
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
@@ -22,29 +20,22 @@ const ManageArtworks = () => {
   const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
-    dispatch(fetchAllArtworks()); // ✅ Fetch ALL artworks, including pending & rejected
-    console.log("Current Artworks: ", artworks);
-  
-  
-  },[dispatch]);
+    dispatch(fetchAllArtworks());
+  }, [dispatch]);
 
-  // ✅ Show "Add Artwork" Modal
   const showModal = () => setIsModalVisible(true);
   const closeModal = () => setIsModalVisible(false);
 
-  // ✅ Show "View Artwork" Modal
   const viewArtwork = (artwork) => {
     setSelectedArtwork(artwork);
     setIsViewModalVisible(true);
   };
 
-  // ✅ Show "Reject Artwork" Modal
   const rejectArtwork = (artwork) => {
     setSelectedArtwork(artwork);
     setIsRejectModalVisible(true);
   };
 
-  // ✅ Approve Artwork
   const approveArtwork = async (id) => {
     try {
       await API.patch(`artwork/${id}/approve/`);
@@ -55,7 +46,6 @@ const ManageArtworks = () => {
     }
   };
 
-  // ✅ Reject Artwork with Feedback
   const handleRejectWithFeedback = async () => {
     try {
       await API.patch(`artwork/${selectedArtwork.id}/reject/`, { feedback });
@@ -68,14 +58,12 @@ const ManageArtworks = () => {
     }
   };
 
-  // ✅ Filter Artworks Based on Search & Status
   const filteredArtworks = artworks.filter(
     (art) =>
       art.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      (filterStatus === "" || art.approval_status === filterStatus) // ✅ Ensure correct filtering
+      (filterStatus === "" || art.approval_status === filterStatus)
   );
 
-  // ✅ Define Table Columns
   const columns = [
     {
       title: "Preview",
@@ -120,19 +108,14 @@ const ManageArtworks = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          {/* ✅ View Details */}
           <Button icon={<EyeOutlined />} onClick={() => viewArtwork(record)}>
             View
           </Button>
-
-          {/* ✅ Approve (Only for Pending & Rejected Artworks) */}
           {(record.approval_status === "pending" || record.approval_status === "rejected") && (
             <Button icon={<CheckOutlined />} type="primary" onClick={() => approveArtwork(record.id)}>
               Approve
             </Button>
           )}
-
-          {/* ✅ Reject (Only for Pending Artworks) */}
           {record.approval_status === "pending" && (
             <Button icon={<CloseOutlined />} danger onClick={() => rejectArtwork(record)}>
               Reject
@@ -145,38 +128,46 @@ const ManageArtworks = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Manage Artworks</h1>
+      {/* ✅ Title Section Above the Table */}
+      <div className="w-full bg-white h-[130px] flex flex-col md:flex-row justify-between items-center px-6 shadow-md rounded-md mb-4">
+        <div>
+          <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+            Manage Artworks
+          </h2>
+          <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+            Artworks &gt; Review & Manage
+          </p>
+        </div>
 
-      {/* ✅ Search & Filter */}
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
-        <Input
-          placeholder="Search by title..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="md:w-1/2"
-        />
-        <Select
-          placeholder="Filter by status"
-          value={filterStatus}
-          onChange={(value) => setFilterStatus(value)}
-          className="md:w-1/4"
-          allowClear
-        >
-          <Option value="approved">Approved</Option>
-          <Option value="pending">Pending</Option>
-          <Option value="rejected">Rejected</Option>
-        </Select>
+        {/* ✅ Search & Filter Controls */}
+        <div className="flex gap-4">
+          <Input
+            placeholder="Search by title..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-40"
+          />
+          <Select
+            placeholder="Filter by status"
+            value={filterStatus}
+            onChange={(value) => setFilterStatus(value)}
+            className="w-40"
+            allowClear
+          >
+            <Option value="approved">Approved</Option>
+            <Option value="pending">Pending</Option>
+            <Option value="rejected">Rejected</Option>
+          </Select>
+          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+            Add Artwork
+          </Button>
+        </div>
       </div>
 
-      {/* ✅ Add Artwork Button (Opens Modal) */}
-      <Button type="primary" icon={<PlusOutlined />} onClick={showModal} className="mb-4">
-        Add New Artwork
-      </Button>
-
-      {/* ✅ Ant Design Table */}
+      {/* ✅ Artworks Table */}
       <Table
         columns={columns}
-        dataSource={filteredArtworks} // ✅ Use filtered artworks
+        dataSource={filteredArtworks}
         pagination={{ pageSize: 8 }}
         loading={loading}
         bordered

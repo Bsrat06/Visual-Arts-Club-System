@@ -51,7 +51,7 @@ const ManageProjects = () => {
                 try {
                     await dispatch(removeProject(id));
                     message.success("Project deleted successfully!");
-                    dispatch(fetchProjects()); // Refresh the project list
+                    dispatch(fetchProjects());
                 } catch (error) {
                     message.error("Failed to delete project.");
                 }
@@ -61,7 +61,7 @@ const ManageProjects = () => {
 
     const editProject = (project) => {
         setEditingProject(project);
-        showModal(); // Open the modal for editing
+        showModal();
     };
 
     const viewProject = (project) => {
@@ -134,12 +134,44 @@ const ManageProjects = () => {
         description: project.description,
         start_date: project.start_date,
         end_date: project.end_date,
-        status: project.status || "", // Provide default if status is missing
+        status: project.status || "",
     }));
 
     return (
         <div className="p-6">
-            <h1 className="text-3xl font-bold mb-6">Manage Projects</h1>
+            {/* ✅ Title Section Above the Table */}
+            <div className="w-full bg-white h-[130px] flex flex-col md:flex-row justify-between items-center px-6 shadow-md rounded-md mb-4">
+                <div>
+                    <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                        Manage Projects
+                    </h2>
+                    <p className="text-gray-500 text-sm font-[Poppins] mt-1">
+                        Projects &gt; Review & Manage
+                    </p>
+                </div>
+
+                {/* ✅ Search & Filter Controls */}
+                <div className="flex gap-4">
+                    <Input
+                        placeholder="Search by title..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-40"
+                    />
+                    <Select
+                        placeholder="Filter by status"
+                        onChange={(value) => setFilterStatus(value)}
+                        className="w-40"
+                        allowClear
+                    >
+                        <Option value="completed">Completed</Option>
+                        <Option value="ongoing">Ongoing</Option>
+                    </Select>
+                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                        Add Project
+                    </Button>
+                </div>
+            </div>
 
             {/* ✅ Project Statistics */}
             {statsLoading ? (
@@ -152,31 +184,7 @@ const ManageProjects = () => {
                 </div>
             )}
 
-            {/* ✅ Search & Filter */}
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
-                <Input
-                    placeholder="Search by title..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="md:w-1/2"
-                />
-                <Select
-                    placeholder="Filter by status"
-                    onChange={(value) => setFilterStatus(value)}
-                    className="md:w-1/4"
-                    allowClear
-                >
-                    <Option value="completed">Completed</Option>
-                    <Option value="ongoing">Ongoing</Option>
-                </Select>
-            </div>
-
-            {/* ✅ Add Project Button */}
-            <Button type="primary" icon={<PlusOutlined />} onClick={showModal} className="mb-4">
-                Add New Project
-            </Button>
-
-            {/* ✅ Ant Design Table */}
+            {/* ✅ Projects Table */}
             <Table
                 columns={columns}
                 dataSource={tableData}
