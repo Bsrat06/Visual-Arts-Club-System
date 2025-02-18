@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
-import { Table, Input, Button, Space, Modal, message, Select, Card, Tag } from "antd";
+import { Input, Button, Space, Modal, message, Select, Card, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
+import Table from "../../components/Shared/Table";
+
 
 const { Option } = Select;
 
