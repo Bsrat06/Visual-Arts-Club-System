@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { editArtwork } from "../../redux/slices/artworkSlice";
 import API from "../../services/api";
+import "../../styles/custom-ant.css";
 
 const EditArtworkForm = ({ artwork, onClose }) => {
   const dispatch = useDispatch();
@@ -88,7 +89,7 @@ const EditArtworkForm = ({ artwork, onClose }) => {
       </div>
       <button
         type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded mr-2"
+        className="add-artwork-btn"
       >
         Update Artwork
       </button>

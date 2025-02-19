@@ -6,6 +6,9 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import AddEventForm from "../../components/Admin/AddEventForm";
 import Table from "../../components/Shared/Table";
 import API from "../../services/api";
+import "../../styles/custom-ant.css";
+
+
 
 const { Option } = Select;
 
@@ -102,7 +105,7 @@ const ManageEvents = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button icon={<EditOutlined />} onClick={() => editEvent(record)}>Edit</Button>
+                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editEvent(record)}>Edit</Button>
                     <Button icon={<DeleteOutlined />} danger onClick={() => deleteEvent(record.id)}>Delete</Button>
                 </Space>
             ),
@@ -154,7 +157,7 @@ const ManageEvents = () => {
                             <Option value="pending">Pending</Option>
                         </Select>
                     </div>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
                         Add Event
                     </Button>
                 </div>

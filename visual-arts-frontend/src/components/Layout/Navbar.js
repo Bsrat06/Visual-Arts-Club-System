@@ -3,7 +3,7 @@ import { Layout, Avatar, Dropdown, Menu } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
-  SettingOutlined,
+  UserOutlined,
   LogoutOutlined,
   BellOutlined,
   DownOutlined,
@@ -17,9 +17,9 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
 
   const menu = (
     <Menu>
-      <Menu.Item key="settings">
-        <Link to="/settings">
-          <SettingOutlined /> Settings
+      <Menu.Item key="profile">
+        <Link to="/profile">
+          <UserOutlined /> Profile
         </Link>
       </Menu.Item>
       <Menu.Item key="logout" onClick={onLogout}>

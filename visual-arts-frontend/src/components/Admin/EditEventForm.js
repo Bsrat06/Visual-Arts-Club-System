@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { editEvent } from "../../redux/slices/eventsSlice";
 import API from "../../services/api";
+import "../../styles/custom-ant.css";
 
 const EditEventForm = ({ event, onClose }) => {
   const dispatch = useDispatch();
@@ -112,7 +113,7 @@ const EditEventForm = ({ event, onClose }) => {
         placeholder="Enter Attendee Emails (comma-separated)"
         className="border p-2 rounded w-full mb-2"
       />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+      <button type="submit" className="add-artwork-btn">
         Update Event
       </button>
     </form>

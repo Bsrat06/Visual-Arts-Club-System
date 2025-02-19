@@ -5,6 +5,7 @@ import { Input, Select, Button, Space, Image, Modal, message, Card, Pagination, 
 import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import Table from "../../components/Shared/Table";
+import "../../styles/custom-ant.css";
 
 const { Option } = Select;
 
@@ -56,8 +57,8 @@ const Portfolio = () => {
     const columns = [
         {
             title: "Preview",
-            dataIndex: "image_url",
-            key: "image_url",
+            dataIndex: "image",
+            key: "image",
             render: (image) => <Image width={50} height={50} src={image} alt="Artwork" />,
         },
         {
@@ -86,7 +87,7 @@ const Portfolio = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button icon={<EditOutlined />} onClick={() => console.log("Edit", record)}>Edit</Button>
+                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => console.log("Edit", record)}>Edit</Button>
                     <Button icon={<DeleteOutlined />} danger onClick={() => confirmDelete(record)}>Delete</Button>
                 </Space>
             ),
@@ -98,7 +99,7 @@ const Portfolio = () => {
             {/* ✅ Title Section */}
             <div>
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Portfolio</h2>
-                <p className="text-gray-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
+                <p className="text-green-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
             </div>
 
             {/* ✅ Portfolio Statistics Section */}
@@ -133,7 +134,7 @@ const Portfolio = () => {
                         </Select>
                     </div>
                     <Link to="/member/new-artwork">
-                        <Button type="primary" icon={<PlusOutlined />}>
+                        <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined /> }>
                             Add New Artwork
                         </Button>
                     </Link>
@@ -157,7 +158,7 @@ const Portfolio = () => {
                         total={userArtworks.length}
                         pageSize={artworksPerPage}
                         onChange={(page) => setCurrentPage(page)}
-                        className="mt-4 text-center"
+                        className="mt-4 text-center "
                     />
                 )}
             </div>

@@ -3,6 +3,7 @@ import { Form, Input, Upload, Select, Button, message } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { addArtwork } from "../../redux/slices/artworkSlice";
 import { UploadOutlined } from "@ant-design/icons";
+import "../../styles/custom-ant.css";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -108,7 +109,7 @@ const AddArtworkForm = ({ onArtworkAdded }) => {
 
       {/* Submit Button */}
       <Form.Item>
-        <Button type="primary" htmlType="submit" block>
+        <Button className="add-artwork-btn" type="primary" htmlType="submit" block>
           Submit Artwork
         </Button>
       </Form.Item>

@@ -6,6 +6,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-de
 import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
+import "../../styles/custom-ant.css";
 
 const { Option } = Select;
 
@@ -116,8 +117,8 @@ const ManageProjects = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button icon={<EyeOutlined />} onClick={() => viewProject(record)}>View</Button>
-                    <Button icon={<EditOutlined />} onClick={() => editProject(record)}>Edit</Button>
+                    <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => viewProject(record)}>View</Button>
+                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editProject(record)}>Edit</Button>
                     <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
                 </Space>
             ),
@@ -180,7 +181,7 @@ const ManageProjects = () => {
                             <Option value="ongoing">Ongoing</Option>
                         </Select>
                     </div>
-                    <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
                         Add Project
                     </Button>
                 </div>

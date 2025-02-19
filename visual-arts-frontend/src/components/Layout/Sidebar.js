@@ -34,8 +34,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { key: "2", path: "/member/portfolio", label: "My Portfolio", icon: <AppstoreOutlined /> },
     { key: "3", path: "/visitor/events", label: "Events", icon: <CalendarOutlined /> },
     { key: "4", path: "/visitor/projects", label: "Projects", icon: <ProjectOutlined /> },
-    { key: "5", path: "/profile", label: "Profile", icon: <UserOutlined /> },
-    { key: "6", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
+    { key: "5", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
   const menuItems = userRole === "admin" ? adminMenu : memberMenu;
@@ -46,10 +45,12 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
       collapsed={collapsed}
       onCollapse={setCollapsed}
       style={{
+        position: "fixed",
         height: "100vh",
         background: "#FFFFFF",
         boxShadow: "0px 10px 60px rgba(226, 236, 249, 0.5)",
         transition: "width 0.3s ease",
+        zIndex: 100,
       }}
     >
       {/* Collapse Icon */}
@@ -80,6 +81,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         defaultSelectedKeys={["1"]}
         style={{
           fontFamily: "Poppins, sans-serif",
+          border: "none",
           fontSize: "14px",
           fontWeight: "500",
           letterSpacing: "-1%",

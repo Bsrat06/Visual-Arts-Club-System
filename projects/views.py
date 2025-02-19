@@ -7,11 +7,15 @@ from .serializers import ProjectSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser, FormParser
+
+
 
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    parser_classes = [MultiPartParser, FormParser]
     
     # Enable filtering by start_date and members
     filterset_fields = ['start_date', 'members']

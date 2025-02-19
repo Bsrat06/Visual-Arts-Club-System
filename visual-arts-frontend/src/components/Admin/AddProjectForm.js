@@ -3,6 +3,8 @@ import { useDispatch } from "react-redux";
 import { addProject } from "../../redux/slices/projectsSlice";
 import { Form, Input, DatePicker, Select, Button, message } from "antd";
 import API from "../../services/api";
+import "../../styles/custom-ant.css";
+
 
 const { Option } = Select;
 
@@ -51,7 +53,7 @@ const AddProjectForm = ({ onClose }) => {
       <Form.Item label="End Date" name="end_date" rules={[{ required: true }]}>
         <DatePicker />
       </Form.Item>
-      <Button type="primary" htmlType="submit">Submit</Button>
+      <Button className="add-artwork-btn" type="primary" htmlType="submit">Submit</Button>
     </Form>
   );
 };

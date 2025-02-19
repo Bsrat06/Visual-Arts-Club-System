@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { editProject } from "../../redux/slices/projectsSlice";
 import API from "../../services/api";
+import "../../styles/custom-ant.css";
 
 const EditProjectForm = ({ project, onClose }) => {
   const dispatch = useDispatch();
@@ -157,7 +158,7 @@ const EditProjectForm = ({ project, onClose }) => {
         required
         className="border p-2 rounded mr-2"
       />
-      <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
+      <button type="submit" className="add-artwork-btn">
         Save
       </button>
       <button

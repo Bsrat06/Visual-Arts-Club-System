@@ -1,0 +1,36 @@
+.my-custom-pagination .ant-pagination-item-active a {
+    color: #FF6B6B !important; /* Active page number color */
+    border-color: #FF6B6B !important; /* Active page number border color */
+}
+
+.my-custom-pagination .ant-pagination-item a {
+    color: #333 !important; /* Inactive page number color */
+}
+
+.my-custom-pagination .ant-pagination-item:hover a {
+    color: #FF6B6B !important; /* Hover page number color */
+}
+
+.my-custom-pagination .ant-pagination-prev,
+.my-custom-pagination .ant-pagination-next {
+    color: #333 !important; /* Prev/Next button color */
+}
+
+.my-custom-pagination .ant-pagination-prev:hover,
+.my-custom-pagination .ant-pagination-next:hover {
+    color: #FF6B6B !important; /* Hover Prev/Next button color */
+}
+
+.my-custom-pagination .ant-pagination-disabled {
+  color: #ccc !important; /* Disabled color */
+}
+
+.my-custom-pagination .ant-pagination-jump-prev,
+.my-custom-pagination .ant-pagination-jump-next{
+    color: #333 !important; /* jump-prev/next color */
+}
+
+.my-custom-pagination .ant-pagination-jump-prev:hover,
+.my-custom-pagination .ant-pagination-jump-next:hover{
+    color: #FF6B6B !important; /* hover jump-prev/next color */
+}

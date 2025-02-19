@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { addEvent } from "../../redux/slices/eventsSlice";
 import API from "../../services/api";
 import dayjs from "dayjs";
+import "../../styles/custom-ant.css";
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -107,7 +108,7 @@ const AddEventForm = ({ onEventAdded }) => {
 
       {/* Submit Button */}
       <Form.Item>
-        <Button type="primary" htmlType="submit" block>
+        <Button className="add-artwork-btn" type="primary" htmlType="submit" block>
           Add Event
         </Button>
       </Form.Item>

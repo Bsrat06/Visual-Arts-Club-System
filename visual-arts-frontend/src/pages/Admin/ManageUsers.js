@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, deactivateUser, updateUserRole } from "../../redux/slices/userSlice";
+import { fetchUsers, deactivateUser, activateUser, updateUserRole } from "../../redux/slices/userSlice";
 import { Input, Select, Button, Space, Avatar, Tag, message, Card } from "antd";
-import { FaUsers, FaUserCheck, FaUser, FaEye, FaUserSlash } from "react-icons/fa";
+import { FaUsers, FaUserCheck, FaUser, FaEye, FaUserSlash, FaUserPlus } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/Shared/Table";
+import "../../styles/custom-ant.css";
 
 const { Option } = Select;
 
@@ -27,6 +28,11 @@ const ManageUsers = () => {
     const handleDeactivateUser = (id) => {
         dispatch(deactivateUser(id));
         message.success("User has been deactivated");
+    };
+
+    const handleActivateUser = (id) => {
+        dispatch(activateUser(id));
+        message.success("User has been activated");
     };
 
     const handleViewProfile = (pk) => {
@@ -103,8 +109,12 @@ const ManageUsers = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button icon={<FaEye />} onClick={() => handleViewProfile(record.pk)}>View</Button>
-                    <Button icon={<FaUserSlash />} danger onClick={() => handleDeactivateUser(record.pk)}>Deactivate</Button>
+                    <Button className="custom-view-btn" icon={<FaEye />} onClick={() => handleViewProfile(record.pk)}>View</Button>
+                    {record.is_active ? (
+                        <Button icon={<FaUserSlash />} danger onClick={() => handleDeactivateUser(record.pk)}>Deactivate</Button>
+                    ) : (
+                        <Button className="custom-activate-btn" icon={<FaUserPlus />} ghost type="primary" onClick={() => handleActivateUser(record.pk)}>Activate</Button>
+                    )}
                 </Space>
             ),
         },
@@ -127,13 +137,9 @@ const ManageUsers = () => {
 
     return (
         <div className="p-6">
-            {/* ✅ Title Section */}
-            <div>
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Users</h2>
-                <p className="text-green-500 text-sm font-[Poppins] mt-1">User Management &gt; View & Manage</p>
-            </div>
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Users</h2>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">User Management &gt; View & Manage</p>
 
-            {/* ✅ User Statistics Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 {statistics.map((stat, index) => (
                     <Card key={index} className="shadow-lg p-4 flex flex-col items-center text-center">
@@ -146,34 +152,28 @@ const ManageUsers = () => {
                 ))}
             </div>
 
-            {/* ✅ Table with Drop-shadow */}
             <div className="bg-white shadow-md rounded-lg p-4">
-            <div>
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Users</h2>
-            </div>
-                {/* ✅ Search and Filter Inside Table */}
+
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
-                    <div className="flex gap-4">
-                        <Input
-                            placeholder="Search by name or email..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-40"
-                        />
-                        <Select
-                            placeholder="Filter by role"
-                            onChange={(value) => setFilteredInfo({ role: [value] })}
-                            className="w-40"
-                            allowClear
-                        >
-                            <Option value="admin">Admin</Option>
-                            <Option value="member">Member</Option>
-                            <Option value="visitor">Visitor</Option>
-                        </Select>
-                    </div>
+                    <Input
+                        placeholder="Search by name or email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-40"
+                    />
+                    <Select
+                        placeholder="Filter by role"
+                        onChange={(value) => setFilteredInfo({ role: [value] })}
+                        className="w-40"
+                        allowClear
+                    >
+                        <Option value="admin">Admin</Option>
+                        <Option value="member">Member</Option>
+                        <Option value="visitor">Visitor</Option>
+                    </Select>
                 </div>
 
-                {/* ✅ Users Table */}
                 <Table
                     columns={columns}
                     dataSource={tableData}

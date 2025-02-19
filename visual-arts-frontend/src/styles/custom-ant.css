@@ -1,0 +1,55 @@
+/* Change Edit button hover color to orange */
+
+
+.custom-view-btn:hover {
+    border-color: lightgrey !important;
+    color: #313131 !important;  /* White text on hover */
+}
+
+
+/* Custom styles for Edit button */
+.custom-edit-btn {
+    background-color: white !important;  /* Keep background white */
+    border-color: lightgray !important;  /* Orange border */
+}
+
+/* Change the hover effect for Edit button */
+.custom-edit-btn:hover {
+    border-color: orange !important;
+    color: orange !important;  /* White text on hover */
+}
+
+/* Customize Edit Icon color */
+.custom-edit-btn .anticon {
+    color: black !important;  /* Orange icon */
+}
+
+/* Change Edit Icon color on hover */
+.custom-edit-btn:hover .anticon {
+    color: orange !important;  /* White icon on hover */
+}
+
+
+
+/* Make 'Add New Artwork' button orange */
+.add-artwork-btn {
+    background-color: orange !important;
+    border-color: orange !important;
+}
+
+.add-artwork-btn:hover {
+    background-color: orange !important;
+}
+
+
+/* Change search and filter hover colors */
+.ant-input:hover,
+.ant-select-selector:hover {
+    border-color: orange !important;
+}
+
+
+.custom-activate-btn {
+    border-color: #b7eb8f !important;
+    color: #389e0d !important;  /* White text on hover */
+}

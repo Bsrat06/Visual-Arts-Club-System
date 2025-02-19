@@ -6,6 +6,7 @@ import { CheckOutlined, CloseOutlined, EyeOutlined, PlusOutlined } from "@ant-de
 import AddArtworkForm from "../../components/Admin/AddArtworkForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
+import "../../styles/custom-ant.css";
 
 const { Option } = Select;
 
@@ -125,7 +126,7 @@ const ManageArtworks = () => {
       key: "actions",
       render: (_, record) => (
         <Space>
-          <Button icon={<EyeOutlined />} onClick={() => viewArtwork(record)}>View</Button>
+          <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => viewArtwork(record)}>View</Button>
           {(record.approval_status === "pending" || record.approval_status === "rejected") && (
             <Button icon={<CheckOutlined />} type="primary" onClick={() => approveArtwork(record.id)}>Approve</Button>
           )}
@@ -180,7 +181,7 @@ const ManageArtworks = () => {
               <Option value="rejected">Rejected</Option>
             </Select>
           </div>
-          <Button type="primary" icon={<PlusOutlined />} onClick={showModal}>Add Artwork</Button>
+          <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>Add Artwork</Button>
         </div>
 
         {/* ✅ Artworks Table */}

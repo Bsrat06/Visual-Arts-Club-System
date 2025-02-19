@@ -6,6 +6,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     members = serializers.PrimaryKeyRelatedField(
         queryset=CustomUser.objects.all(), many=True, required=False  # ✅ Allow empty members list
     )
+    image = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Project
