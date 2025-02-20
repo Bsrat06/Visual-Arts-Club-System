@@ -1,8 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks, removeArtwork } from "../../redux/slices/artworkSlice";
-import { Input, Select, Button, Space, Image, Modal, message, Card, Pagination, Tag } from "antd";
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+    Input,
+    Select,
+    Button,
+    Space,
+    Image,
+    Modal,
+    message,
+    Card,
+    Pagination,
+    Tag,
+    Spin,
+} from "antd";
+import {
+    FaPalette,
+    FaPencilRuler,
+    FaLaptopCode,
+    FaEdit,
+    FaTrashAlt,
+    FaPlusCircle,
+} from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Table from "../../components/Shared/Table";
 import "../../styles/custom-ant.css";
@@ -18,9 +37,11 @@ const Portfolio = () => {
     const [selectedArtwork, setSelectedArtwork] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const artworksPerPage = 5;
+    const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
         dispatch(fetchAllArtworks(selectedCategory ? { category: selectedCategory, artist: user?.pk } : { artist: user?.pk }));
+        setTimeout(() => setStatsLoading(false), 1000);
     }, [dispatch, selectedCategory, user]);
 
     const handleCategoryChange = (value) => {
@@ -29,6 +50,24 @@ const Portfolio = () => {
     };
 
     const userArtworks = artworks.filter((art) => art.approval_status === "approved");
+
+    const statistics = [
+        {
+            title: "Total Artworks",
+            value: userArtworks.length,
+            icon: <FaPalette className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Sketch Artworks",
+            value: userArtworks.filter((art) => art.category === "sketch").length,
+            icon: <FaPencilRuler className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Digital Artworks",
+            value: userArtworks.filter((art) => art.category === "digital").length,
+            icon: <FaLaptopCode className="text-[#FFA500] text-4xl" />,
+        },
+    ];
 
     // Pagination Logic
     const indexOfLastArtwork = currentPage * artworksPerPage;
@@ -59,7 +98,9 @@ const Portfolio = () => {
             title: "Preview",
             dataIndex: "image",
             key: "image",
-            render: (image) => <Image width={50} height={50} src={image} alt="Artwork" />,
+            render: (image) => (
+                <Image width={50} height={50} src={image} alt="Artwork" />
+            ),
         },
         {
             title: "Title",
@@ -87,80 +128,67 @@ const Portfolio = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => console.log("Edit", record)}>Edit</Button>
-                    <Button icon={<DeleteOutlined />} danger onClick={() => confirmDelete(record)}>Delete</Button>
+                    <Button className="custom-edit-btn" icon={<FaEdit />} onClick={() => console.log("Edit", record)}>
+                        Edit
+                    </Button>
+                    <Button icon={<FaTrashAlt />} danger onClick={() => confirmDelete(record)}>
+                        Delete
+                    </Button>
                 </Space>
             ),
         },
     ];
 
     return (
-        <div className="p-6">
-            {/* ✅ Title Section */}
-            <div>
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Portfolio</h2>
-                <p className="text-green-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
-            </div>
+        <div className="p-6 space-y-8">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                Portfolio
+            </h2>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">
+                Portfolio &gt; My Artworks
+            </p>
 
-            {/* ✅ Portfolio Statistics Section */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-                <Card title="Total Artworks">{userArtworks.length}</Card>
-                <Card title="Sketch Artworks">{userArtworks.filter(art => art.category === "sketch").length}</Card>
-                <Card title="Digital Artworks">{userArtworks.filter(art => art.category === "digital").length}</Card>
-            </div>
-
-            {/* ✅ Table with Drop-shadow */}
-            <div className="bg-white shadow-md rounded-lg p-4">
-                {/* ✅ Search, Filter & Add Button Inside Table */}
-                <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
-                    <div className="flex gap-4">
-                        <Input
-                            placeholder="Search by title..."
-                            value={selectedCategory}
-                            onChange={(e) => setSelectedCategory(e.target.value)}
-                            className="w-40"
-                        />
-                        <Select
-                            placeholder="Filter by category"
-                            onChange={handleCategoryChange}
-                            className="w-40"
-                            allowClear
-                        >
-                            <Option value="sketch">Sketch</Option>
-                            <Option value="canvas">Canvas</Option>
-                            <Option value="wallart">Wall Art</Option>
-                            <Option value="digital">Digital</Option>
-                            <Option value="photography">Photography</Option>
-                        </Select>
-                    </div>
-                    <Link to="/member/new-artwork">
-                        <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined /> }>
-                            Add New Artwork
-                        </Button>
-                    </Link>
-                </div>
-
-                {/* ✅ Artwork Table */}
-                {loading ? (
-                    <p>Loading artworks...</p>
-                ) : error ? (
-                    <p className="text-red-500">{error}</p>
-                ) : currentArtworks.length > 0 ? (
-                    <Table columns={columns} dataSource={currentArtworks} pagination={false} rowKey="id" />
+            {/* ✅ Enhanced Statistics Container */}
+            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
+                {statsLoading ? (
+                    <Spin size="large" />
                 ) : (
-                    <p className="text-gray-500 text-center">No artworks available.</p>
-                )}
+                    statistics.map((stat, index) => (
+                        <div key={index} className="flex items-start space-x-6">
+                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
+                                {stat.icon}
+                            </div>
 
-                {/* ✅ Pagination */}
-                {userArtworks.length > artworksPerPage && (
-                    <Pagination
-                        current={currentPage}
-                        total={userArtworks.length}
-                        pageSize={artworksPerPage}
-                        onChange={(page) => setCurrentPage(page)}
-                        className="mt-4 text-center "
-                    />
+                            <div className="text-left">
+                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
+                                    {stat.title}
+                                </p>
+                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
+                                    {stat.value}
+                                </p>
+                            </div>
+
+                            {index < statistics.length - 1 && (
+                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
+                            )}
+                        </div>
+                    ))
                 )}
+            </div>
+
+            {/* ✅ Artworks Table Section */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
+                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                    My Artworks
+                </h2>
+
+                <Table
+                    columns={columns}
+                    dataSource={userArtworks}
+                    pagination={{ pageSize: 8 }}
+                    loading={loading}
+                    rowKey="id"
+                />
             </div>
 
             {/* ✅ Delete Confirmation Modal */}

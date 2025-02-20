@@ -1,12 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects, removeProject } from "../../redux/slices/projectsSlice";
-import { Input, Button, Space, Modal, message, Select, Card, Tag } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from "@ant-design/icons";
+import {
+    Input,
+    Button,
+    Space,
+    Modal,
+    message,
+    Select,
+    Card,
+    Tag,
+    Spin,
+} from "antd";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+    EyeOutlined,
+} from "@ant-design/icons";
+import {
+    FaProjectDiagram,
+    FaCheckCircle,
+    FaSpinner,
+} from "react-icons/fa";
 import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
-import "../../styles/custom-ant.css";
+import "../../styles/custom-ant.css";  // Make sure your custom styles are loaded here
 
 const { Option } = Select;
 
@@ -71,6 +91,24 @@ const ManageProjects = () => {
         setIsViewModalVisible(true);
     };
 
+    const statistics = [
+        {
+            title: "Total Projects",
+            value: projectStats.total_projects || 0,
+            icon: <FaProjectDiagram className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Completed Projects",
+            value: projectStats.completed_projects || 0,
+            icon: <FaCheckCircle className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Ongoing Projects",
+            value: projectStats.ongoing_projects || 0,
+            icon: <FaSpinner className="text-[#FFA500] text-4xl" />,
+        },
+    ];
+
     const columns = [
         {
             title: "Title",
@@ -117,9 +155,27 @@ const ManageProjects = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => viewProject(record)}>View</Button>
-                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editProject(record)}>Edit</Button>
-                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
+                    <Button
+                        className="custom-view-btn"
+                        icon={<EyeOutlined />}
+                        onClick={() => viewProject(record)}
+                    >
+                        View
+                    </Button>
+                    <Button
+                        className="custom-edit-btn"
+                        icon={<EditOutlined />}
+                        onClick={() => editProject(record)}
+                    >
+                        Edit
+                    </Button>
+                    <Button
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={() => deleteProject(record.id)}
+                    >
+                        Delete
+                    </Button>
                 </Space>
             ),
         },
@@ -137,106 +193,48 @@ const ManageProjects = () => {
         }));
 
     return (
-        <div className="p-6">
-            {/* ✅ Title Section */}
-            <div>
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                    Manage Projects
-                </h2>
-                <p className="text-green-500 text-sm font-[Poppins] mt-1">
-                    Projects &gt; Review & Manage
-                </p>
-            </div>
+        <div className="p-6 space-y-8">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                Manage Projects
+            </h2>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">
+                Projects &gt; Review & Manage
+            </p>
 
-            {/* ✅ Project Statistics */}
-            {statsLoading ? (
-                <p>Loading project statistics...</p>
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                    <Card title="Total Projects">{projectStats.total_projects}</Card>
-                    <Card title="Completed Projects">{projectStats.completed_projects}</Card>
-                    <Card title="Ongoing Projects">{projectStats.ongoing_projects}</Card>
-                </div>
-            )}
+            {/* ✅ Enhanced Statistics Container */}
+            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
+                {statsLoading ? (
+                    <Spin size="large" />
+                ) : (
+                    statistics.map((stat, index) => (
+                        <div key={index} className="flex items-start space-x-6">
+                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
+                                {stat.icon}
+                            </div>
 
-            {/* ✅ Table with Drop-shadow */}
-            <div className="bg-white shadow-md rounded-lg p-4">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Projects</h2>
-                {/* ✅ Search, Filter, and Add Button Inside Table */}
-                <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
-                    <div className="flex gap-4">
-                        <Input
-                            placeholder="Search by project title..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-40"
-                        />
-                        <Select
-                            placeholder="Filter by status"
-                            onChange={(value) => setFilterStatus(value)}
-                            className="w-40"
-                            allowClear
-                        >
-                            <Option value="completed">Completed</Option>
-                            <Option value="ongoing">Ongoing</Option>
-                        </Select>
-                    </div>
-                    <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                        Add Project
-                    </Button>
-                </div>
+                            <div className="text-left">
+                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
+                                    {stat.title}
+                                </p>
+                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
+                                    {stat.value}
+                                </p>
+                            </div>
 
-                {/* ✅ Projects Table */}
-                <Table
-                    columns={columns}
-                    dataSource={tableData}
-                    pagination={{ pageSize: 8 }}
-                    loading={loading}
-                    bordered
-                    rowKey="key"
-                />
-            </div>
-
-            {/* ✅ Add / Edit Project Modal */}
-            <Modal
-                title={editingProject ? "Edit Project" : "Add New Project"}
-                open={isModalVisible}
-                onCancel={closeModal}
-                footer={null}
-            >
-                <AddProjectForm project={editingProject} onClose={closeModal} />
-            </Modal>
-
-            {/* ✅ View Project Modal */}
-            <Modal
-                title="Project Details"
-                open={isViewModalVisible}
-                onCancel={() => setIsViewModalVisible(false)}
-                footer={null}
-            >
-                {selectedProject && (
-                    <div>
-                        <p>
-                            <strong>Title:</strong> {selectedProject.title}
-                        </p>
-                        <p>
-                            <strong>Description:</strong> {selectedProject.description}
-                        </p>
-                        <p>
-                            <strong>Start Date:</strong> {selectedProject.start_date}
-                        </p>
-                        <p>
-                            <strong>End Date:</strong> {selectedProject.end_date}
-                        </p>
-                        <p>
-                            <strong>Status:</strong>{" "}
-                            <span className={selectedProject.status === "completed" ? "text-green-500" : "text-orange-500"}>
-                                {selectedProject.status?.toUpperCase()}
-                            </span>
-                        </p>
-                    </div>
+                            {index < statistics.length - 1 && (
+                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
+                            )}
+                        </div>
+                    ))
                 )}
-            </Modal>
+            </div>
+
+            <div className="bg-white shadow-md rounded-2xl p-6">
+                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                    All Projects
+                </h2>
+                <Table columns={columns} dataSource={tableData} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
+            </div>
         </div>
     );
 };

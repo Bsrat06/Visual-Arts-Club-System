@@ -1,8 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchUsers, deactivateUser, activateUser, updateUserRole } from "../../redux/slices/userSlice";
-import { Input, Select, Button, Space, Avatar, Tag, message, Card } from "antd";
-import { FaUsers, FaUserCheck, FaUser, FaEye, FaUserSlash, FaUserPlus } from "react-icons/fa";
+import {
+    fetchUsers,
+    deactivateUser,
+    activateUser,
+    updateUserRole,
+} from "../../redux/slices/userSlice";
+import {
+    Input,
+    Select,
+    Button,
+    Space,
+    Avatar,
+    Tag,
+    message,
+    Card,
+    Spin,
+} from "antd";
+import {
+    FaUsers,
+    FaUserCheck,
+    FaUser,
+    FaEye,
+    FaUserSlash,
+    FaUserPlus,
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Table from "../../components/Shared/Table";
 import "../../styles/custom-ant.css";
@@ -15,9 +37,11 @@ const ManageUsers = () => {
     const navigate = useNavigate();
     const [filteredInfo, setFilteredInfo] = useState({});
     const [searchQuery, setSearchQuery] = useState("");
+    const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
         dispatch(fetchUsers());
+        setTimeout(() => setStatsLoading(false), 1000);
     }, [dispatch]);
 
     const handleRoleChange = (id, role) => {
@@ -44,9 +68,21 @@ const ManageUsers = () => {
     const totalActiveUsers = users.filter((user) => user.is_active).length;
 
     const statistics = [
-        { title: "Total Users", value: totalUsers, icon: <FaUsers />, color: "bg-blue-100", textColor: "text-blue-500" },
-        { title: "Total Members", value: totalMembers, icon: <FaUser />, color: "bg-green-100", textColor: "text-green-500" },
-        { title: "Active Users", value: totalActiveUsers, icon: <FaUserCheck />, color: "bg-orange-100", textColor: "text-orange-500" },
+        {
+            title: "Total Users",
+            value: totalUsers,
+            icon: <FaUsers className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Total Members",
+            value: totalMembers,
+            icon: <FaUser className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Active Users",
+            value: totalActiveUsers,
+            icon: <FaUserCheck className="text-[#FFA500] text-4xl" />,
+        },
     ];
 
     const handleChange = (pagination, filters) => {
@@ -109,20 +145,27 @@ const ManageUsers = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-view-btn" icon={<FaEye />} onClick={() => handleViewProfile(record.pk)}>View</Button>
+                    <Button className="custom-view-btn" icon={<FaEye />} onClick={() => handleViewProfile(record.pk)}>
+                        View
+                    </Button>
                     {record.is_active ? (
-                        <Button icon={<FaUserSlash />} danger onClick={() => handleDeactivateUser(record.pk)}>Deactivate</Button>
+                        <Button icon={<FaUserSlash />} danger onClick={() => handleDeactivateUser(record.pk)}>
+                            Deactivate
+                        </Button>
                     ) : (
-                        <Button className="custom-activate-btn" icon={<FaUserPlus />} ghost type="primary" onClick={() => handleActivateUser(record.pk)}>Activate</Button>
+                        <Button className="custom-activate-btn" icon={<FaUserPlus />} ghost type="primary" onClick={() => handleActivateUser(record.pk)}>
+                            Activate
+                        </Button>
                     )}
                 </Space>
             ),
         },
     ];
 
-    const filteredUsers = users.filter((user) =>
-        (user.name && user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    const filteredUsers = users.filter(
+        (user) =>
+            (user.name && user.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (user.email && user.email.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
     const tableData = filteredUsers.map((user) => ({
@@ -136,52 +179,51 @@ const ManageUsers = () => {
     }));
 
     return (
-        <div className="p-6">
+        <div className="p-6 space-y-8">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Users</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">User Management &gt; View & Manage</p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-                {statistics.map((stat, index) => (
-                    <Card key={index} className="shadow-lg p-4 flex flex-col items-center text-center">
-                        <div className={`w-16 h-16 flex items-center justify-center rounded-full ${stat.color}`}>
-                            <div className={`w-8 h-8 flex items-center justify-center ${stat.textColor}`}>{stat.icon}</div>
+            {/* ✅ Enhanced Statistics Container */}
+            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
+                {statsLoading ? (
+                    <Spin size="large" />
+                ) : (
+                    statistics.map((stat, index) => (
+                        <div key={index} className="flex items-start space-x-6">
+                            {/* Background Circle Icon */}
+                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
+                                {stat.icon}
+                            </div>
+
+                            {/* Value & Title */}
+                            <div className="text-left">
+                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">{stat.title}</p>
+                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">{stat.value}</p>
+                            </div>
+
+                            {/* Separator (except for last item) */}
+                            {index < statistics.length - 1 && (
+                                <div className="flex items-start space-x-6 h-20 w-[1px] bg-[#F1F1F1] mx-10"></div>
+                            )}
                         </div>
-                        <p className="text-[#ACACAC] text-[14px] tracking-[-1%] mt-2">{stat.title}</p>
-                        <p className="text-[#333333] text-[32px] font-semibold tracking-[-1%]">{stat.value}</p>
-                    </Card>
-                ))}
+                    ))
+                )}
             </div>
 
-            <div className="bg-white shadow-md rounded-lg p-4">
+            {/* ✅ Enhanced Users List */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Users</h2>
 
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
-                    <Input
-                        placeholder="Search by name or email..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-40"
-                    />
-                    <Select
-                        placeholder="Filter by role"
-                        onChange={(value) => setFilteredInfo({ role: [value] })}
-                        className="w-40"
-                        allowClear
-                    >
+                    <Input placeholder="Search by name or email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-40" />
+                    <Select placeholder="Filter by role" onChange={(value) => setFilteredInfo({ role: [value] })} className="w-40" allowClear>
                         <Option value="admin">Admin</Option>
                         <Option value="member">Member</Option>
                         <Option value="visitor">Visitor</Option>
                     </Select>
                 </div>
 
-                <Table
-                    columns={columns}
-                    dataSource={tableData}
-                    onChange={handleChange}
-                    pagination={{ pageSize: 8 }}
-                    loading={loading}
-                    rowKey="key"
-                />
+                <Table columns={columns} dataSource={tableData} onChange={handleChange} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
             </div>
         </div>
     );

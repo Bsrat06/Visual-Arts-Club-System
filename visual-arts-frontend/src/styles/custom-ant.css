@@ -44,8 +44,10 @@
 
 /* Change search and filter hover colors */
 .ant-input:hover,
-.ant-select-selector:hover {
-    border-color: orange !important;
+.ant-select-selector:hover,
+.ant-input:active, 
+.ant-select-selector:active{
+    border-color: grey !important;
 }
 
 

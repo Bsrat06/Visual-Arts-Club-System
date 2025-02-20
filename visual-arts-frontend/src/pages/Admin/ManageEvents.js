@@ -1,14 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
-import { Input, Button, Space, Modal, message, Select, Card, Spin, Tag } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+    Input,
+    Button,
+    Space,
+    Modal,
+    message,
+    Select,
+    Card,
+    Spin,
+    Tag,
+} from "antd";
+import {
+    PlusOutlined,
+    EditOutlined,
+    DeleteOutlined,
+} from "@ant-design/icons";
+import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 import AddEventForm from "../../components/Admin/AddEventForm";
 import Table from "../../components/Shared/Table";
 import API from "../../services/api";
 import "../../styles/custom-ant.css";
-
-
 
 const { Option } = Select;
 
@@ -66,6 +79,24 @@ const ManageEvents = () => {
         showModal();
     };
 
+    const statistics = [
+        {
+            title: "Total Events",
+            value: eventStats.total_events || 0,
+            icon: <FaCalendarAlt className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Completed Events",
+            value: eventStats.completed_events || 0,
+            icon: <FaCheckCircle className="text-[#FFA500] text-4xl" />,
+        },
+        {
+            title: "Upcoming Events",
+            value: eventStats.upcoming_events || 0,
+            icon: <FaClock className="text-[#FFA500] text-4xl" />,
+        },
+    ];
+
     const columns = [
         {
             title: "Name",
@@ -92,7 +123,7 @@ const ManageEvents = () => {
                 { text: "Completed", value: true },
                 { text: "Pending", value: false },
             ],
-            filteredValue: filterStatus !== "" ? [filterStatus === "completed"] : null,
+            filteredValue: filterStatus !== "" ? [filterStatus === "is_completed"] : null,
             onFilter: (value, record) => record.is_completed === value,
             render: (is_completed) => (
                 <Tag color={is_completed ? "green" : "orange"}>
@@ -105,8 +136,20 @@ const ManageEvents = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editEvent(record)}>Edit</Button>
-                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteEvent(record.id)}>Delete</Button>
+                    <Button
+                        className="custom-edit-btn"
+                        icon={<EditOutlined />}
+                        onClick={() => editEvent(record)}
+                    >
+                        Edit
+                    </Button>
+                    <Button
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={() => deleteEvent(record.id)}
+                    >
+                        Delete
+                    </Button>
                 </Space>
             ),
         },
@@ -123,24 +166,52 @@ const ManageEvents = () => {
         }));
 
     return (
-        <div className="p-6">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Events</h2>
-            <p className="text-green-500 text-sm font-[Poppins] mt-1">Events &gt; Review & Manage</p>
+        <div className="p-6 space-y-8">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                Manage Events
+            </h2>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">
+                Events &gt; Review & Manage
+            </p>
 
-            {statsLoading ? (
-                <Spin size="large" />
-            ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-                    <Card title="Total Events">{eventStats.total_events}</Card>
-                    <Card title="Completed Events">{eventStats.completed_events}</Card>
-                    <Card title="Upcoming Events">{eventStats.upcoming_events}</Card>
-                </div>
-            )}
+            {/* ✅ Enhanced Statistics Container */}
+            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
+                {statsLoading ? (
+                    <Spin size="large" />
+                ) : (
+                    statistics.map((stat, index) => (
+                        <div key={index} className="flex items-start space-x-6">
+                            {/* Background Circle Icon */}
+                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
+                                {stat.icon}
+                            </div>
 
-            <div className="bg-white shadow-md rounded-lg p-4">
+                            {/* Value & Title */}
+                            <div className="text-left">
+                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
+                                    {stat.title}
+                                </p>
+                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
+                                    {stat.value}
+                                </p>
+                            </div>
+
+                            {/* Separator (except for last item) */}
+                            {index < statistics.length - 1 && (
+                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
+                            )}
+                        </div>
+                    ))
+                )}
+            </div>
+
+            {/* ✅ Enhanced Events List */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
                     <div className="flex gap-4">
-                    <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Events</h2>
+                        <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                            All Events
+                        </h2>
                         <Input
                             placeholder="Search by event name..."
                             value={searchQuery}
@@ -157,27 +228,15 @@ const ManageEvents = () => {
                             <Option value="pending">Pending</Option>
                         </Select>
                     </div>
-                    <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                    <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
                         Add Event
                     </Button>
                 </div>
 
-                <Table
-                    columns={columns}
-                    dataSource={tableData}
-                    pagination={{ pageSize: 8 }}
-                    loading={loading}
-                    bordered
-                    rowKey="key"
-                />
+                <Table columns={columns} dataSource={tableData} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
             </div>
 
-            <Modal
-                title={editingEvent ? "Edit Event" : "Add New Event"}
-                open={isModalVisible}
-                onCancel={closeModal}
-                footer={null}
-            >
+            <Modal title={editingEvent ? "Edit Event" : "Add New Event"} open={isModalVisible} onCancel={closeModal} footer={null}>
                 <AddEventForm event={editingEvent} onClose={closeModal} />
             </Modal>
         </div>

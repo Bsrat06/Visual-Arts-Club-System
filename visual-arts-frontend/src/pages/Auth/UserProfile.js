@@ -136,7 +136,7 @@ const UserProfile = () => {
 
           {/* Submit Button */}
           <Form.Item>
-            <Button type="primary" htmlType="submit" block disabled={!isEditing}>
+            <Button className="add-artwork-btn" type="primary" htmlType="submit" block disabled={!isEditing}>
               Update Profile
             </Button>
           </Form.Item>

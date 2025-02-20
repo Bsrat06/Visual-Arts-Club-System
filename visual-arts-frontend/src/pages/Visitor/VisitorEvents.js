@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from "react";
 import API from "../../services/api";
-import { Card, Input, Spin, Empty, Modal, Button, Image, Badge, Select } from "antd";
-import { CalendarOutlined, EnvironmentOutlined, FilterOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import {
+    Card,
+    Input,
+    Spin,
+    Empty,
+    Modal,
+    Button,
+    Image,
+    Badge,
+    Select,
+} from "antd";
+import {
+    FaCalendarAlt,
+    FaMapMarkerAlt,
+    FaCheckCircle,
+    FaClock,
+} from "react-icons/fa";
+import { FilterOutlined, SortAscendingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 
 const { Meta } = Card;
@@ -16,6 +32,7 @@ const VisitorEvents = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
         const fetchEvents = async () => {
@@ -27,6 +44,7 @@ const VisitorEvents = () => {
                 setError("Failed to fetch events. Please try again later.");
             } finally {
                 setLoading(false);
+                setStatsLoading(false);
             }
         };
         fetchEvents();
@@ -49,7 +67,7 @@ const VisitorEvents = () => {
     };
 
     const applyFiltersAndSorting = (search, filter, sort) => {
-        let updatedEvents = events;
+        let updatedEvents = [...events];
 
         if (search) {
             updatedEvents = updatedEvents.filter((event) =>
@@ -77,7 +95,7 @@ const VisitorEvents = () => {
             updatedEvents.sort((a, b) => b.title.localeCompare(a.title));
         }
 
-        setFilteredEvents([...updatedEvents]);
+        setFilteredEvents(updatedEvents);
     };
 
     const handleEventClick = (event) => {
@@ -88,122 +106,107 @@ const VisitorEvents = () => {
         setSelectedEvent(null);
     };
 
+    // **Event Statistics**
+    const statistics = [
+        {
+            title: "Total Events",
+            value: events.length,
+            icon: <FaCalendarAlt className="text-[#FFA500] text-5xl" />,
+        },
+        {
+            title: "Upcoming Events",
+            value: events.filter((event) => dayjs(event.date).isAfter(dayjs())).length,
+            icon: <FaClock className="text-[#FFA500] text-5xl" />,
+        },
+        {
+            title: "Completed Events",
+            value: events.filter((event) => dayjs(event.date).isBefore(dayjs())).length,
+            icon: <FaCheckCircle className="text-[#FFA500] text-5xl" />,
+        },
+    ];
+
     return (
-        <div className="p-6 max-w-[1400px] mx-auto font-poppins">
-            {/* ✅ Outer Title */}
+        <div className="p-6 space-y-8 max-w-[1400px] mx-auto font-poppins">
             <h2 className="text-black text-[22px] font-semibold">Events</h2>
             <p className="text-green-500 text-sm">Events &gt; All Events</p>
 
-            {/* ✅ Events Container */}
-            <div className="bg-white shadow-lg p-6 rounded-lg mt-4 max-w-full">
-                <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-4 border-b border-gray-300">
-                    <h2 className="text-black text-[20px] font-semibold self-start">All Events</h2>
-                    
-                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-                        <Input
-                            placeholder="Search events..."
-                            value={searchQuery}
-                            onChange={handleSearch}
-                            className="w-full sm:w-60 shadow-sm border-grey-500 focus:border-orange-500"
-                        />
-                        <Select
-                            defaultValue="all"
-                            onChange={handleFilterChange}
-                            className="w-full sm:w-44 shadow-sm border-green-500 focus:border-green-500"
-                            suffixIcon={<FilterOutlined style={{ color: "green" }} />}
-                        >
-                            <Option value="all">All Events</Option>
-                            <Option value="upcoming">Upcoming Events</Option>
-                            <Option value="passed">Passed Events</Option>
-                        </Select>
-                        <Select
-                            defaultValue="newest"
-                            onChange={handleSortChange}
-                            className="w-full sm:w-44 shadow-sm border-green-500 focus:border-green-500"
-                            suffixIcon={<SortAscendingOutlined style={{ color: "green" }} />}
-                        >
-                            <Option value="newest">Date: Newest First</Option>
-                            <Option value="oldest">Date: Oldest First</Option>
-                            <Option value="az">Title: A-Z</Option>
-                            <Option value="za">Title: Z-A</Option>
-                        </Select>
-                    </div>
+            {/* ✅ Enhanced Statistics Container */}
+            {/* <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between">
+                {statsLoading ? (
+                    <Spin size="large" />
+                ) : (
+                    statistics.map((stat, index) => (
+                        <div key={index} className="flex items-start space-x-6">
+                            <div className="w-24 h-24 flex items-center justify-center rounded-full bg-[#FFA5001F]">
+                                {stat.icon}
+                            </div>
+
+                            <div className="text-left">
+                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
+                                    {stat.title}
+                                </p>
+                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
+                                    {stat.value}
+                                </p>
+                            </div>
+
+                            {index < statistics.length - 1 && (
+                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
+                            )}
+                        </div>
+                    ))
+                )}
+            </div> */}
+
+            {/* ✅ Events Table */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
+                <h2 className="text-black text-[22px] font-semibold">All Events</h2>
+
+                <div className="flex flex-col md:flex-row justify-between items-center pb-4">
+                    <Input
+                        placeholder="Search events..."
+                        value={searchQuery}
+                        onChange={handleSearch}
+                        className="w-full sm:w-60 shadow-sm border-green-500 focus:border-green-500"
+                    />
+                    <Select
+                        defaultValue="all"
+                        onChange={handleFilterChange}
+                        className="w-full sm:w-44 shadow-sm border-green-500 focus:border-green-500"
+                        suffixIcon={<FilterOutlined style={{ color: "green" }} />}
+                    >
+                        <Option value="all">All Events</Option>
+                        <Option value="upcoming">Upcoming Events</Option>
+                        <Option value="passed">Passed Events</Option>
+                    </Select>
+                    <Select
+                        defaultValue="newest"
+                        onChange={handleSortChange}
+                        className="w-full sm:w-44 shadow-sm border-green-500 focus:border-green-500"
+                        suffixIcon={<SortAscendingOutlined style={{ color: "green" }} />}
+                    >
+                        <Option value="newest">Date: Newest First</Option>
+                        <Option value="oldest">Date: Oldest First</Option>
+                        <Option value="az">Title: A-Z</Option>
+                        <Option value="za">Title: Z-A</Option>
+                    </Select>
                 </div>
 
-                <div className="mt-4 overflow-y-auto pr-2">
-                    {loading ? (
-                        <div className="flex justify-center">
-                            <Spin size="large" />
-                        </div>
-                    ) : error ? (
-                        <p className="text-red-500 text-center">{error}</p>
-                    ) : filteredEvents.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                            {filteredEvents.map((event) => (
-                                <Badge.Ribbon
-                                    key={event.id}
-                                    text={dayjs(event.date).isAfter(dayjs()) ? "Upcoming" : "Passed"}
-                                    color={dayjs(event.date).isAfter(dayjs()) ? "green" : "red"}
-                                >
-                                    <Card
-                                        hoverable
-                                        cover={
-                                            <Image
-                                                alt={event.title}
-                                                src={event.event_cover}
-                                                className="h-[200px] w-full object-cover rounded-lg"
-                                            />
-                                        }
-                                        className="shadow-md transition duration-300 transform hover:scale-[1.02]"
-                                        onClick={() => handleEventClick(event)}
-                                    >
-                                        <Meta
-                                            title={<span className="text-lg font-semibold text-black">{event.title}</span>}
-                                            description={
-                                                <>
-                                                    <p className="flex items-center gap-2 text-gray-500">
-                                                        <CalendarOutlined /> {event.date}
-                                                    </p>
-                                                    <p className="flex items-center gap-2 text-gray-500">
-                                                        <EnvironmentOutlined /> {event.location}
-                                                    </p>
-                                                </>
-                                            }
-                                        />
-                                    </Card>
-                                </Badge.Ribbon>
-                            ))}
-                        </div>
+                {/* ✅ Event Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {filteredEvents.length > 0 ? (
+                        filteredEvents.map((event) => (
+                            <Badge.Ribbon key={event.id} text={dayjs(event.date).isAfter(dayjs()) ? "Upcoming" : "Passed"} color={dayjs(event.date).isAfter(dayjs()) ? "green" : "red"}>
+                                <Card hoverable cover={<Image alt={event.title} src={event.event_cover} className="h-[200px] w-full object-cover rounded-lg" />} className="shadow-md transition duration-300 transform hover:scale-[1.02]" onClick={() => handleEventClick(event)}>
+                                    <Meta title={event.title} description={<p className="flex items-center gap-2"><FaMapMarkerAlt /> {event.location}</p>} />
+                                </Card>
+                            </Badge.Ribbon>
+                        ))
                     ) : (
                         <Empty description="No events found" />
                     )}
                 </div>
             </div>
-
-            {/* ✅ Event Details Modal */}
-            <Modal
-                title={selectedEvent?.title}
-                open={!!selectedEvent}
-                onCancel={closeModal}
-                footer={[
-                    <Button key="close" type="primary" onClick={closeModal}>
-                        Close
-                    </Button>,
-                ]}
-            >
-                {selectedEvent && (
-                    <div>
-                        <Image
-                            alt={selectedEvent.title}
-                            src={selectedEvent.event_cover}
-                            className="w-full h-[250px] object-cover rounded-lg mb-4"
-                        />
-                        <p><strong>Date:</strong> {selectedEvent.date}</p>
-                        <p><strong>Location:</strong> {selectedEvent.location}</p>
-                        <p className="mt-4">{selectedEvent.description}</p>
-                    </div>
-                )}
-            </Modal>
         </div>
     );
 };
