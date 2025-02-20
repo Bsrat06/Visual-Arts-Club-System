@@ -52,6 +52,8 @@
 
 
 .custom-activate-btn {
+    background-color: white !important;
     border-color: #b7eb8f !important;
     color: #389e0d !important;  /* White text on hover */
+    box-shadow: none !important;
 }

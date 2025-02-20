@@ -233,8 +233,14 @@ const ManageProjects = () => {
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                     All Projects
                 </h2>
+                <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                                        Add Project
+                                    </Button>
                 <Table columns={columns} dataSource={tableData} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
             </div>
+            <Modal title={editingProject ? "Edit Project" : "Add New Project"} open={isModalVisible} onCancel={closeModal} footer={null}>
+                <AddProjectForm project={editingProject} onClose={closeModal} />
+            </Modal>
         </div>
     );
 };

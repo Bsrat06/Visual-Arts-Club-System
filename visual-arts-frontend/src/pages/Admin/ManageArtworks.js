@@ -12,12 +12,14 @@ import {
     message,
     Card,
     Spin,
+    Skeleton,
 } from "antd";
 import {
     CheckOutlined,
     CloseOutlined,
     EyeOutlined,
     PlusOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
     FaImages,
@@ -63,6 +65,30 @@ const ManageArtworks = () => {
 
     const showModal = () => setIsModalVisible(true);
     const closeModal = () => setIsModalVisible(false);
+
+    const handleApproveArtwork = async (id) => {
+        try {
+            await API.patch(`artwork/${id}/approve/`);
+            message.success("Artwork approved successfully!");
+            dispatch(fetchAllArtworks());
+            fetchArtworkStats(); 
+        } catch (error) {
+            message.error("Failed to approve artwork.");
+        }
+    };
+
+    const handleRejectArtwork = async () => {
+        try {
+            await API.patch(`artwork/${selectedArtwork.id}/reject/`, { feedback });
+            message.success("Artwork rejected with feedback!");
+            setIsRejectModalVisible(false);
+            setFeedback("");
+            dispatch(fetchAllArtworks());
+            fetchArtworkStats();
+        } catch (error) {
+            message.error("Failed to reject artwork.");
+        }
+    };
 
     const statistics = [
         {
@@ -133,6 +159,46 @@ const ManageArtworks = () => {
                 return <Tag color={color}>{status.toUpperCase()}</Tag>;
             },
         },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <Space>
+                    <Button
+                        className="custom-view-btn"
+                        icon={<EyeOutlined />}
+                        onClick={() => {
+                            setSelectedArtwork(record);
+                            setIsViewModalVisible(true);
+                        }}
+                    >
+                        View
+                    </Button>
+                    {record.approval_status === "pending" && (
+                        <>
+                            <Button
+                                className="custom-activate-btn"
+                                icon={<CheckOutlined />}
+                                type="primary"
+                                onClick={() => handleApproveArtwork(record.id)}
+                            >
+                                Approve
+                            </Button>
+                            <Button
+                                icon={<CloseOutlined />}
+                                danger
+                                onClick={() => {
+                                    setSelectedArtwork(record);
+                                    setIsRejectModalVisible(true);
+                                }}
+                            >
+                                Reject
+                            </Button>
+                        </>
+                    )}
+                </Space>
+            ),
+        },
     ];
 
     return (
@@ -144,8 +210,7 @@ const ManageArtworks = () => {
                 Artworks &gt; Review & Manage
             </p>
 
-            {/* ✅ Enhanced Statistics Container */}
-            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
+            <div className="bg-white rounded-2xl shadow p-8 flex items-center justify-between mb-6">
                 {statsLoading ? (
                     <Spin size="large" />
                 ) : (
@@ -163,19 +228,34 @@ const ManageArtworks = () => {
                                     {stat.value}
                                 </p>
                             </div>
-
-                            {index < statistics.length - 1 && (
-                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
-                            )}
                         </div>
                     ))
                 )}
             </div>
 
             <div className="bg-white shadow-md rounded-2xl p-6">
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                    All Artworks
-                </h2>
+                <div className="flex justify-between items-center pb-4">
+                    <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                        All Artworks
+                    </h2>
+                    <div className="flex gap-4">
+                        <Input
+                            placeholder="Search..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            prefix={<SearchOutlined />}
+                        />
+                        <Select
+                            placeholder="Filter by status"
+                            onChange={(value) => setFilterStatus(value)}
+                            allowClear
+                        >
+                            <Option value="approved">Approved</Option>
+                            <Option value="pending">Pending</Option>
+                            <Option value="rejected">Rejected</Option>
+                        </Select>
+                    </div>
+                </div>
 
                 <Table
                     columns={columns}
@@ -185,43 +265,6 @@ const ManageArtworks = () => {
                     rowKey="id"
                 />
             </div>
-
-            {/* ✅ Add Artwork Modal */}
-            <Modal
-                title="Add New Artwork"
-                open={isModalVisible}
-                onCancel={closeModal}
-                footer={null}
-            >
-                <AddArtworkForm onArtworkAdded={closeModal} />
-            </Modal>
-
-            {/* ✅ View Artwork Modal */}
-            <Modal
-                title="Artwork Details"
-                open={isViewModalVisible}
-                onCancel={() => setIsViewModalVisible(false)}
-                footer={null}
-            >
-                {selectedArtwork && (
-                    <div>
-                        <Image width={250} src={selectedArtwork.image_url} />
-                        <p>
-                            <strong>Title:</strong> {selectedArtwork.title}
-                        </p>
-                        <p>
-                            <strong>Category:</strong> {selectedArtwork.category}
-                        </p>
-                        <p>
-                            <strong>Artist:</strong> {selectedArtwork.artist}
-                        </p>
-                        <p>
-                            <strong>Description:</strong>{" "}
-                            {selectedArtwork.description}
-                        </p>
-                    </div>
-                )}
-            </Modal>
         </div>
     );
 };
