@@ -1,44 +1,130 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
 import { fetchUsers } from "../../redux/slices/userSlice";
-import { Card, Tabs } from "antd";
+import { fetchEvents } from "../../redux/slices/eventsSlice";
+import { Card, Tabs, Calendar, Typography, Spin, Modal } from "antd";
+import { Line } from "@ant-design/plots";
+import { FloatButton } from "antd";
+import { CalendarOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
+import "../../styles/admin-dashboard.css";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 
 const { TabPane } = Tabs;
+const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
   const dispatch = useDispatch();
+  const { artworks, loading: artworkLoading } = useSelector((state) => state.artwork);
+  const { users, loading: userLoading } = useSelector((state) => state.users);
+  const { events, loading: eventsLoading } = useSelector((state) => state.events);
 
-  const { artworks } = useSelector((state) => state.artwork);
-  const { users } = useSelector((state) => state.users);
+  const [markedEvents, setMarkedEvents] = useState([]);
+  const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
 
   useEffect(() => {
     dispatch(fetchAllArtworks());
     dispatch(fetchUsers());
+    dispatch(fetchEvents());
   }, [dispatch]);
 
+  useEffect(() => {
+    if (events.length > 0) {
+      const eventData = events.map(event => ({
+        date: dayjs(event.date).format("YYYY-MM-DD"),
+        title: event.title
+      }));
+      setMarkedEvents(eventData);
+    }
+  }, [events]);
+
+  const dateCellRender = (value) => {
+    const formattedDate = value.format("YYYY-MM-DD");
+    const event = markedEvents.find(event => event.date === formattedDate);
+    return event ? <Text type="warning">{event.title}</Text> : null;
+  };
+
+  const monthlySubmissions = artworks.reduce((acc, artwork) => {
+    const month = dayjs(artwork.created_at).format("YYYY-MM");
+    acc[month] = (acc[month] || 0) + 1;
+    return acc;
+  }, {});
+
+  const chartData = Object.entries(monthlySubmissions).map(([month, count]) => ({
+    month,
+    count
+  }));
+
+  const lineChartConfig = {
+    data: chartData,
+    xField: "month",
+    yField: "count",
+    height: 300,
+    width: 500,
+    smooth: true,
+    color: "#FFA500",
+    point: {
+      size: 5,
+      shape: "circle",
+      style: {
+        fill: "#FFA500",
+        stroke: "#FFF",
+        lineWidth: 2,
+      },
+    },
+  };
+
   return (
-    <div className="p-6"> 
-      <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
+    <div className="admin-dashboard p-6">
+      <Title level={2} className="dashboard-title">Admin Dashboard</Title>
 
-      {/* Overview Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-        <Card title="Total Artworks">{artworks.length}</Card>
-        <Card title="Total Users">{users.length}</Card>
-        <Card title="Pending Artworks">{artworks.filter((a) => a.approval_status === "pending").length}</Card>
-        <Card title="Rejected Artworks">{artworks.filter((a) => a.approval_status === "rejected").length}</Card>
-      </div>
-
-      {/* Tabs for Overview & Analytics */}
-      <Tabs defaultActiveKey="1">
+      <Tabs defaultActiveKey="1" className="custom-tabs">
         <TabPane tab="Overview" key="1">
-          <p>Overview content goes here...</p>
+          <p>Detailed Overview of Activities...</p>
         </TabPane>
         <TabPane tab="Analytics" key="2">
           <AnalyticsDashboard />
         </TabPane>
       </Tabs>
+
+      <div className="dashboard-grid">
+        <div className="stats-section">
+          <Card title="Total Artworks">{artworkLoading ? <Spin /> : artworks.length}</Card>
+          <Card title="Total Users">{userLoading ? <Spin /> : users.length}</Card>
+          <Card title="Pending Artworks">{artworkLoading ? <Spin /> : artworks.filter(a => a.approval_status === "pending").length}</Card>
+          <Card title="Rejected Artworks">{artworkLoading ? <Spin /> : artworks.filter(a => a.approval_status === "rejected").length}</Card>
+
+          <div className="line-chart-container">
+            <Title level={4} className="chart-title">Monthly Artwork Submissions</Title>
+            {artworkLoading ? <Spin /> : <Line {...lineChartConfig} />}
+          </div>
+        </div>
+      </div>
+
+      {/* ✅ Floating Calendar Button */}
+      <FloatButton
+        icon={<CalendarOutlined style={{ color: "black" }} />}
+        onClick={() => setCalendarModalOpen(true)}
+        style={{
+          right: 24,
+          bottom: 80, // Adjusted position (moved higher)
+          backgroundColor: "white",
+          border: "1px solid #ddd",
+        }}
+      />
+
+
+      {/* ✅ Calendar Modal */}
+      <Modal
+        title="Upcoming Events Calendar"
+        visible={isCalendarModalOpen}
+        onCancel={() => setCalendarModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <Calendar dateCellRender={dateCellRender} className="custom-calendar" />
+      </Modal>
     </div>
   );
 };

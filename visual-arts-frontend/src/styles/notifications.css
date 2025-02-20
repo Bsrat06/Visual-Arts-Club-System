@@ -1,0 +1,79 @@
+.notifications-container {
+    font-family: "Poppins", sans-serif;
+}
+
+/* ✅ Page Title */
+.page-title {
+    font-weight: bold;
+    color: #333;
+}
+
+/* ✅ Filter & Mark All Read Buttons */
+.filter-btn {
+    background-color: white;
+    border-style: solid #333;
+    border-color: #333;
+    color: #333;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+
+.mark-all-btn {
+    background-color: lightgreen;
+    border-style: solid green;
+    color: white;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+
+.filter-btn:hover {
+    background-color: #333 50% !important;
+    color: #333 !important;
+}
+
+.mark-all-btn:hover {
+    background-color: green !important;
+    color: white !important;
+}
+
+
+/* ✅ Notification Cards */
+.notification-card {
+    border-radius: 10px;
+    box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.notification-card:hover {
+    transform: scale(1.02);
+}
+
+/* ✅ Different Styling for Read/Unread Notifications */
+.unread {
+    border-left: 5px solid #FFA500;
+}
+
+.read {
+    border-left: 5px solid green;
+}
+
+/* ✅ Notification Icon */
+.notification-icon {
+    font-size: 24px;
+    color: #FFA500;
+}
+
+/* ✅ Mark Read Button */
+.mark-read-btn {
+    background-color: lightgreen;
+    border-style: solid green;
+    color: white;
+}
+
+.mark-read-btn:hover {
+    background-color: darkgreen !important;
+    color: white !important;
+    border-style: none !important;
+}

@@ -14,6 +14,7 @@ const { Header } = Layout;
 const Navbar = ({ onLogout, collapsed }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = useSelector((state) => state.auth.role);
+  console.log("User data in Navbar:", user);
 
   const menu = (
     <Menu>
@@ -68,10 +69,11 @@ const Navbar = ({ onLogout, collapsed }) => {
           <div className="flex items-center cursor-pointer">
             {/* Avatar */}
             <Avatar
-              src={user?.profile_picture || "/default-avatar.png"}
-              size={40}
-              className="mr-3"
-            />
+  src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "/default-avatar.png"}
+  size={40}
+  className="mr-3"
+/>
+
 
             {/* User Info */}
             <div className="flex flex-col justify-center text-left">
