@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, updateProfile } from "../../redux/slices/profileSlice";
 import { Form, Input, Button, Avatar, Upload, Card, Row, Col, Switch } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import "../../styles/userprofile.css";
 
 const UserProfile = () => {
   const dispatch = useDispatch();
@@ -53,7 +54,7 @@ const UserProfile = () => {
   };
 
   return (
-    <Card className="max-w-lg mx-auto mt-6 shadow-md">
+    <Card className="user-profile-card max-w-lg mx-auto mt-6 shadow-md">
       <h2 className="text-2xl font-bold text-center mb-4">My Profile</h2>
 
       {loading ? (

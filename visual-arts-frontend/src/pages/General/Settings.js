@@ -46,7 +46,7 @@ const Settings = () => {
 
     return (
         <div className="p-6 font-[Poppins]">
-            <h1 className="text-3xl font-bold mb-6">Settings</h1>
+            <h1 className="text-black text-[22px] font-semibold mb-6">Settings</h1>
 
             {/* ✅ Tabs for Profile & Preferences */}
             <Tabs defaultActiveKey="1" className="custom-tabs">
@@ -58,7 +58,7 @@ const Settings = () => {
                 {/* ✅ Preferences Tab */}
                 <TabPane tab="Preferences" key="2">
                     <Card className="max-w-3xl mx-auto shadow-lg">
-                        <h2 className="text-xl font-semibold mb-4">Notification Settings</h2>
+                        <h2 className="text-black text-[20px] font-semibold mb-4">Notification Settings</h2>
                         <NotificationPreferences />
                     </Card>
                 </TabPane>

@@ -1,0 +1,10 @@
+.user-profile-card {
+    width: 90%; /* Or a fixed width like 800px */
+    max-width: 1200px; /* Optional max-width */
+    margin: 0 auto;
+}
+
+/* If you want to target the card's content specifically */
+.user-profile-card .ant-card-body { /* Target the card body */
+    padding: 24px; /* Adjust padding as needed */
+}
