@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import API from "../../services/api";
-import { Spin, Empty, Pagination, Image, Typography, Button, Input, Select } from "antd";
+import { Image, Typography, Button, Input, Select, Skeleton, Empty } from "antd";
 import { FaHeart, FaSearchPlus, FaShareAlt } from "react-icons/fa";
 import "../../styles/mansory-layout.css";
 
@@ -10,78 +10,65 @@ const { Option } = Select;
 
 const VisitorGallery = () => {
     const [artworks, setArtworks] = useState([]);
-    const [filteredArtworks, setFilteredArtworks] = useState([]);
     const [categories, setCategories] = useState(["All"]);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+    const [isFetching, setIsFetching] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
+    
+    // ✅ Start with first page
+    const nextPageRef = useRef("artwork/?approval_status=approved&page=1");
 
     useEffect(() => {
-        const fetchAllArtworks = async () => {
-            setLoading(true);
-            try {
-                let allApprovedArtworks = [];
-                let nextPage = `artwork/?approval_status=approved&page=1`;
-
-                while (nextPage) {
-                    const response = await API.get(nextPage);
-                    allApprovedArtworks = [...allApprovedArtworks, ...response.data.results];
-                    nextPage = response.data.next;
-                }
-
-                setArtworks(allApprovedArtworks);
-                setFilteredArtworks(allApprovedArtworks);
-                extractCategories(allApprovedArtworks);
-                setTotalPages(Math.ceil(allApprovedArtworks.length / 10));
-            } catch (err) {
-                setError("Failed to fetch artworks. Please try again later.");
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchAllArtworks();
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    const fetchAllArtworks = async () => {
+        if (!hasMore || isFetching || !nextPageRef.current) return;
+
+        setIsFetching(true);
+        try {
+            const response = await API.get(nextPageRef.current);
+            if (response.data.results.length > 0) {
+                setArtworks((prev) => {
+                    const newArtworks = response.data.results.filter(
+                        (art) => !prev.some((existing) => existing.id === art.id)
+                    );
+                    return [...prev, ...newArtworks];
+                });
+
+                extractCategories([...artworks, ...response.data.results]);
+                nextPageRef.current = response.data.next; // ✅ Correctly update next page
+                if (!response.data.next) setHasMore(false); // ✅ Stop fetching if no more pages
+            } else {
+                setHasMore(false);
+            }
+        } catch (err) {
+            setError("Failed to load artworks. Retrying...");
+            setTimeout(fetchAllArtworks, 3000); // ✅ Retry fetching after 3 seconds
+        } finally {
+            setLoading(false);
+            setIsFetching(false);
+        }
+    };
+
+    const handleScroll = () => {
+        if (
+            window.innerHeight + document.documentElement.scrollTop + 200 >=
+            document.documentElement.offsetHeight
+        ) {
+            fetchAllArtworks();
+        }
+    };
+
     const extractCategories = (artworks) => {
-        const uniqueCategories = [...new Set(artworks.map((artwork) => artwork.category))];
-        setCategories(["All", ...uniqueCategories]);
+        const uniqueCategories = ["All", ...new Set(artworks.map((artwork) => artwork.category))];
+        setCategories(uniqueCategories);
     };
-
-    const handleFilterByCategory = (category) => {
-        setSelectedCategory(category);
-        setCurrentPage(1);
-        filterArtworks(searchQuery, category);
-    };
-
-    const handleSearch = (value) => {
-        setSearchQuery(value);
-        filterArtworks(value, selectedCategory);
-    };
-
-    const filterArtworks = (query, category) => {
-        let filtered = artworks;
-
-        if (category !== "All") {
-            filtered = filtered.filter((artwork) => artwork.category === category);
-        }
-
-        if (query) {
-            filtered = filtered.filter((artwork) =>
-                artwork.title.toLowerCase().includes(query.toLowerCase())
-            );
-        }
-
-        setFilteredArtworks(filtered);
-        setTotalPages(Math.ceil(filtered.length / 10));
-    };
-
-    const displayedArtworks = filteredArtworks.slice((currentPage - 1) * 10, currentPage * 10);
-
-    const handlePageChange = (page) => setCurrentPage(page);
 
     return (
         <div className="p-6 max-w-full mx-auto font-poppins">
@@ -89,13 +76,13 @@ const VisitorGallery = () => {
             <div className="flex flex-wrap gap-4 mt-6">
                 <Search
                     placeholder="Search artworks..."
-                    onSearch={handleSearch}
+                    onSearch={(value) => setSearchQuery(value)}
                     enterButton
                     className="w-full md:w-1/2 lg:w-1/3"
                 />
                 <Select
                     value={selectedCategory}
-                    onChange={handleFilterByCategory}
+                    onChange={(value) => setSelectedCategory(value)}
                     className="w-full md:w-1/3 lg:w-1/4"
                 >
                     {categories.map((category) => (
@@ -106,17 +93,22 @@ const VisitorGallery = () => {
                 </Select>
             </div>
 
-            {/* ✅ Masonry Layout with Hover Icons */}
+            {/* ✅ Masonry Layout */}
             <div className="mt-6 p-4 w-full">
-                {loading ? (
-                    <div className="flex justify-center">
-                        <Spin size="large" />
-                    </div>
-                ) : error ? (
-                    <Text type="danger">{error}</Text>
-                ) : displayedArtworks.length > 0 ? (
+                {loading && artworks.length === 0 ? (
                     <div className="masonry">
-                        {displayedArtworks.map((artwork) => (
+                        {[...Array(10)].map((_, index) => (
+                            <div key={index} className="masonry-item">
+                                <Skeleton.Button active style={{ width: "100%", height: "200px" }} />
+                                <Skeleton active paragraph={{ rows: 1 }} />
+                            </div>
+                        ))}
+                    </div>
+                ) : error && artworks.length === 0 ? (
+                    <Text type="danger">{error}</Text>
+                ) : artworks.length > 0 ? (
+                    <div className="masonry">
+                        {artworks.map((artwork) => (
                             <div key={artwork.id} className="masonry-item">
                                 <div className="artwork-container">
                                     <Image
@@ -140,19 +132,16 @@ const VisitorGallery = () => {
                         ))}
                     </div>
                 ) : (
-                    <Empty description="No artworks found in this category" />
+                    <Empty description="No artworks found" />
                 )}
             </div>
 
-            {/* ✅ Pagination */}
-            <Pagination
-                current={currentPage}
-                total={totalPages * 20} 
-                pageSize={20} 
-                showSizeChanger={false}
-                onChange={handlePageChange}
-                className="text-center mt-6"
-            />
+            {/* ✅ Infinite Loading Indicator */}
+            {isFetching && (
+                <div className="text-center mt-6">
+                    <Skeleton.Button active style={{ width: "60%", height: "50px" }} />
+                </div>
+            )}
         </div>
     );
 };
