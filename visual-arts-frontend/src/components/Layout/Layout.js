@@ -1,7 +1,4 @@
-
-
-// AppLayout.js
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../../redux/slices/authSlice";
@@ -13,13 +10,21 @@ const { Header, Content, Footer } = Layout;
 const AppLayout = ({ children }) => {
     const dispatch = useDispatch();
     const [collapsed, setCollapsed] = useState(false);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     return (
         <Layout style={{ minHeight: "100vh", fontFamily: "'Poppins', sans-serif" }}>
-            {/* Sidebar (Fixed) */}
             <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-            {/* Right Section (Main Layout - Flexbox with padding) */}
             <Layout
                 className="site-layout"
                 style={{
@@ -29,10 +34,10 @@ const AppLayout = ({ children }) => {
                     display: "flex",
                     flexDirection: "column",
                     overflowY: "auto",
-                    paddingLeft: collapsed ? 80 : 300, // Add left padding for content
+                    marginLeft: isMobile ? 70 : collapsed ? 80 : 300,
+                    
                 }}
             >
-                {/* Navbar */}
                 <Header
                     style={{
                         padding: 0,
@@ -41,38 +46,17 @@ const AppLayout = ({ children }) => {
                         justifyContent: "space-between",
                         alignItems: "center",
                         boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)",
+                        transition: "left 0.3s ease",
+                        left: isMobile ? 0 : collapsed ? 80 : 300,
+                        width: isMobile ? "100%" : `calc(100% - ${collapsed ? 80 : 300}px)`,
                     }}
                 >
                     <Navbar onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
                 </Header>
 
-                {/* Content (Expandable with flex) */}
-                <Content
-                    style={{
-                        margin: "0px",
-                        padding: 24,
-                        background: "#fff",
-                        borderRadius: "10px",
-                        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)",
-                        flex: 1,
-                    }}
-                >
+                <Content style={{ margin: "0px", padding: 24, background: "#fff", borderRadius: "10px", boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)", flex: 1 }}>
                     {children}
                 </Content>
-
-                {/* Footer */}
-                <Footer
-                    style={{
-                        textAlign: "center",
-                        fontSize: "14px",
-                        color: "#6B7280",
-                        padding: "16px 24px",
-                        backgroundColor: "#fff",
-                        borderTop: "1px solid #E5E7EB",
-                    }}
-                >
-                    © {new Date().getFullYear()} My Club Management System
-                </Footer>
             </Layout>
         </Layout>
     );

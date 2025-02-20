@@ -11,7 +11,7 @@ import {
 
 const { Header } = Layout;
 
-const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
+const Navbar = ({ onLogout, collapsed }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = useSelector((state) => state.auth.role);
 
@@ -32,11 +32,11 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
     <Header
       className="flex justify-between items-center bg-white px-6 fixed top-0"
       style={{
-        left: collapsed ? 80 : 300,
-        width: `calc(100% - ${collapsed ? 80 : 300}px)`,
+        left: `${collapsed ? "80px" : "300px"}`, // Adjust based on sidebar width
+        width: `calc(100% - ${collapsed ? "80px" : "300px"})`, // Adjust width dynamically
         height: "80px",
-        transition: "left 0.3s ease, width 0.3s ease",
-        zIndex: 10,
+        transition: "all 0.3s ease", // Smooth transition
+        zIndex: 100, // Ensure it's above sidebar
         fontFamily: "'Poppins', sans-serif",
       }}
     >
@@ -67,7 +67,11 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
         <Dropdown overlay={menu} trigger={["click"]}>
           <div className="flex items-center cursor-pointer">
             {/* Avatar */}
-            <Avatar src={user?.profile_picture || "/default-avatar.png"} size={40} className="mr-3" />
+            <Avatar
+              src={user?.profile_picture || "/default-avatar.png"}
+              size={40}
+              className="mr-3"
+            />
 
             {/* User Info */}
             <div className="flex flex-col justify-center text-left">
@@ -79,8 +83,16 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
               </span>
             </div>
 
-            {/* Dropdown Icon ( > ) */}
-            <DownOutlined style={{ width: "40px", color: "#757575", fontSize: "14px", fontWeight: "bold", marginLeft: "32px" }} />
+            {/* Dropdown Icon */}
+            <DownOutlined
+              style={{
+                width: "40px",
+                color: "#757575",
+                fontSize: "14px",
+                fontWeight: "bold",
+                marginLeft: "32px",
+              }}
+            />
           </div>
         </Dropdown>
       </div>
