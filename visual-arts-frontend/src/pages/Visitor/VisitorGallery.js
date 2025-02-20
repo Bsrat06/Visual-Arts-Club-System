@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import API from "../../services/api";
-import { Spin, Empty, Pagination, Image, Grid, Typography, Avatar, Button, Input, Select } from "antd";
+import { Spin, Empty, Pagination, Image, Typography, Button, Input, Select } from "antd";
 import { FaHeart, FaSearchPlus, FaShareAlt } from "react-icons/fa";
+import "../../styles/mansory-layout.css";
+
 
 const { Title, Text } = Typography;
-const { useBreakpoint } = Grid;
 const { Search } = Input;
 const { Option } = Select;
 
 const VisitorGallery = () => {
-    const screens = useBreakpoint();
     const [artworks, setArtworks] = useState([]);
     const [filteredArtworks, setFilteredArtworks] = useState([]);
     const [categories, setCategories] = useState(["All"]);
@@ -30,13 +30,13 @@ const VisitorGallery = () => {
                 while (nextPage) {
                     const response = await API.get(nextPage);
                     allApprovedArtworks = [...allApprovedArtworks, ...response.data.results];
-                    nextPage = response.data.next; // Fetch next page if available
+                    nextPage = response.data.next;
                 }
 
                 setArtworks(allApprovedArtworks);
                 setFilteredArtworks(allApprovedArtworks);
                 extractCategories(allApprovedArtworks);
-                setTotalPages(Math.ceil(allApprovedArtworks.length / 10)); // Adjust pagination based on total artworks
+                setTotalPages(Math.ceil(allApprovedArtworks.length / 10));
             } catch (err) {
                 setError("Failed to fetch artworks. Please try again later.");
             } finally {
@@ -77,7 +77,7 @@ const VisitorGallery = () => {
         }
 
         setFilteredArtworks(filtered);
-        setTotalPages(Math.ceil(filtered.length / 10)); // Update pagination dynamically
+        setTotalPages(Math.ceil(filtered.length / 10));
     };
 
     const displayedArtworks = filteredArtworks.slice((currentPage - 1) * 10, currentPage * 10);
@@ -86,9 +86,7 @@ const VisitorGallery = () => {
 
     return (
         <div className="p-6 max-w-full mx-auto font-poppins">
-            <Title level={2}>Gallery</Title>
-            <Text type="secondary">Gallery &gt; Public Artworks</Text>
-
+            
             {/* ✅ Search & Filter Section */}
             <div className="flex flex-wrap gap-4 mt-6">
                 <Search
@@ -110,7 +108,7 @@ const VisitorGallery = () => {
                 </Select>
             </div>
 
-            {/* ✅ Masonry Grid Layout */}
+            {/* ✅ Masonry Layout with Hover Icons */}
             <div className="mt-6 p-4 w-full">
                 {loading ? (
                     <div className="flex justify-center">
@@ -119,47 +117,28 @@ const VisitorGallery = () => {
                 ) : error ? (
                     <Text type="danger">{error}</Text>
                 ) : displayedArtworks.length > 0 ? (
-                    <div className="columns-2 md:columns-3 lg:columns-5 xl:columns-6 gap-4 space-y-4">
+                    <div className="masonry">
                         {displayedArtworks.map((artwork) => (
-                            <div key={artwork.id} className="relative group overflow-hidden rounded-lg">
-                                {/* ✅ Artwork Image */}
-                                <Image
-                                    alt={artwork.title}
-                                    src={artwork.image}
-                                    className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
-                                />
-
-                                {/* ✅ Overlay on Hover */}
-                                <div className="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                                    <div className="flex items-center space-x-3">
-                                        <Avatar
-                                            src={artwork.artist?.profile_picture} // ✅ Ensure artist profile picture is handled safely
-                                            size="large"
-                                        />
-                                        <Text className="text-white text-lg font-semibold">{artwork.artist?.name}</Text>
-                                    </div>
-                                    {/* ✅ Action Icons */}
-                                    <div className="flex justify-between mt-3">
-                                        <Button
-                                            type="primary"
-                                            shape="circle"
-                                            icon={<FaSearchPlus />}
-                                            className="bg-orange-500 border-none"
-                                        />
-                                        <Button
-                                            type="primary"
-                                            shape="circle"
-                                            icon={<FaHeart />}
-                                            className="bg-orange-500 border-none"
-                                        />
-                                        <Button
-                                            type="primary"
-                                            shape="circle"
-                                            icon={<FaShareAlt />}
-                                            className="bg-orange-500 border-none"
-                                        />
+                            <div key={artwork.id} className="masonry-item">
+                                <div className="artwork-container">
+                                    <Image
+                                        alt={artwork.title}
+                                        src={artwork.image}
+                                        className="w-full h-auto rounded-lg"
+                                    />
+                                    <div className="artwork-hover">
+                                        <Button shape="circle" className="icon-button">
+                                            <FaSearchPlus />
+                                        </Button>
+                                        <Button shape="circle" className="icon-button">
+                                            <FaHeart />
+                                        </Button>
+                                        <Button shape="circle" className="icon-button">
+                                            <FaShareAlt />
+                                        </Button>
                                     </div>
                                 </div>
+                                
                             </div>
                         ))}
                     </div>
@@ -170,13 +149,14 @@ const VisitorGallery = () => {
 
             {/* ✅ Pagination */}
             <Pagination
-                current={currentPage}
-                total={totalPages * 10}
-                pageSize={10}
-                showSizeChanger={false}
-                onChange={handlePageChange}
-                className="text-center mt-6"
-            />
+    current={currentPage}
+    total={totalPages * 20} // Change 10 to 20
+    pageSize={20} // Update page size
+    showSizeChanger={false}
+    onChange={handlePageChange}
+    className="text-center mt-6"
+/>
+
         </div>
     );
 };

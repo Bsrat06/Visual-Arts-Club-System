@@ -1,0 +1,56 @@
+.masonry {
+    column-count: 5; /* ✅ Ensures 5 columns for Pinterest layout */
+    column-gap: 15px;
+    width: 100%;
+}
+
+.masonry-item {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 15px; /* Adjust spacing */
+    break-inside: avoid; /* ✅ Prevents breaking inside columns */
+}
+
+/* ✅ Image Container for Hover Effect */
+.artwork-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.artwork-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
+    border-radius: 8px;
+}
+
+.artwork-container:hover .artwork-hover {
+    opacity: 1;
+}
+
+/* ✅ Icon Button Styling */
+.icon-button {
+    background-color: #FF8C00 !important; /* Orange */
+    color: white !important;
+    border: none !important;
+    font-size: 18px !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button:hover {
+    background-color: #e67e00 !important; /* Darker orange */
+}
