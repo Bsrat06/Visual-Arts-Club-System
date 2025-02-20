@@ -1,8 +1,30 @@
 .masonry {
-    column-count: 5; /* ✅ Ensures 5 columns for Pinterest layout */
+    column-count: 5; /* ✅ Default: 5 columns for larger screens */
     column-gap: 15px;
     width: 100%;
 }
+
+/* ✅ Medium screens (tablets) */
+@media (max-width: 1024px) {
+    .masonry {
+        column-count: 3; /* 3 artworks per row */
+    }
+}
+
+/* ✅ Small screens (mobile) */
+@media (max-width: 768px) {
+    .masonry {
+        column-count: 2; /* Max 2 artworks per row */
+    }
+}
+
+/* ✅ Extra small screens */
+@media (max-width: 480px) {
+    .masonry {
+        column-count: 1; /* 1 artwork per row for very small screens */
+    }
+}
+
 
 .masonry-item {
     display: inline-block;
