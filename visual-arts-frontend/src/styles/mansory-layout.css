@@ -20,7 +20,7 @@
 
 .artwork-hover {
     position: absolute;
-    top: 0;
+    top: 1;
     left: 0;
     right: 0;
     bottom: 0;
@@ -30,7 +30,6 @@
     gap: 10px;
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
-    background: rgba(0, 0, 0, 0.6); /* Dark overlay */
     border-radius: 8px;
 }
 
@@ -40,17 +39,18 @@
 
 /* ✅ Icon Button Styling */
 .icon-button {
-    background-color: #FF8C00 !important; /* Orange */
-    color: white !important;
-    border: none !important;
-    font-size: 18px !important;
-    width: 40px !important;
-    height: 40px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: none;
+    font-size: 14px !important; /* Made icons smaller */
+    width: 36px !important; /* Reduced size */
+    height: 36px !important;
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.2s ease;
 }
 
 .icon-button:hover {
-    background-color: #e67e00 !important; /* Darker orange */
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 1) !important;
 }

@@ -4,8 +4,7 @@ import { Spin, Empty, Pagination, Image, Typography, Button, Input, Select } fro
 import { FaHeart, FaSearchPlus, FaShareAlt } from "react-icons/fa";
 import "../../styles/mansory-layout.css";
 
-
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 
@@ -86,7 +85,6 @@ const VisitorGallery = () => {
 
     return (
         <div className="p-6 max-w-full mx-auto font-poppins">
-            
             {/* ✅ Search & Filter Section */}
             <div className="flex flex-wrap gap-4 mt-6">
                 <Search
@@ -138,7 +136,6 @@ const VisitorGallery = () => {
                                         </Button>
                                     </div>
                                 </div>
-                                
                             </div>
                         ))}
                     </div>
@@ -149,14 +146,13 @@ const VisitorGallery = () => {
 
             {/* ✅ Pagination */}
             <Pagination
-    current={currentPage}
-    total={totalPages * 20} // Change 10 to 20
-    pageSize={20} // Update page size
-    showSizeChanger={false}
-    onChange={handlePageChange}
-    className="text-center mt-6"
-/>
-
+                current={currentPage}
+                total={totalPages * 20} 
+                pageSize={20} 
+                showSizeChanger={false}
+                onChange={handlePageChange}
+                className="text-center mt-6"
+            />
         </div>
     );
 };
