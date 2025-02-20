@@ -67,7 +67,7 @@ const UserProfile = () => {
         >
           {/* Profile Picture & Edit Toggle */}
           <Row align="middle" justify="center" className="mb-4">
-            <Avatar size={80} src={profilePicPreview} />
+            <Avatar size={80} src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "/default-avatar.png"} />
           </Row>
 
           <Row justify="center">
