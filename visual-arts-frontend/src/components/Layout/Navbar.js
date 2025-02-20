@@ -36,7 +36,7 @@ const Navbar = ({ onLogout, collapsed }) => {
         width: `calc(100% - ${collapsed ? "80px" : "300px"})`, // Adjust width dynamically
         height: "80px",
         transition: "all 0.3s ease", // Smooth transition
-        zIndex: 100, // Ensure it's above sidebar
+        zIndex: 1, // Ensure it's above sidebar
         fontFamily: "'Poppins', sans-serif",
       }}
     >
