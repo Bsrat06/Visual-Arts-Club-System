@@ -135,8 +135,8 @@ const ManageArtworks = () => {
         },
         {
             title: "Artist",
-            dataIndex: "artist",
-            key: "artist",
+            dataIndex: "artist_name",
+            key: "artist_name",
         },
         {
             title: "Status",

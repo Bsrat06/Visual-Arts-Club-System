@@ -119,15 +119,3 @@ const artworkSlice = createSlice({
 export default artworkSlice.reducer;
 
 
-
-
-
-
-
-
-
-
-
-
-
-

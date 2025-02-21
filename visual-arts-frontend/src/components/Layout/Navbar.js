@@ -69,7 +69,7 @@ const Navbar = ({ onLogout, collapsed }) => {
           <div className="flex items-center cursor-pointer">
             {/* Avatar */}
             <Avatar
-  src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "/default-avatar.png"}
+  src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "default-avatar.jpg"}
   size={40}
   className="mr-3"
 />

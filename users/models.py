@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
     ]
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='visitor')
-    profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', default="profile_pictures/default-avatar.png")
     notification_preferences = JSONField(default=dict)  # Store notification settings
     
     USERNAME_FIELD = "email"  # Use email to log in
