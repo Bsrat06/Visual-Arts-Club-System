@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Avatar, Dropdown, Menu } from "antd";
+import { Layout, Avatar, Dropdown, Menu, Badge } from "antd";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -14,7 +14,10 @@ const { Header } = Layout;
 const Navbar = ({ onLogout, collapsed }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = useSelector((state) => state.auth.role);
-  console.log("User data in Navbar:", user);
+  const notifications = useSelector((state) => state.notifications.notifications);
+
+  // Count unread notifications
+  const unreadCount = notifications.filter((notification) => !notification.read).length;
 
   const menu = (
     <Menu>
@@ -33,24 +36,16 @@ const Navbar = ({ onLogout, collapsed }) => {
     <Header
       className="flex justify-between items-center bg-white px-6 fixed top-0"
       style={{
-        left: `${collapsed ? "80px" : "300px"}`, // Adjust based on sidebar width
-        width: `calc(100% - ${collapsed ? "80px" : "300px"})`, // Adjust width dynamically
+        left: `${collapsed ? "80px" : "300px"}`,
+        width: `calc(100% - ${collapsed ? "80px" : "300px"})`,
         height: "80px",
-        transition: "all 0.3s ease", // Smooth transition
-        zIndex: 1, // Ensure it's above sidebar
+        transition: "all 0.3s ease",
+        zIndex: 1,
         fontFamily: "'Poppins', sans-serif",
       }}
     >
       {/* Left Section - Greeting */}
-      <div
-        className="text-black font-medium"
-        style={{
-          fontStyle: "poppins",
-          fontSize: "24px",
-          letterSpacing: "0%",
-          flexGrow: 1,
-        }}
-      >
+      <div className="text-black font-medium" style={{ fontSize: "24px", flexGrow: 1 }}>
         Hello {user?.first_name || "User"} 👋🏼,
       </div>
 
@@ -58,10 +53,9 @@ const Navbar = ({ onLogout, collapsed }) => {
       <div className="flex items-center space-x-6">
         {/* 🔔 Notifications */}
         <Link to="/notifications" className="relative mr-4">
-          <BellOutlined style={{ fontSize: 20, color: "#333" }} />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
-            3
-          </span>
+          <Badge count={unreadCount} size="small">
+            <BellOutlined style={{ fontSize: 20, color: "#333" }} />
+          </Badge>
         </Link>
 
         {/* Profile Info & Dropdown */}
@@ -69,11 +63,10 @@ const Navbar = ({ onLogout, collapsed }) => {
           <div className="flex items-center cursor-pointer">
             {/* Avatar */}
             <Avatar
-  src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "default-avatar.jpg"}
-  size={40}
-  className="mr-3"
-/>
-
+              src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "default-avatar.jpg"}
+              size={40}
+              className="mr-3"
+            />
 
             {/* User Info */}
             <div className="flex flex-col justify-center text-left">
@@ -86,15 +79,7 @@ const Navbar = ({ onLogout, collapsed }) => {
             </div>
 
             {/* Dropdown Icon */}
-            <DownOutlined
-              style={{
-                width: "40px",
-                color: "#757575",
-                fontSize: "14px",
-                fontWeight: "bold",
-                marginLeft: "32px",
-              }}
-            />
+            <DownOutlined style={{ marginLeft: "32px", fontSize: "14px", color: "#757575" }} />
           </div>
         </Dropdown>
       </div>
