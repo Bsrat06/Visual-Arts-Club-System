@@ -131,6 +131,7 @@ const Portfolio = () => {
                     <Button className="custom-edit-btn" icon={<FaEdit />} onClick={() => console.log("Edit", record)}>
                         Edit
                     </Button>
+                    
                     <Button icon={<FaTrashAlt />} danger onClick={() => confirmDelete(record)}>
                         Delete
                     </Button>
