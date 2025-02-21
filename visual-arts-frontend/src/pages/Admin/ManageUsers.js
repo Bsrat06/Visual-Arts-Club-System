@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-    fetchUsers,
+    fetchAllUsers,
     deactivateUser,
     activateUser,
     updateUserRole,
@@ -40,7 +40,7 @@ const ManageUsers = () => {
     const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
-        dispatch(fetchUsers());
+        dispatch(fetchAllUsers());
         setTimeout(() => setStatsLoading(false), 1000);
     }, [dispatch]);
 

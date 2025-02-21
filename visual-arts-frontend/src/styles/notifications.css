@@ -20,7 +20,7 @@
 
 
 .mark-all-btn {
-    background-color: lightgreen;
+    background-color: rgb(97, 235, 97);
     border-style: solid green;
     color: white;
     font-weight: bold;
@@ -67,7 +67,7 @@
 
 /* ✅ Mark Read Button */
 .mark-read-btn {
-    background-color: lightgreen;
+    background-color: rgb(97, 235, 97);
     border-style: solid green;
     color: white;
 }

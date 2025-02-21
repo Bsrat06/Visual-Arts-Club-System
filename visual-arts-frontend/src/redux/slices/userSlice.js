@@ -1,13 +1,19 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import API from "../../services/api";
 
-// Fetch all users
-export const fetchUsers = createAsyncThunk("users/fetchAll", async (_, thunkAPI) => {
+// Fetch all users (iterating through pagination)
+export const fetchAllUsers = createAsyncThunk("users/fetchAllUsers", async (_, thunkAPI) => {
   try {
-    const response = await API.get("users/");
-    return response.data.results || [];
+    let allUsers = [];
+    let nextPage = "users/"; // Initial page
+    while (nextPage) {
+      const response = await API.get(nextPage);
+      allUsers = [...allUsers, ...response.data.results]; // Merge results
+      nextPage = response.data.next ? response.data.next.replace(API.defaults.baseURL, "") : null; // Extract next page
+    }
+    return allUsers;
   } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch users");
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch all users");
   }
 });
 
@@ -21,19 +27,16 @@ export const updateUserRole = createAsyncThunk("users/updateRole", async ({ id, 
   }
 });
 
-
 export const updateProfile = createAsyncThunk("user/updateProfile", async (formData, thunkAPI) => {
   try {
     const response = await API.put("auth/profile/update/", formData, {
-      headers: { "Content-Type": "multipart/form-data" }, // ✅ Allow file uploads
+      headers: { "Content-Type": "multipart/form-data" },
     });
-
-    return response.data.data; // Return updated user data
+    return response.data.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Profile update failed");
   }
 });
-
 
 // Activate user
 export const activateUser = createAsyncThunk("users/activate", async (id, thunkAPI) => {
@@ -55,17 +58,15 @@ export const deactivateUser = createAsyncThunk("users/deactivate", async (id, th
   }
 });
 
-
 // Delete user
 export const deleteUser = createAsyncThunk("users/delete", async (id, thunkAPI) => {
   try {
     await API.delete(`users/${id}/`);
-    return id; // Return the ID of the deleted user
+    return id;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to delete user");
   }
 });
-
 
 // Users Slice
 const userSlice = createSlice({
@@ -80,19 +81,18 @@ const userSlice = createSlice({
       state.user = null;
       localStorage.removeItem("user");
     },
-  
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchUsers.pending, (state) => {
+      .addCase(fetchAllUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchUsers.fulfilled, (state, action) => {
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
         state.users = action.payload;
       })
-      .addCase(fetchUsers.rejected, (state, action) => {
+      .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
@@ -125,7 +125,6 @@ const userSlice = createSlice({
           user.pk === action.meta.arg ? { ...user, is_active: false } : user
         );
       })
-      // Delete user
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter((user) => user.id !== action.payload);
       })
@@ -134,8 +133,6 @@ const userSlice = createSlice({
       });
   },
 });
-
-
 
 export const { logout } = userSlice.actions;
 export default userSlice.reducer;

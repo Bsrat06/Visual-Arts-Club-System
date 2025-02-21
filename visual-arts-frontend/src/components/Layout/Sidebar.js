@@ -36,7 +36,8 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
     { key: "3", path: "/admin/manage-artworks", label: "Manage Artworks", icon: <AppstoreOutlined /> },
     { key: "4", path: "/admin/manage-events", label: "Manage Events", icon: <CalendarOutlined /> },
     { key: "5", path: "/admin/project-management", label: "Manage Projects", icon: <ProjectOutlined /> },
-    { key: "6", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
+    { key: "6", path: "/member/portfolio", label: "My Portfolio", icon: <AppstoreOutlined /> },
+    { key: "7", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
   const memberMenu = [
