@@ -12,7 +12,7 @@ const Table = ({ columns, dataSource, pagination = true, loading }) => {
     <AntTable
       columns={columns} // ✅ Pass the correct columns
       dataSource={dataSource} // ✅ Use correct dataSource
-      pagination={pagination ? { pageSize: 8 } : false}
+      pagination={pagination ? { pageSizeOptions: ['5', '8', '10', '15', '20', '25', '50', '100'], showSizeChanger: true } : false}
       loading={loading}
       rowKey="key" // ✅ Ensure each row has a unique key
       className="custom-ant-table" // ✅ Apply custom styles

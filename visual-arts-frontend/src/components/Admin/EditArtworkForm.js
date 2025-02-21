@@ -1,107 +1,124 @@
-// src/components/EditArtworkForm.js
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { editArtwork } from "../../redux/slices/artworkSlice";
-import API from "../../services/api";
+import { Form, Input, Upload, Select, Button, message } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import "../../styles/custom-ant.css";
 
+const { TextArea } = Input;
+const { Option } = Select;
+
 const EditArtworkForm = ({ artwork, onClose }) => {
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user); // Get current user
+    const dispatch = useDispatch();
+    const [form] = Form.useForm();
+    const user = useSelector((state) => state.auth.user);
 
-  const [title, setTitle] = useState(artwork?.title || "");
-  const [description, setDescription] = useState(artwork?.description || "");
-  const [image, setImage] = useState(null);
-  const [previewImage, setPreviewImage] = useState(artwork?.image || null);
+    const [previewImage, setPreviewImage] = useState(artwork?.image || null);
 
-  useEffect(() => {
-    if (artwork?.image) {
-      setPreviewImage(artwork.image);
-    }
-  }, [artwork]);
+    useEffect(() => {
+        if (artwork) {
+            form.setFieldsValue({
+                title: artwork.title,
+                description: artwork.description,
+                category: artwork.category,
+            });
+            setPreviewImage(artwork.image);
+        }
+    }, [artwork, form]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    // ✅ Handle Image Upload Preview
+    const handleImageChange = (info) => {
+        if (info.file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                setPreviewImage(e.target.result);
+            };
+            reader.readAsDataURL(info.file);
+        }
+    };
 
-    if (!user) {
-      alert("You must be logged in to edit artwork.");
-      return;
-    }
+    // ✅ Handle Form Submission
+    const onFinish = async (values) => {
+        try {
+            if (!user) {
+                message.error("You must be logged in to update artwork.");
+                return;
+            }
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    if (image) {
-      formData.append("image", image);
-    }
-    formData.append("artist", user.pk); // Assign artist
+            const formData = new FormData();
+            formData.append("title", values.title);
+            formData.append("description", values.description);
+            formData.append("category", values.category);
+            formData.append("artist", user.pk);
 
-    console.log("Updating Artwork ID:", artwork.id); // Debugging log
-    console.log("Payload Sent:", { title, description, image, artist: user.pk }); // Debugging log
+            if (values.image?.file?.originFileObj) {
+                formData.append("image", values.image.file.originFileObj);
+            }
 
-    try {
-      dispatch(editArtwork({ id: artwork.id, data: formData }));
-      if (onClose) onClose();
-    } catch (error) {
-      console.error("Error updating artwork:", error);
-    }
-  };
+            console.log("Updating Artwork ID:", artwork.id);
+            console.log("Data being sent:", Object.fromEntries(formData.entries()));
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setPreviewImage(URL.createObjectURL(file)); // Preview the new image
-    }
-  };
+            await dispatch(editArtwork({ id: artwork.id, data: formData })).unwrap();
+            message.success("Artwork updated successfully!");
+            onClose();
+        } catch (error) {
+            message.error("Failed to update artwork. Please try again.");
+        }
+    };
 
-  return (
-    <form onSubmit={handleSubmit} className="mb-4">
-      <h3 className="text-xl font-bold mb-4">Edit Artwork</h3>
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="Enter Artwork Title"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <textarea
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Enter Artwork Description"
-        required
-        className="border p-2 rounded w-full mb-2"
-      />
-      <div className="mb-2">
-        {previewImage && (
-          <img
-            src={previewImage}
-            alt="Artwork Preview"
-            className="w-full h-32 object-cover mb-2 rounded"
-          />
-        )}
-        <input
-          type="file"
-          onChange={handleImageChange}
-          className="border p-2 rounded w-full"
-        />
-      </div>
-      <button
-        type="submit"
-        className="add-artwork-btn"
-      >
-        Update Artwork
-      </button>
-      <button
-        type="button"
-        onClick={onClose}
-        className="bg-gray-500 text-white px-4 py-2 rounded"
-      >
-        Cancel
-      </button>
-    </form>
-  );
+    return (
+        <Form layout="vertical" form={form} onFinish={onFinish}>
+            {/* Title */}
+            <Form.Item
+                label="Artwork Title"
+                name="title"
+                rules={[{ required: true, message: "Title is required" }]}
+            >
+                <Input />
+            </Form.Item>
+
+            {/* Description */}
+            <Form.Item
+                label="Description"
+                name="description"
+                rules={[{ required: true, message: "Description is required" }]}
+            >
+                <TextArea rows={3} />
+            </Form.Item>
+
+            {/* Category */}
+            <Form.Item
+                label="Category"
+                name="category"
+                rules={[{ required: true, message: "Please select a category" }]}
+            >
+                <Select>
+                    <Option value="sketch">Sketch</Option>
+                    <Option value="canvas">Canvas</Option>
+                    <Option value="wallart">Wall Art</Option>
+                    <Option value="digital">Digital</Option>
+                    <Option value="photography">Photography</Option>
+                </Select>
+            </Form.Item>
+
+            {/* Image Upload */}
+            <Form.Item label="Upload New Artwork" name="image">
+                <Upload beforeUpload={() => false} onChange={handleImageChange} showUploadList={false}>
+                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                </Upload>
+                {previewImage && (
+                    <img src={previewImage} alt="Preview" className="mt-4 w-32 h-32 object-cover rounded" />
+                )}
+            </Form.Item>
+
+            {/* Submit Button */}
+            <Form.Item>
+                <Button className="add-artwork-btn" type="primary" htmlType="submit" block>
+                    Save Changes
+                </Button>
+            </Form.Item>
+        </Form>
+    );
 };
 
 export default EditArtworkForm;
