@@ -42,7 +42,7 @@
 
 .artwork-hover {
     position: absolute;
-    top: 1;
+    top: 0;
     left: 0;
     right: 0;
     bottom: 0;
@@ -75,4 +75,20 @@
 .icon-button:hover {
     transform: scale(1.1);
     background: rgba(255, 255, 255, 1) !important;
+}
+
+
+
+.like-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.like-button:hover .fa-heart {
+    color: red;
 }

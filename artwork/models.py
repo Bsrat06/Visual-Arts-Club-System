@@ -31,3 +31,16 @@ class Artwork(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+class Like(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    artwork = models.ForeignKey('Artwork', on_delete=models.CASCADE, related_name="likes")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'artwork')  # Ensure users can only like an artwork once
+
+    def __str__(self):
+        return f"{self.user.username} liked {self.artwork.title}"

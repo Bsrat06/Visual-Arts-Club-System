@@ -65,3 +65,21 @@ export const updateProject = (id, data) => API.put(`projects/${id}/`, data);
 export const deleteProject = (id) => API.delete(`projects/${id}/`);
 
 export default API;
+
+
+
+export const likeArtwork = async (artworkId, token) => {
+  return axios.post(`/api/artwork/${artworkId}/like/`, {}, {
+    headers: { Authorization: `Token ${token}` },
+  });
+};
+
+export const unlikeArtwork = async (artworkId, token) => {
+  return axios.delete(`/api/artwork/${artworkId}/unlike/`, {
+    headers: { Authorization: `Token ${token}` },
+  });
+};
+
+export const getLikesCount = async (artworkId) => {
+  return axios.get(`/api/artwork/${artworkId}/likes/`);
+};

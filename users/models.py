@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.timezone import now
 from django.db.models import JSONField
 
-
+ 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),

@@ -4,12 +4,12 @@ from users.pagination import CustomPagination
 from notifications.models import Notification
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Artwork
+from .models import Artwork, Like
 from .serializers import ArtworkSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from users.permissions import IsAdminUser
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework import status
 from django.db import models
 from django.db.models import Count
@@ -129,3 +129,30 @@ class ArtworkViewSet(viewsets.ModelViewSet):
             .order_by("category")
         )
         return Response(analytics, status=200)
+    
+    
+    
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def like_artwork(request, artwork_id):
+    artwork = Artwork.objects.get(id=artwork_id)
+    like, created = Like.objects.get_or_create(user=request.user, artwork=artwork)
+    if created:
+        return Response({"message": "Artwork liked!"}, status=201)
+    return Response({"message": "Already liked!"}, status=400)
+
+@api_view(["DELETE"])
+@permission_classes([IsAuthenticated])
+def unlike_artwork(request, artwork_id):
+    try:
+        like = Like.objects.get(user=request.user, artwork_id=artwork_id)
+        like.delete()
+        return Response({"message": "Like removed!"}, status=200)
+    except Like.DoesNotExist:
+        return Response({"message": "Like not found"}, status=404)
+
+@api_view(["GET"])
+def get_likes_count(request, artwork_id):
+    count = Like.objects.filter(artwork_id=artwork_id).count()
+    return Response({"likes": count})
