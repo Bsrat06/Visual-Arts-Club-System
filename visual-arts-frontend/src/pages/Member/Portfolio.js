@@ -15,16 +15,18 @@ import {
     Image,
     Modal,
     message,
-    Table,
     Tag,
     Spin,
     Form,
     Upload,
-    Tabs
+    Tabs,
+    Empty,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { FaEdit, FaTrashAlt, FaPlusCircle } from "react-icons/fa";
-import "../../styles/custom-ant.css";
+import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
+import "../../styles/mansory-layout.css";
+import Table from "../../components/Shared/Table";
+
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -34,7 +36,8 @@ const Portfolio = () => {
     const dispatch = useDispatch();
     const { artworks, likedArtworks, loading, error } = useSelector((state) => state.artwork);
     const user = useSelector((state) => state.auth.user);
-    const [selectedCategory, setSelectedCategory] = useState("");
+    
+    const [selectedTab, setSelectedTab] = useState("myArtworks");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState("newest");
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -52,7 +55,7 @@ const Portfolio = () => {
 
     const userArtworks = artworks.filter((art) => art.artist === user?.pk);
 
-    // Sorting Function
+    // Sorting function
     const sortedArtworks = [...userArtworks].sort((a, b) => {
         if (sortOrder === "newest") return new Date(b.created_at) - new Date(a.created_at);
         if (sortOrder === "oldest") return new Date(a.created_at) - new Date(b.created_at);
@@ -69,54 +72,7 @@ const Portfolio = () => {
         art.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Columns for Table
-    const columns = [
-        {
-            title: "Preview",
-            dataIndex: "image",
-            key: "image",
-            render: (image) => <Image width={50} height={50} src={image} alt="Artwork" />,
-        },
-        {
-            title: "Title",
-            dataIndex: "title",
-            key: "title",
-        },
-        {
-            title: "Category",
-            dataIndex: "category",
-            key: "category",
-        },
-        {
-            title: "Status",
-            dataIndex: "approval_status",
-            key: "approval_status",
-            render: (status) => (
-                <Tag color={status === "approved" ? "green" : "red"}>{status.toUpperCase()}</Tag>
-            ),
-        },
-        {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-                <Space>
-                    <Button icon={<FaEdit />} onClick={() => {
-                        setSelectedArtwork(record);
-                        form.setFieldsValue(record);
-                        setIsEditModalVisible(true);
-                    }}>
-                        Edit
-                    </Button>
-                    <Button icon={<FaTrashAlt />} danger onClick={() => {
-                        setSelectedArtwork(record);
-                        setIsDeleteModalVisible(true);
-                    }}>
-                        Delete
-                    </Button>
-                </Space>
-            ),
-        },
-    ];
+    const isLikedArtworksTab = selectedTab === "liked";
 
     // Add Artwork
     const handleAddArtwork = async (values) => {
@@ -168,78 +124,106 @@ const Portfolio = () => {
         }
     };
 
+    const columns = [
+        {
+            title: "Preview",
+            dataIndex: "image",
+            key: "image",
+            render: (image) => <Image width={50} height={50} src={image} alt="Artwork" />,
+        },
+        {
+            title: "Title",
+            dataIndex: "title",
+            key: "title",
+        },
+        {
+            title: "Category",
+            dataIndex: "category",
+            key: "category",
+        },
+        {
+            title: "Status",
+            dataIndex: "approval_status",
+            key: "approval_status",
+            render: (status) => (
+                <Tag color={status === "approved" ? "green" : "red"}>{status.toUpperCase()}</Tag>
+            ),
+        },
+    ];
+
+    // Hide admin actions in liked artworks tab
+    if (!isLikedArtworksTab) {
+        columns.push({
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <Space>
+                    <Button icon={<FaEdit />} onClick={() => {
+                        setSelectedArtwork(record);
+                        form.setFieldsValue(record);
+                        setIsEditModalVisible(true);
+                    }}>
+                        Edit
+                    </Button>
+                    <Button icon={<FaTrashAlt />} danger onClick={() => {
+                        setSelectedArtwork(record);
+                        setIsDeleteModalVisible(true);
+                    }}>
+                        Delete
+                    </Button>
+                </Space>
+            ),
+        });
+    }
+
     return (
         <div className="p-6 space-y-8">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Portfolio</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
 
-            {/* ✅ Tabs Section */}
-            <Tabs defaultActiveKey="1">
-                <TabPane tab="My Artworks" key="1">
+            <Tabs defaultActiveKey="myArtworks" onChange={setSelectedTab}>
+                {/* My Artworks Tab */}
+                <TabPane tab="My Artworks" key="myArtworks">
                     <div className="flex justify-between items-center mb-4">
-                        <Input
-                            placeholder="Search artworks..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-60"
-                        />
+                        <Input placeholder="Search artworks..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-60" />
+                        <Button className="add-artwork-btn" type="primary" icon={<FaPlusCircle />} onClick={() => setIsAddModalVisible(true)}>
+                            Add New Artwork
+                        </Button>
                     </div>
                     {loading ? <Spin size="large" /> : <Table columns={columns} dataSource={filteredArtworks} pagination={{ pageSize: 8 }} rowKey="id" />}
                 </TabPane>
 
-                <TabPane tab="Liked Artworks" key="2">
-                    <div className="flex justify-between items-center mb-4">
-                        <Input
-                            placeholder="Search liked artworks..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-60"
-                        />
+                {/* Liked Artworks Tab */}
+                <TabPane tab="Liked Artworks" key="liked">
+    <div className="masonry">
+        {filteredLikedArtworks.length > 0 ? (
+            filteredLikedArtworks.map((artwork) => (
+                <div key={artwork.id} className="masonry-item">
+                    {console.log("Liked Artwork Image URL:", artwork.image)
+                    }
+                    <div className="artwork-container">
+                        {artwork.image ? (
+                            <Image alt={artwork.title} src={`http://127.0.0.1:8000/${artwork.image}`} className="w-full h-auto rounded-lg" />
+                        ) : (
+                            <div className="bg-gray-200 w-full h-40 flex items-center justify-center text-gray-500">
+                                No Image Available
+                            </div>
+                        )}
+                        <div className="artwork-hover">
+                            <Button shape="circle" className="icon-button">
+                                <FaHeart className="text-red-500" />
+                            </Button>
+                        </div>
                     </div>
-                    {loading ? <Spin size="large" /> : <Table columns={columns} dataSource={filteredLikedArtworks} pagination={{ pageSize: 8 }} rowKey="id" />}
-                </TabPane>
+                </div>
+            ))
+        ) : (
+            <Empty description="No liked artworks yet." />
+        )}
+    </div>
+</TabPane>
+
             </Tabs>
-
-            {/* ✅ Delete Confirmation Modal */}
-            <Modal title="Confirm Delete" open={isDeleteModalVisible} onCancel={() => setIsDeleteModalVisible(false)} onOk={deleteArtwork} okText="Yes, Delete" okType="danger">
-                <p>Are you sure you want to delete this artwork?</p>
-            </Modal>
-
-            {/* ✅ Edit Artwork Modal */}
-            <Modal title="Edit Artwork" open={isEditModalVisible} onCancel={() => setIsEditModalVisible(false)} onOk={() => form.submit()} okText="Save Changes">
-                <Form layout="vertical" form={form} onFinish={handleEditSubmit}>
-                    <Form.Item label="Artwork Title" name="title" rules={[{ required: true, message: "Title is required" }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Description" name="description" rules={[{ required: true, message: "Description is required" }]}>
-                        <TextArea rows={3} />
-                    </Form.Item>
-                    <Form.Item label="Category" name="category" rules={[{ required: true, message: "Category is required" }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Image">
-                        <Upload
-                            listType="picture"
-                            beforeUpload={() => false}
-                            defaultFileList={selectedArtwork?.image ? [{ url: selectedArtwork.image }] : []}
-                        >
-                            <Button icon={<UploadOutlined />}>Upload New Image</Button>
-                        </Upload>
-                    </Form.Item>
-                </Form>
-            </Modal>
-
-            {/* ✅ Add Artwork Modal */}
-            <Modal title="Add New Artwork" open={isAddModalVisible} onCancel={() => setIsAddModalVisible(false)} onOk={() => form.submit()} okText="Add Artwork">
-                <Form layout="vertical" form={form} onFinish={handleAddArtwork}>
-                    <Form.Item label="Title" name="title" rules={[{ required: true, message: "Title is required" }]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item label="Description" name="description">
-                        <TextArea rows={3} />
-                    </Form.Item>
-                </Form>
-            </Modal>
         </div>
     );
 };

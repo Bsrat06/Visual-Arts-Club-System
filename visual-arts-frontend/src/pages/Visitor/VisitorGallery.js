@@ -18,18 +18,20 @@ const VisitorGallery = () => {
     const [error, setError] = useState("");
     const [isFetching, setIsFetching] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const [likedArtworks, setLikedArtworks] = useState({});
-    
+    const [likedArtworks, setLikedArtworks] = useState(new Set()); // Use Set for better performance
+
     const user = useSelector((state) => state.auth.user);
     const nextPageRef = useRef("artwork/?approval_status=approved&page=1");
 
     useEffect(() => {
-        const persistedLikes = JSON.parse(localStorage.getItem('likedArtworks')) || {}; // Load liked artworks from localStorage
-        setLikedArtworks(persistedLikes);
         fetchAllArtworks();
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    useEffect(() => {
+        if (user) fetchLikedArtworks();
+    }, [user]);
 
     const fetchAllArtworks = async () => {
         if (!hasMore || isFetching || !nextPageRef.current) return;
@@ -48,27 +50,6 @@ const VisitorGallery = () => {
                 extractCategories([...artworks, ...response.data.results]);
                 nextPageRef.current = response.data.next;
                 if (!response.data.next) setHasMore(false);
-
-                // Fetch likes for all artworks
-                const likesPromises = response.data.results.map((artwork) =>
-                    API.get(`artwork/${artwork.id}/likes/`).then((res) => ({
-                        artworkId: artwork.id,
-                        likes: res.data.likes,
-                    }))
-                );
-                const likesData = await Promise.all(likesPromises);
-                
-                // Merge new likes data with the previous liked artworks state
-                setLikedArtworks((prev) => {
-                    const updatedLikes = likesData.reduce((acc, curr) => {
-                        acc[curr.artworkId] = curr.likes;
-                        return acc;
-                    }, {});
-
-                    const newLikedArtworks = { ...prev, ...updatedLikes };
-                    localStorage.setItem('likedArtworks', JSON.stringify(newLikedArtworks)); // Persist liked state
-                    return newLikedArtworks;
-                });
             } else {
                 setHasMore(false);
             }
@@ -78,6 +59,16 @@ const VisitorGallery = () => {
         } finally {
             setLoading(false);
             setIsFetching(false);
+        }
+    };
+
+    const fetchLikedArtworks = async () => {
+        try {
+            const response = await API.get("users/liked-artworks/");
+            const likedIds = new Set(response.data.map((artwork) => artwork.id));
+            setLikedArtworks(likedIds);
+        } catch (error) {
+            console.error("Error fetching liked artworks:", error);
         }
     };
 
@@ -102,21 +93,17 @@ const VisitorGallery = () => {
         }
 
         try {
-            const isLiked = likedArtworks[artworkId] > 0;
+            const isLiked = likedArtworks.has(artworkId);
             if (isLiked) {
                 await API.delete(`artwork/${artworkId}/unlike/`);
                 setLikedArtworks((prev) => {
-                    const updatedLikes = { ...prev, [artworkId]: prev[artworkId] - 1 };
-                    localStorage.setItem('likedArtworks', JSON.stringify(updatedLikes)); // Persist liked state
+                    const updatedLikes = new Set(prev);
+                    updatedLikes.delete(artworkId);
                     return updatedLikes;
                 });
             } else {
                 await API.post(`artwork/${artworkId}/like/`);
-                setLikedArtworks((prev) => {
-                    const updatedLikes = { ...prev, [artworkId]: (prev[artworkId] || 0) + 1 };
-                    localStorage.setItem('likedArtworks', JSON.stringify(updatedLikes)); // Persist liked state
-                    return updatedLikes;
-                });
+                setLikedArtworks((prev) => new Set(prev).add(artworkId));
             }
         } catch (error) {
             console.error("Error liking artwork:", error);
@@ -162,7 +149,7 @@ const VisitorGallery = () => {
                                             <DownloadOutlined />
                                         </Button>
                                         <Button shape="circle" className="icon-button" onClick={() => handleLikeToggle(artwork.id)}>
-                                            <HeartFilled className={likedArtworks[artwork.id] > 0 ? "text-red-500" : "text-gray-500"} />
+                                            <HeartFilled className={likedArtworks.has(artwork.id) ? "text-red-500" : "text-gray-500"} />
                                         </Button>
                                     </div>
                                 </div>

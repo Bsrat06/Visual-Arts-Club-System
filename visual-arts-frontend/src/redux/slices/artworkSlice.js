@@ -85,6 +85,8 @@ export const fetchLikedArtworks = createAsyncThunk("artwork/fetchLiked", async (
 });
 
 
+
+
 // Redux slice
 const artworkSlice = createSlice({
   name: "artwork",
