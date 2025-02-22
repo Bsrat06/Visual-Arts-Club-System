@@ -208,7 +208,7 @@ const ManageEvents = () => {
             {/* ✅ Enhanced Events List */}
             <div className="bg-white shadow-md rounded-2xl p-6">
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
-                    <div className="flex gap-4">
+                    <div className="flex justify-between items-center mb-4">
                         <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                             All Events
                         </h2>

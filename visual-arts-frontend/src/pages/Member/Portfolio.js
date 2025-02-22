@@ -183,6 +183,9 @@ const Portfolio = () => {
 
             {/* ✅ Table Header: Search & Add Button */}
             <div className="flex justify-between items-center mb-4">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                        My Artworks
+                    </h2>
                 <div className="flex gap-4">
                     <Input
                         placeholder="Search artworks..."
@@ -190,15 +193,16 @@ const Portfolio = () => {
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="w-60"
                     />
+            <Button className="add-artwork-btn" type="primary" icon={<FaPlusCircle />} onClick={() => setIsAddModalVisible(true)}>
+                    Add New Artwork
+                </Button>
                     <Select value={sortOrder} onChange={(value) => setSortOrder(value)} className="w-44">
                         <Option value="newest">Newest</Option>
                         <Option value="oldest">Oldest</Option>
                         <Option value="az">Title: A-Z</Option>
                     </Select>
                 </div>
-                <Button type="primary" icon={<FaPlusCircle />} onClick={() => setIsAddModalVisible(true)}>
-                    Add New Artwork
-                </Button>
+                
             </div>
 
             <Table columns={columns} dataSource={filteredArtworks} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
