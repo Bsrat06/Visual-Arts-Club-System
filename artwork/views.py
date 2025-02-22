@@ -8,6 +8,7 @@ from .models import Artwork, Like
 from .serializers import ArtworkSerializer
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from users.permissions import IsAdminUser
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework import status
@@ -157,13 +158,17 @@ def get_likes_count(request, artwork_id):
     count = Like.objects.filter(artwork_id=artwork_id).count()
     return Response({"likes": count})
 
-@api_view(["GET"])
-def liked_artworks(request):
-    user = request.user
-    if not user.is_authenticated:
-        return Response({"error": "Authentication required"}, status=401)
+class LikedArtworksView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    liked_artworks = Artwork.objects.filter(likes__user=user)
-    print(liked_artworks)
-    serializer = ArtworkSerializer(liked_artworks, many=True)
-    return Response(serializer.data)
+    def get(self, request):
+        user = request.user
+        
+        # ✅ Get all artwork IDs liked by the user
+        liked_artwork_ids = Like.objects.filter(user=user).values_list("artwork_id", flat=True)
+
+        # ✅ Get the actual artwork objects
+        liked_artworks = Artwork.objects.filter(id__in=liked_artwork_ids)
+
+        serializer = ArtworkSerializer(liked_artworks, many=True)
+        return Response(serializer.data, status=200)

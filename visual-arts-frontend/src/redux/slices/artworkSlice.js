@@ -75,9 +75,11 @@ export const fetchCategoryAnalytics = createAsyncThunk(
 
 export const fetchLikedArtworks = createAsyncThunk("artwork/fetchLiked", async (_, thunkAPI) => {
   try {
-    const response = await API.get("artwork/liked/");
+    const response = await API.get("artworks/liked/");
+    console.log("Liked Artworks Response:", response.data);
     return response.data;
   } catch (error) {
+    console.error("Error Fetching Liked Artworks:", error.response?.data || error.message);
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch liked artworks");
   }
 });
