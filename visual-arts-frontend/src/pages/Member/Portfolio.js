@@ -5,6 +5,7 @@ import {
     removeArtwork,
     editArtwork,
     addArtwork,
+    fetchLikedArtworks,
 } from "../../redux/slices/artworkSlice";
 import {
     Input,
@@ -14,24 +15,24 @@ import {
     Image,
     Modal,
     message,
-    Card,
+    Table,
     Tag,
     Spin,
     Form,
-    Upload
+    Upload,
+    Tabs
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { FaPalette, FaPencilRuler, FaLaptopCode, FaEdit, FaTrashAlt, FaPlusCircle } from "react-icons/fa";
-import { Link } from "react-router-dom";
-import Table from "../../components/Shared/Table";
+import { FaEdit, FaTrashAlt, FaPlusCircle } from "react-icons/fa";
 import "../../styles/custom-ant.css";
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { TabPane } = Tabs;
 
 const Portfolio = () => {
     const dispatch = useDispatch();
-    const { artworks, loading, error } = useSelector((state) => state.artwork);
+    const { artworks, likedArtworks, loading, error } = useSelector((state) => state.artwork);
     const user = useSelector((state) => state.auth.user);
     const [selectedCategory, setSelectedCategory] = useState("");
     const [searchQuery, setSearchQuery] = useState("");
@@ -40,19 +41,18 @@ const Portfolio = () => {
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState(null);
-    const [statsLoading, setStatsLoading] = useState(true);
     const [form] = Form.useForm();
 
     useEffect(() => {
         if (user?.pk) {
             dispatch(fetchAllArtworks());
+            dispatch(fetchLikedArtworks());
         }
-        setTimeout(() => setStatsLoading(false), 1000);
     }, [dispatch, user]);
 
     const userArtworks = artworks.filter((art) => art.artist === user?.pk);
 
-    // ✅ Sorting Function
+    // Sorting Function
     const sortedArtworks = [...userArtworks].sort((a, b) => {
         if (sortOrder === "newest") return new Date(b.created_at) - new Date(a.created_at);
         if (sortOrder === "oldest") return new Date(a.created_at) - new Date(b.created_at);
@@ -64,69 +64,12 @@ const Portfolio = () => {
             art.title.toLowerCase().includes(searchQuery.toLowerCase())
         );
     }, [sortedArtworks, searchQuery]);
-    
 
-    // ✅ Add Artwork
-    const handleAddArtwork = async (values) => {
-        try {
-            const formData = new FormData();
-            for (const key in values) {
-                formData.append(key, values[key]);
-            }
-            formData.append("artist", user?.pk); // Ensure artist is included
-    
-            await dispatch(addArtwork(formData)).unwrap();
-            message.success("Artwork added successfully!");
-            dispatch(fetchAllArtworks());
-            setIsAddModalVisible(false);
-            form.resetFields();
-            setIsEditModalVisible(false);
-            setIsAddModalVisible(false);
+    const filteredLikedArtworks = likedArtworks.filter((art) =>
+        art.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
-        } catch (error) {
-            console.error("Error adding artwork:", error);
-            message.error("Failed to add artwork.");
-        }
-    };
-    
-
-    // ✅ Edit Artwork
-    const handleEditSubmit = async (values) => {
-        try {
-            const updatedData = new FormData();
-            for (const key in values) {
-                updatedData.append(key, values[key]);
-            }
-            updatedData.append("artist", user?.pk); // Ensure artist is included
-    
-            await dispatch(editArtwork({ id: selectedArtwork.id, data: updatedData })).unwrap();
-            message.success("Artwork updated successfully!");
-            dispatch(fetchAllArtworks());
-            setIsEditModalVisible(false);
-            form.resetFields(); 
-            setIsEditModalVisible(false);
-            setIsAddModalVisible(false);
-
-
-        } catch (error) {
-            console.error("Error updating artwork:", error);
-            message.error("Failed to update artwork.");
-        }
-    };
-    
-
-    // ✅ Delete Artwork
-    const deleteArtwork = async () => {
-        try {
-            await dispatch(removeArtwork(selectedArtwork.id)).unwrap();
-            message.success("Artwork deleted successfully!");
-            dispatch(fetchAllArtworks());
-            setIsDeleteModalVisible(false);
-        } catch (error) {
-            message.error("Failed to delete artwork.");
-        }
-    };
-
+    // Columns for Table
     const columns = [
         {
             title: "Preview",
@@ -138,7 +81,6 @@ const Portfolio = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
-            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: "Category",
@@ -158,7 +100,7 @@ const Portfolio = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-edit-btn" icon={<FaEdit />} onClick={() => {
+                    <Button icon={<FaEdit />} onClick={() => {
                         setSelectedArtwork(record);
                         form.setFieldsValue(record);
                         setIsEditModalVisible(true);
@@ -176,36 +118,87 @@ const Portfolio = () => {
         },
     ];
 
+    // Add Artwork
+    const handleAddArtwork = async (values) => {
+        try {
+            const formData = new FormData();
+            for (const key in values) {
+                formData.append(key, values[key]);
+            }
+            formData.append("artist", user?.pk);
+
+            await dispatch(addArtwork(formData)).unwrap();
+            message.success("Artwork added successfully!");
+            dispatch(fetchAllArtworks());
+            setIsAddModalVisible(false);
+            form.resetFields();
+        } catch (error) {
+            message.error("Failed to add artwork.");
+        }
+    };
+
+    // Edit Artwork
+    const handleEditSubmit = async (values) => {
+        try {
+            const updatedData = new FormData();
+            for (const key in values) {
+                updatedData.append(key, values[key]);
+            }
+            updatedData.append("artist", user?.pk);
+
+            await dispatch(editArtwork({ id: selectedArtwork.id, data: updatedData })).unwrap();
+            message.success("Artwork updated successfully!");
+            dispatch(fetchAllArtworks());
+            setIsEditModalVisible(false);
+            form.resetFields();
+        } catch (error) {
+            message.error("Failed to update artwork.");
+        }
+    };
+
+    // Delete Artwork
+    const deleteArtwork = async () => {
+        try {
+            await dispatch(removeArtwork(selectedArtwork.id)).unwrap();
+            message.success("Artwork deleted successfully!");
+            dispatch(fetchAllArtworks());
+            setIsDeleteModalVisible(false);
+        } catch (error) {
+            message.error("Failed to delete artwork.");
+        }
+    };
+
     return (
         <div className="p-6 space-y-8">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Portfolio</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
 
-            {/* ✅ Table Header: Search & Add Button */}
-            <div className="flex justify-between items-center mb-4">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                        My Artworks
-                    </h2>
-                <div className="flex gap-4">
-                    <Input
-                        placeholder="Search artworks..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-60"
-                    />
-            <Button className="add-artwork-btn" type="primary" icon={<FaPlusCircle />} onClick={() => setIsAddModalVisible(true)}>
-                    Add New Artwork
-                </Button>
-                    <Select value={sortOrder} onChange={(value) => setSortOrder(value)} className="w-44">
-                        <Option value="newest">Newest</Option>
-                        <Option value="oldest">Oldest</Option>
-                        <Option value="az">Title: A-Z</Option>
-                    </Select>
-                </div>
-                
-            </div>
+            {/* ✅ Tabs Section */}
+            <Tabs defaultActiveKey="1">
+                <TabPane tab="My Artworks" key="1">
+                    <div className="flex justify-between items-center mb-4">
+                        <Input
+                            placeholder="Search artworks..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-60"
+                        />
+                    </div>
+                    {loading ? <Spin size="large" /> : <Table columns={columns} dataSource={filteredArtworks} pagination={{ pageSize: 8 }} rowKey="id" />}
+                </TabPane>
 
-            <Table columns={columns} dataSource={filteredArtworks} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
+                <TabPane tab="Liked Artworks" key="2">
+                    <div className="flex justify-between items-center mb-4">
+                        <Input
+                            placeholder="Search liked artworks..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-60"
+                        />
+                    </div>
+                    {loading ? <Spin size="large" /> : <Table columns={columns} dataSource={filteredLikedArtworks} pagination={{ pageSize: 8 }} rowKey="id" />}
+                </TabPane>
+            </Tabs>
 
             {/* ✅ Delete Confirmation Modal */}
             <Modal title="Confirm Delete" open={isDeleteModalVisible} onCancel={() => setIsDeleteModalVisible(false)} onOk={deleteArtwork} okText="Yes, Delete" okType="danger">
@@ -224,19 +217,15 @@ const Portfolio = () => {
                     <Form.Item label="Category" name="category" rules={[{ required: true, message: "Category is required" }]}>
                         <Input />
                     </Form.Item>
-                    
-                <Form.Item label="Image">
-    <Upload
-        listType="picture"
-        beforeUpload={() => false}
-        defaultFileList={
-            selectedArtwork?.image ? [{ url: selectedArtwork.image }] : []
-        }
-    >
-        <Button icon={<UploadOutlined />}>Upload New Image</Button>
-    </Upload>
-</Form.Item>
-
+                    <Form.Item label="Image">
+                        <Upload
+                            listType="picture"
+                            beforeUpload={() => false}
+                            defaultFileList={selectedArtwork?.image ? [{ url: selectedArtwork.image }] : []}
+                        >
+                            <Button icon={<UploadOutlined />}>Upload New Image</Button>
+                        </Upload>
+                    </Form.Item>
                 </Form>
             </Modal>
 

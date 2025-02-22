@@ -7,7 +7,9 @@ import {
   LogoutOutlined,
   BellOutlined,
   DownOutlined,
+  HeartOutlined,
 } from "@ant-design/icons";
+import { FaHeart } from "react-icons/fa";  // Import the FaHeart icon
 
 const { Header } = Layout;
 
@@ -24,6 +26,11 @@ const Navbar = ({ onLogout, collapsed }) => {
       <Menu.Item key="profile">
         <Link to="/profile">
           <UserOutlined /> Profile
+        </Link>
+      </Menu.Item>
+      <Menu.Item key="liked">
+        <Link to="/portfolio?tab=liked">
+          <HeartOutlined /> Liked Artworks
         </Link>
       </Menu.Item>
       <Menu.Item key="logout" onClick={onLogout}>
@@ -60,14 +67,13 @@ const Navbar = ({ onLogout, collapsed }) => {
 
         {/* Profile Info & Dropdown */}
         <Dropdown overlay={menu} trigger={["click"]}>
-          <div className="flex items-center cursor-pointer">
+          <div className="cursor-pointer flex items-center">
             {/* Avatar */}
             <Avatar
               src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "default-avatar.jpg"}
               size={40}
               className="mr-3"
             />
-
             {/* User Info */}
             <div className="flex flex-col justify-center text-left">
               <span className="text-black text-[14px] font-medium leading-none">

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import API from "../../services/api";
 import { Image, Typography, Button, Input, Select, Skeleton, Empty } from "antd";
-import { FaHeart, FaSearchPlus, FaShareAlt } from "react-icons/fa";
+import { HeartFilled, DownloadOutlined } from "@ant-design/icons"; // Use Ant Design icons
 import "../../styles/mansory-layout.css";
 
 const { Text } = Typography;
@@ -123,6 +123,13 @@ const VisitorGallery = () => {
         }
     };
 
+    const handleDownload = (imageUrl) => {
+        const a = document.createElement("a");
+        a.href = imageUrl;
+        a.download = "artwork-image.jpg";
+        a.click();
+    };
+
     return (
         <div className="p-6 max-w-full mx-auto font-poppins">
             <div className="flex flex-wrap gap-4 mt-6">
@@ -151,15 +158,11 @@ const VisitorGallery = () => {
                                 <div className="artwork-container">
                                     <Image alt={artwork.title} src={artwork.image} className="w-full h-auto rounded-lg" />
                                     <div className="artwork-hover">
-                                        <Button shape="circle" className="icon-button">
-                                            <FaSearchPlus />
+                                        <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
+                                            <DownloadOutlined />
                                         </Button>
                                         <Button shape="circle" className="icon-button" onClick={() => handleLikeToggle(artwork.id)}>
-                                            <FaHeart className={likedArtworks[artwork.id] > 0 ? "text-red-500" : "text-gray-500"} />
-                                            <span className="ml-2">{likedArtworks[artwork.id] || 0}</span>
-                                        </Button>
-                                        <Button shape="circle" className="icon-button">
-                                            <FaShareAlt />
+                                            <HeartFilled className={likedArtworks[artwork.id] > 0 ? "text-red-500" : "text-gray-500"} />
                                         </Button>
                                     </div>
                                 </div>

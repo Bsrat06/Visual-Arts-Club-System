@@ -1,39 +1,38 @@
 .masonry {
-    column-count: 5; /* ✅ Default: 5 columns for larger screens */
+    column-count: 5; /* Default: 5 columns for larger screens */
     column-gap: 15px;
     width: 100%;
 }
 
-/* ✅ Medium screens (tablets) */
+/* Medium screens (tablets) */
 @media (max-width: 1024px) {
     .masonry {
         column-count: 3; /* 3 artworks per row */
     }
 }
 
-/* ✅ Small screens (mobile) */
+/* Small screens (mobile) */
 @media (max-width: 768px) {
     .masonry {
         column-count: 2; /* Max 2 artworks per row */
     }
 }
 
-/* ✅ Extra small screens */
+/* Extra small screens */
 @media (max-width: 480px) {
     .masonry {
         column-count: 1; /* 1 artwork per row for very small screens */
     }
 }
 
-
 .masonry-item {
     display: inline-block;
     width: 100%;
-    margin-bottom: 15px; /* Adjust spacing */
-    break-inside: avoid; /* ✅ Prevents breaking inside columns */
+    margin-bottom: 15px;
+    break-inside: avoid; /* Prevents breaking inside columns */
 }
 
-/* ✅ Image Container for Hover Effect */
+/* Image Container for Hover Effect */
 .artwork-container {
     position: relative;
     overflow: hidden;
@@ -42,14 +41,12 @@
 
 .artwork-hover {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    bottom: 10px; /* Move icons closer to the bottom */
+    left: 50%;
+    transform: translateX(-50%); /* Center align */
     display: flex;
     justify-content: center;
-    align-items: center;
-    gap: 10px;
+    gap: 15px; /* Space out the icons */
     opacity: 0;
     transition: opacity 0.3s ease-in-out;
     border-radius: 8px;
@@ -59,12 +56,12 @@
     opacity: 1;
 }
 
-/* ✅ Icon Button Styling */
+/* Icon Button Styling */
 .icon-button {
     background: rgba(255, 255, 255, 0.8) !important;
     border: none;
-    font-size: 14px !important; /* Made icons smaller */
-    width: 36px !important; /* Reduced size */
+    font-size: 14px !important;
+    width: 36px !important;
     height: 36px !important;
     display: flex;
     align-items: center;
@@ -75,20 +72,4 @@
 .icon-button:hover {
     transform: scale(1.1);
     background: rgba(255, 255, 255, 1) !important;
-}
-
-
-
-.like-button {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.like-button:hover .fa-heart {
-    color: red;
 }

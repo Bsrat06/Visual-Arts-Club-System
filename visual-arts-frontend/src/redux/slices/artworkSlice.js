@@ -73,11 +73,22 @@ export const fetchCategoryAnalytics = createAsyncThunk(
 );
 
 
+export const fetchLikedArtworks = createAsyncThunk("artwork/fetchLiked", async (_, thunkAPI) => {
+  try {
+    const response = await API.get("artwork/liked/");
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch liked artworks");
+  }
+});
+
+
 // Redux slice
 const artworkSlice = createSlice({
   name: "artwork",
   initialState: {
     artworks: [],
+    likedArtworks: [],
     categoryAnalytics: [],
     loading: false,
     error: null,
@@ -107,9 +118,13 @@ const artworkSlice = createSlice({
       .addCase(removeArtwork.fulfilled, (state, action) => {
         state.artworks = state.artworks.filter((art) => art.id !== action.payload);
       })
+      .addCase(fetchLikedArtworks.fulfilled, (state, action) => {
+        state.likedArtworks = action.payload;
+      });
   },
 });
 
 export default artworkSlice.reducer;
+
 
 

@@ -156,3 +156,14 @@ def unlike_artwork(request, artwork_id):
 def get_likes_count(request, artwork_id):
     count = Like.objects.filter(artwork_id=artwork_id).count()
     return Response({"likes": count})
+
+@api_view(["GET"])
+def liked_artworks(request):
+    user = request.user
+    if not user.is_authenticated:
+        return Response({"error": "Authentication required"}, status=401)
+
+    liked_artworks = Artwork.objects.filter(likes__user=user)
+    print(liked_artworks)
+    serializer = ArtworkSerializer(liked_artworks, many=True)
+    return Response(serializer.data)
