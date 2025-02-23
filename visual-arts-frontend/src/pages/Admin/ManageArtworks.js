@@ -12,14 +12,12 @@ import {
     message,
     Card,
     Spin,
-    Skeleton,
 } from "antd";
 import {
     CheckOutlined,
     CloseOutlined,
     EyeOutlined,
-    PlusOutlined,
-    SearchOutlined,
+    ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import {
     FaImages,
@@ -27,25 +25,23 @@ import {
     FaClock,
     FaTimesCircle,
 } from "react-icons/fa";
-import AddArtworkForm from "../../components/Admin/AddArtworkForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
 import "../../styles/custom-ant.css";
 
 const { Option } = Select;
+const { confirm } = Modal;
 
 const ManageArtworks = () => {
     const dispatch = useDispatch();
     const { artworks, loading } = useSelector((state) => state.artwork);
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
     const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState(null);
-    const [feedback, setFeedback] = useState("");
     const [artworkStats, setArtworkStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
+    const [feedback, setFeedback] = useState("");
 
     useEffect(() => {
         dispatch(fetchAllArtworks());
@@ -63,70 +59,56 @@ const ManageArtworks = () => {
         }
     };
 
-    const showModal = () => setIsModalVisible(true);
-    const closeModal = () => setIsModalVisible(false);
-
     const handleApproveArtwork = async (id) => {
         try {
             await API.patch(`artwork/${id}/approve/`);
             message.success("Artwork approved successfully!");
             dispatch(fetchAllArtworks());
-            fetchArtworkStats(); 
+            fetchArtworkStats();
         } catch (error) {
             message.error("Failed to approve artwork.");
         }
     };
 
-    const handleRejectArtwork = async () => {
-        try {
-            await API.patch(`artwork/${selectedArtwork.id}/reject/`, { feedback });
-            message.success("Artwork rejected with feedback!");
-            setIsRejectModalVisible(false);
-            setFeedback("");
-            dispatch(fetchAllArtworks());
-            fetchArtworkStats();
-        } catch (error) {
-            message.error("Failed to reject artwork.");
-        }
+    const handleRejectArtwork = async (id) => {
+        confirm({
+            title: "Are you sure you want to reject this artwork?",
+            icon: <ExclamationCircleOutlined style={{ color: "red" }} />,
+            content: (
+                <Input.TextArea
+                    placeholder="Provide rejection reason..."
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                />
+            ),
+            okText: "Reject",
+            okType: "danger",
+            cancelText: "Cancel",
+            onOk: async () => {
+                try {
+                    await API.patch(`artwork/${id}/reject/`, { feedback });
+                    message.success("Artwork rejected successfully!");
+                    setFeedback("");
+                    dispatch(fetchAllArtworks());
+                    fetchArtworkStats();
+                } catch (error) {
+                    message.error("Failed to reject artwork.");
+                }
+            },
+        });
     };
-
-    const statistics = [
-        {
-            title: "Total Artworks",
-            value: artworkStats.total_artworks || 0,
-            icon: <FaImages className="text-[#FFA500] text-3xl" />,
-        },
-        {
-            title: "Approved Artworks",
-            value: artworkStats.approved_artworks || 0,
-            icon: <FaCheckCircle className="text-[#FFA500] text-3xl" />,
-        },
-        {
-            title: "Pending Artworks",
-            value: artworkStats.pending_artworks || 0,
-            icon: <FaClock className="text-[#FFA500] text-3xl" />,
-        },
-        {
-            title: "Rejected Artworks",
-            value: artworkStats.rejected_artworks || 0,
-            icon: <FaTimesCircle className="text-[#FFA500] text-3xl" />,
-        },
-    ];
 
     const columns = [
         {
             title: "Preview",
             dataIndex: "image",
             key: "image",
-            render: (image) => (
-                <Image width={50} height={50} src={image} alt="Artwork" />
-            ),
+            render: (image) => <Image width={50} height={50} src={image} />,
         },
         {
             title: "Title",
             dataIndex: "title",
             key: "title",
-            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: "Category",
@@ -142,13 +124,6 @@ const ManageArtworks = () => {
             title: "Status",
             dataIndex: "approval_status",
             key: "approval_status",
-            filters: [
-                { text: "Approved", value: "approved" },
-                { text: "Pending", value: "pending" },
-                { text: "Rejected", value: "rejected" },
-            ],
-            filteredValue: filterStatus ? [filterStatus] : null,
-            onFilter: (value, record) => record.approval_status === value,
             render: (status) => {
                 const color =
                     status === "approved"
@@ -165,7 +140,6 @@ const ManageArtworks = () => {
             render: (_, record) => (
                 <Space>
                     <Button
-                        className="custom-view-btn"
                         icon={<EyeOutlined />}
                         onClick={() => {
                             setSelectedArtwork(record);
@@ -187,14 +161,30 @@ const ManageArtworks = () => {
                             <Button
                                 icon={<CloseOutlined />}
                                 danger
-                                onClick={() => {
-                                    setSelectedArtwork(record);
-                                    setIsRejectModalVisible(true);
-                                }}
+                                onClick={() => handleRejectArtwork(record.id)}
                             >
                                 Reject
                             </Button>
                         </>
+                    )}
+                    {record.approval_status === "approved" && (
+                        <Button
+                            icon={<CloseOutlined />}
+                            danger
+                            onClick={() => handleRejectArtwork(record.id)}
+                        >
+                            Reject
+                        </Button>
+                    )}
+                    {record.approval_status === "rejected" && (
+                        <Button
+                        className="custom-activate-btn"
+                        icon={<CheckOutlined />}
+                        type="primary"
+                        onClick={() => handleApproveArtwork(record.id)}
+                    >
+                        Approve
+                    </Button>
                     )}
                 </Space>
             ),
@@ -203,30 +193,41 @@ const ManageArtworks = () => {
 
     return (
         <div className="p-6 space-y-8">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                Manage Artworks
-            </h2>
-            <p className="text-green-500 text-sm font-[Poppins] mt-1">
-                Artworks &gt; Review & Manage
-            </p>
+            <h2>Manage Artworks</h2>
 
             <div className="bg-white rounded-2xl shadow p-8 flex items-center justify-between mb-6">
                 {statsLoading ? (
                     <Spin size="large" />
                 ) : (
-                    statistics.map((stat, index) => (
+                    [
+                        {
+                            title: "Total Artworks",
+                            value: artworkStats.total_artworks || 0,
+                            icon: <FaImages className="text-[#FFA500] text-3xl" />,
+                        },
+                        {
+                            title: "Approved Artworks",
+                            value: artworkStats.approved_artworks || 0,
+                            icon: <FaCheckCircle className="text-[#FFA500] text-3xl" />,
+                        },
+                        {
+                            title: "Pending Artworks",
+                            value: artworkStats.pending_artworks || 0,
+                            icon: <FaClock className="text-[#FFA500] text-3xl" />,
+                        },
+                        {
+                            title: "Rejected Artworks",
+                            value: artworkStats.rejected_artworks || 0,
+                            icon: <FaTimesCircle className="text-[#FFA500] text-3xl" />,
+                        },
+                    ].map((stat, index) => (
                         <div key={index} className="flex items-start space-x-6">
                             <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
                                 {stat.icon}
                             </div>
-
                             <div className="text-left">
-                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
-                                    {stat.title}
-                                </p>
-                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
-                                    {stat.value}
-                                </p>
+                                <p>{stat.title}</p>
+                                <p className="text-xl font-semibold">{stat.value}</p>
                             </div>
                         </div>
                     ))
@@ -235,15 +236,12 @@ const ManageArtworks = () => {
 
             <div className="bg-white shadow-md rounded-2xl p-6">
                 <div className="flex justify-between items-center pb-4">
-                    <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                        All Artworks
-                    </h2>
+                    <h2>All Artworks</h2>
                     <div className="flex gap-4">
                         <Input
                             placeholder="Search..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            prefix={<SearchOutlined />}
                         />
                         <Select
                             placeholder="Filter by status"
@@ -257,14 +255,23 @@ const ManageArtworks = () => {
                     </div>
                 </div>
 
-                <Table
-                    columns={columns}
-                    dataSource={artworks}
-                    pagination={{ pageSize: 8 }}
-                    loading={loading}
-                    rowKey="id"
-                />
+                <Table columns={columns} dataSource={artworks} rowKey="id" />
             </div>
+
+            <Modal
+                title="Artwork Details"
+                visible={isViewModalVisible}
+                onCancel={() => setIsViewModalVisible(false)}
+                footer={null}
+            >
+                {selectedArtwork && (
+                    <div>
+                        <Image src={selectedArtwork.image} width={200} />
+                        <h3>{selectedArtwork.title}</h3>
+                        <p>{selectedArtwork.description}</p>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };
