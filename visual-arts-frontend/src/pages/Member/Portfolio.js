@@ -26,6 +26,7 @@ import {
 import { UploadOutlined, HeartFilled, DownloadOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
 import "../../styles/mansory-layout.css";
+import "../../styles/tabs.css";
 import Table from "../../components/Shared/Table";
 
 

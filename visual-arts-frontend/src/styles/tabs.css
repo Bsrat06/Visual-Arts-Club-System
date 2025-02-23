@@ -1,0 +1,19 @@
+/* Change tab color on selection */
+.ant-tabs-tab-active {
+    color: orange !important; /* Change text color */
+}
+
+/* Change the underline indicator color */
+.ant-tabs-ink-bar {
+    background-color: orange !important;
+}
+
+/* Change tab color on hover */
+.ant-tabs-tab:hover {
+    color: orange !important;
+}
+
+/* If you want to change the background color when selected */
+.ant-tabs-tab-active {
+    border-radius: 5px;
+}
