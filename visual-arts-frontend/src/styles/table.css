@@ -5,6 +5,7 @@
     font-weight: 500 !important; /* ✅ Medium font weight */
     text-transform: capitalize !important; /* ✅ Improve readability */
     border-bottom: 1px solid #E5E7EB !important; /* ✅ Light border */
+    z-index: 0 !important;
   }
   
   /* ✅ Fix Hover & Row Background */
@@ -15,4 +16,3 @@
   .custom-ant-table .ant-table-tbody > tr > td {
     border-bottom: 1px solid #EEEEEE !important; /* ✅ Keep row borders */
   }
-  
