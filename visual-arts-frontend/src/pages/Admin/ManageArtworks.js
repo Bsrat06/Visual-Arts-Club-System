@@ -124,6 +124,13 @@ const ManageArtworks = () => {
             title: "Status",
             dataIndex: "approval_status",
             key: "approval_status",
+            filters: [
+                { text: "Approved", value: "approved" },
+                { text: "Pending", value: "pending" },
+                { text: "Rejected", value: "rejected" },
+            ],
+            filteredValue: filterStatus ? [filterStatus] : null,
+            onFilter: (value, record) => record.approval_status === value,
             render: (status) => {
                 const color =
                     status === "approved"
