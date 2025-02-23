@@ -6,6 +6,7 @@ import {
     editArtwork,
     addArtwork,
     fetchLikedArtworks,
+    unlikeArtwork,
 } from "../../redux/slices/artworkSlice";
 import {
     Input,
@@ -22,7 +23,7 @@ import {
     Tabs,
     Empty,
 } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, HeartFilled, DownloadOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
 import "../../styles/mansory-layout.css";
 import Table from "../../components/Shared/Table";
@@ -124,6 +125,13 @@ const Portfolio = () => {
         }
     };
 
+    const handleDownload = (imageUrl) => {
+        const a = document.createElement("a");
+        a.href = imageUrl;
+        a.download = "artwork-image.jpg";
+        a.click();
+    };
+
     const columns = [
         {
             title: "Preview",
@@ -195,33 +203,35 @@ const Portfolio = () => {
 
                 {/* Liked Artworks Tab */}
                 <TabPane tab="Liked Artworks" key="liked">
-    <div className="masonry">
-        {filteredLikedArtworks.length > 0 ? (
-            filteredLikedArtworks.map((artwork) => (
-                <div key={artwork.id} className="masonry-item">
-                    {console.log("Liked Artwork Image URL:", artwork.image)
-                    }
-                    <div className="artwork-container">
-                        {artwork.image ? (
-                            <Image alt={artwork.title} src={`http://127.0.0.1:8000/${artwork.image}`} className="w-full h-auto rounded-lg" />
-                        ) : (
-                            <div className="bg-gray-200 w-full h-40 flex items-center justify-center text-gray-500">
-                                No Image Available
+                <div className="masonry">
+                    {filteredLikedArtworks.length > 0 ? (
+                        filteredLikedArtworks.map((artwork) => (
+                            <div key={artwork.id} className="masonry-item">
+                                <div className="artwork-container">
+                                    {artwork.image ? (
+                                        <Image alt={artwork.title} src={`http://127.0.0.1:8000/${artwork.image}`} className="w-full h-auto rounded-lg" />
+                                    ) : (
+                                        <div className="bg-gray-200 w-full h-40 flex items-center justify-center text-gray-500">
+                                            No Image Available
+                                        </div>
+                                    )}
+                                    <div className="artwork-hover">
+                                        <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
+                                            <DownloadOutlined />
+                                        </Button>
+                                        <Button shape="circle" className="icon-button" onClick={() => dispatch(unlikeArtwork(artwork.id))}>
+                                            <HeartFilled className="text-red-500" /> {/* Unlike button */}
+                                        </Button>
+                                    </div>
+                                </div>
                             </div>
-                        )}
-                        <div className="artwork-hover">
-                            <Button shape="circle" className="icon-button">
-                                <FaHeart className="text-red-500" />
-                            </Button>
-                        </div>
-                    </div>
+                        ))
+                    ) : (
+                        <Empty description="No liked artworks yet." />
+                    )}
                 </div>
-            ))
-        ) : (
-            <Empty description="No liked artworks yet." />
-        )}
-    </div>
-</TabPane>
+            </TabPane>
+
 
             </Tabs>
         </div>

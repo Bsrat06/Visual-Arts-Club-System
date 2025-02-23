@@ -85,6 +85,17 @@ export const fetchLikedArtworks = createAsyncThunk("artwork/fetchLiked", async (
 });
 
 
+export const unlikeArtwork = createAsyncThunk("artwork/unlike", async (artworkId, thunkAPI) => {
+  try {
+    await API.delete(`artwork/${artworkId}/unlike/`);
+    return artworkId; // Return the ID of the unliked artwork
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to unlike artwork");
+  }
+});
+
+
+
 
 
 // Redux slice
@@ -124,6 +135,9 @@ const artworkSlice = createSlice({
       })
       .addCase(fetchLikedArtworks.fulfilled, (state, action) => {
         state.likedArtworks = action.payload;
+      })
+      .addCase(unlikeArtwork.fulfilled, (state, action) => {
+        state.likedArtworks = state.likedArtworks.filter((art) => art.id !== action.payload);
       });
   },
 });
