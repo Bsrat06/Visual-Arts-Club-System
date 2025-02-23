@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import { Layout, Avatar, Dropdown, Menu, Badge, Modal, Button } from "antd";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  UserOutlined,
-  LogoutOutlined,
-  BellOutlined,
-  DownOutlined,
-  HeartOutlined,
-} from "@ant-design/icons";
-import { FaHeart } from "react-icons/fa"; // Import the FaHeart icon
+import { UserOutlined, LogoutOutlined, BellOutlined, DownOutlined, HeartOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
 
@@ -17,24 +10,20 @@ const Navbar = ({ onLogout, collapsed }) => {
   const user = useSelector((state) => state.auth.user);
   const userRole = useSelector((state) => state.auth.role);
   const notifications = useSelector((state) => state.notifications.notifications);
-  const dispatch = useDispatch();
-  
-  const [isLoggedIn, setIsLoggedIn] = useState(!!user); // Track login status
 
-  // Count unread notifications
+  const [isLoggedIn, setIsLoggedIn] = useState(!!user);
+
   const unreadCount = notifications.filter((notification) => !notification.read).length;
 
-  // Logout Confirmation Modal
   const confirmLogout = () => {
     Modal.confirm({
       title: "Are you sure you want to log out?",
       okText: "Yes",
-      okType: "danger", // Use the danger type for the "Yes" button
+      okType: "danger",
       cancelText: "No",
       onOk() {
-        // Perform the logout operation
         onLogout();
-        setIsLoggedIn(false); // Update login status after logout
+        setIsLoggedIn(false);
       },
     });
   };
@@ -47,7 +36,7 @@ const Navbar = ({ onLogout, collapsed }) => {
         </Link>
       </Menu.Item>
       <Menu.Item key="liked">
-        <Link to="/portfolio?tab=liked">
+        <Link to="/member/portfolio?tab=liked">
           <HeartOutlined /> Liked Artworks
         </Link>
       </Menu.Item>
@@ -67,12 +56,29 @@ const Navbar = ({ onLogout, collapsed }) => {
         transition: "all 0.3s ease",
         zIndex: 1,
         fontFamily: "'Poppins', sans-serif",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
       }}
     >
-      {/* Left Section - Greeting */}
+      {/* Left Section - Greeting / Title */}
       <div className="text-black font-medium" style={{ fontSize: "24px", flexGrow: 1 }}>
-        Hello {user?.first_name || "User"} 👋🏼,
+        {userRole === "visitor" ? (
+          <Link to="/" style={{ textDecoration: "none", color: "orange" }}>
+            Visual Arts
+          </Link>
+        ) : (
+          `Hello ${user?.first_name || "User"} 👋🏼,`
+        )}
       </div>
+
+      {/* Center Section - Navbar Links */}
+      {/* <div className="flex space-x-8 text-black font-medium" style={{ fontSize: "16px" }}>
+        <Link to="visitor/gallery" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">Gallery</Link>
+        <Link to="visitor/events" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">Event</Link>
+        <Link to="/about" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">About</Link>
+        <Link to="/contact" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">Contact</Link>
+      </div> */}
 
       {/* Right Section - Notifications & Profile */}
       <div className="flex items-center space-x-6">
@@ -87,13 +93,11 @@ const Navbar = ({ onLogout, collapsed }) => {
         {isLoggedIn ? (
           <Dropdown overlay={menu} trigger={["click"]}>
             <div className="cursor-pointer flex items-center">
-              {/* Avatar */}
               <Avatar
                 src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "default-avatar.jpg"}
                 size={40}
                 className="mr-3"
               />
-              {/* User Info */}
               <div className="flex flex-col justify-center text-left">
                 <span className="text-black text-[14px] font-medium leading-none">
                   {user?.first_name} {user?.last_name}
@@ -102,13 +106,10 @@ const Navbar = ({ onLogout, collapsed }) => {
                   Club {userRole?.charAt(0).toUpperCase() + userRole?.slice(1) || "Member"}
                 </span>
               </div>
-
-              {/* Dropdown Icon */}
               <DownOutlined style={{ marginLeft: "32px", fontSize: "14px", color: "#757575" }} />
             </div>
           </Dropdown>
         ) : (
-          // Display login/register buttons when user is logged out
           <div className="flex items-center space-x-6">
             <Link to="/login">
               <Button className="add-artwork-btn" type="primary">Login</Button>
