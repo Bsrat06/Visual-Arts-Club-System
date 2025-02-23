@@ -200,8 +200,8 @@ const ManageArtworks = () => {
 
     return (
         <div className="p-6 space-y-8">
-            <h2>Manage Artworks</h2>
-
+           <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Artworks</h2>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">Artworks &gt; Review & Manage</p>
             <div className="bg-white rounded-2xl shadow p-8 flex items-center justify-between mb-6">
                 {statsLoading ? (
                     <Spin size="large" />
