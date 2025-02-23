@@ -14,9 +14,17 @@ import {
     Avatar,
     Tag,
     message,
+    Image,
+    Modal,
     Card,
     Spin,
 } from "antd";
+import {
+    CheckOutlined,
+    CloseOutlined,
+    EyeOutlined,
+    ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import {
     FaUsers,
     FaUserCheck,
@@ -36,6 +44,8 @@ const ManageUsers = () => {
     const { users, loading } = useSelector((state) => state.users);
     const navigate = useNavigate();
     const [filteredInfo, setFilteredInfo] = useState({});
+    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [statsLoading, setStatsLoading] = useState(true);
 
@@ -145,7 +155,13 @@ const ManageUsers = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-view-btn" icon={<FaEye />} onClick={() => handleViewProfile(record.pk)}>
+                    <Button
+                        icon={<EyeOutlined />}
+                        onClick={() => {
+                            setSelectedUser(record);
+                            setIsViewModalVisible(true);
+                        }}
+                    >
                         View
                     </Button>
                     {record.is_active ? (
@@ -225,6 +241,22 @@ const ManageUsers = () => {
 
                 <Table columns={columns} dataSource={tableData} onChange={handleChange} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
             </div>
+            <Modal
+                title="User Details"
+                visible={isViewModalVisible}
+                onCancel={() => setIsViewModalVisible(false)}
+                footer={null}
+            >
+                {selectedUser && (
+                    <div>
+                        <Image src={selectedUser.avatar} width={200} />
+                        <p>Name: {selectedUser.name}</p>
+                        <p>Email: {selectedUser.email}</p>
+                        <p>Role: {selectedUser.role}</p>
+                        <p>Account Status: {selectedUser.is_active}</p>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };
