@@ -11,6 +11,8 @@ import {
     Card,
     Tag,
     Spin,
+    Tabs,
+    Badge,
 } from "antd";
 import {
     PlusOutlined,
@@ -23,29 +25,39 @@ import {
     FaCheckCircle,
     FaSpinner,
 } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
 import Table from "../../components/Shared/Table";
-import "../../styles/custom-ant.css";  // Make sure your custom styles are loaded here
+import "../../styles/custom-ant.css";
 
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const ManageProjects = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { projects, loading } = useSelector((state) => state.projects);
+    const user = useSelector((state) => state.auth.user); // ✅ Get logged-in admin
+
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
-    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [selectedProject, setSelectedProject] = useState(null);
+    const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [projectStats, setProjectStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
+    const [selectedTab, setSelectedTab] = useState("allProjects");
 
     useEffect(() => {
         dispatch(fetchProjects());
         fetchProjectStats();
     }, [dispatch]);
+
+    useEffect(() => {
+        fetchProjectStats();
+    }, [selectedTab]);
 
     const fetchProjectStats = async () => {
         try {
@@ -91,20 +103,33 @@ const ManageProjects = () => {
         setIsViewModalVisible(true);
     };
 
+    // ✅ Filter projects based on the selected tab
+    const myProjects = projects.filter((project) => project.creator === user?.pk);
+    const displayedProjects = selectedTab === "allProjects" ? projects : myProjects;
+
     const statistics = [
         {
             title: "Total Projects",
-            value: projectStats.total_projects || 0,
+            value:
+                selectedTab === "allProjects"
+                    ? projectStats.total_projects || 0
+                    : myProjects.length,
             icon: <FaProjectDiagram className="text-[#FFA500] text-4xl" />,
         },
         {
             title: "Completed Projects",
-            value: projectStats.completed_projects || 0,
+            value:
+                selectedTab === "allProjects"
+                    ? projectStats.completed_projects || 0
+                    : myProjects.filter((p) => p.is_completed).length,
             icon: <FaCheckCircle className="text-[#FFA500] text-4xl" />,
         },
         {
             title: "Ongoing Projects",
-            value: projectStats.ongoing_projects || 0,
+            value:
+                selectedTab === "allProjects"
+                    ? projectStats.ongoing_projects || 0
+                    : myProjects.filter((p) => !p.is_completed).length,
             icon: <FaSpinner className="text-[#FFA500] text-4xl" />,
         },
     ];
@@ -136,17 +161,11 @@ const ManageProjects = () => {
         },
         {
             title: "Status",
-            dataIndex: "status",
+            dataIndex: "is_completed",
             key: "status",
-            filters: [
-                { text: "Completed", value: "completed" },
-                { text: "Ongoing", value: "ongoing" },
-            ],
-            filteredValue: filterStatus ? [filterStatus] : null,
-            onFilter: (value, record) => record.status === value,
-            render: (status) => (
-                <Tag color={status === "completed" ? "green" : "orange"}>
-                    {status.toUpperCase()}
+            render: (is_completed) => (
+                <Tag color={is_completed ? "green" : "orange"}>
+                    {is_completed ? "COMPLETED" : "ONGOING"}
                 </Tag>
             ),
         },
@@ -155,25 +174,13 @@ const ManageProjects = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button
-                        className="custom-view-btn"
-                        icon={<EyeOutlined />}
-                        onClick={() => viewProject(record)}
-                    >
+                    <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => viewProject(record)}>
                         View
                     </Button>
-                    <Button
-                        className="custom-edit-btn"
-                        icon={<EditOutlined />}
-                        onClick={() => editProject(record)}
-                    >
+                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editProject(record)}>
                         Edit
                     </Button>
-                    <Button
-                        icon={<DeleteOutlined />}
-                        danger
-                        onClick={() => deleteProject(record.id)}
-                    >
+                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>
                         Delete
                     </Button>
                 </Space>
@@ -181,28 +188,15 @@ const ManageProjects = () => {
         },
     ];
 
-    const tableData = projects
-        .filter((project) => project.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        .map((project) => ({
-            key: project.id,
-            title: project.title,
-            description: project.description,
-            start_date: project.start_date,
-            end_date: project.end_date,
-            status: project.status || "",
-        }));
-
     return (
         <div className="p-6 space-y-8">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                 Manage Projects
             </h2>
-            <p className="text-green-500 text-sm font-[Poppins] mt-1">
-                Projects &gt; Review & Manage
-            </p>
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">Projects &gt; Review & Manage</p>
 
-            {/* ✅ Enhanced Statistics Container */}
-            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
+            {/* ✅ Statistics Section */}
+            <div className="bg-white rounded-2xl shadow-md p-8 flex items-center justify-between mb-6">
                 {statsLoading ? (
                     <Spin size="large" />
                 ) : (
@@ -211,35 +205,40 @@ const ManageProjects = () => {
                             <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
                                 {stat.icon}
                             </div>
-
                             <div className="text-left">
-                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
-                                    {stat.title}
-                                </p>
-                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
-                                    {stat.value}
-                                </p>
+                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">{stat.title}</p>
+                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">{stat.value}</p>
                             </div>
-
-                            {index < statistics.length - 1 && (
-                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
-                            )}
                         </div>
                     ))
                 )}
             </div>
 
-            <div className="bg-white shadow-md rounded-2xl p-6">
+            {/* ✅ Tabs Section */}
+            <Tabs defaultActiveKey="allProjects" onChange={(key) => setSelectedTab(key)}>
+                <TabPane tab="All Projects" key="allProjects">
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
                     All Projects
                 </h2>
                 <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
                                         Add Project
                                     </Button>
-                <Table columns={columns} dataSource={tableData} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
-            </div>
-            <Modal title={editingProject ? "Edit Project" : "Add New Project"} open={isModalVisible} onCancel={closeModal} footer={null}>
-                <AddProjectForm project={editingProject} onClose={closeModal} />
+                    <Table columns={columns} dataSource={projects} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
+                </TabPane>
+
+                <TabPane tab="My Projects" key="myProjects">
+                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
+                    My Projects
+                </h2>
+                <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                                        Add Project
+                                    </Button>
+                    <Table columns={columns} dataSource={myProjects} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
+                </TabPane>
+            </Tabs>
+
+            <Modal title="Add New Project" open={isModalVisible} onCancel={closeModal} footer={null}>
+                <AddProjectForm onClose={closeModal} />
             </Modal>
         </div>
     );

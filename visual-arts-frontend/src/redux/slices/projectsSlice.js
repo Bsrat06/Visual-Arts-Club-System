@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getProjects, createProject, updateProject, deleteProject } from "../../services/api";
 import API from "../../services/api";
 
-
 // Fetch all projects
 export const fetchProjects = createAsyncThunk("projects/fetchAll", async (_, thunkAPI) => {
   try {
@@ -13,39 +12,30 @@ export const fetchProjects = createAsyncThunk("projects/fetchAll", async (_, thu
   }
 });
 
-// Create new project
-export const addProject = createAsyncThunk("projects/add", async (data, thunkAPI) => {
-  const token = localStorage.getItem("token"); // ✅ Ensure we get the token
-
-  console.log("Adding Project with Token:", token); // ✅ Debug log
-  
-  
+// Create new project (Multipart support)
+export const addProject = createAsyncThunk("projects/add", async (formData, thunkAPI) => {
   try {
-    const response = await API.post("projects/", data, {
+    const response = await API.post("projects/", formData, {
       headers: {
-        Authorization: `Token ${token}`, // ✅ Ensure token is sent
+        "Content-Type": "multipart/form-data", // ✅ Ensure correct content type for file uploads
       },
     });
     return response.data;
   } catch (error) {
-    console.error("Project Submission Error:", error.response?.data); // ✅ Log exact error
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to create project");
   }
 });
 
-// Update project
-export const editProject = createAsyncThunk("projects/edit", async ({ id, data }, thunkAPI) => {
+// Update project (Multipart support)
+export const editProject = createAsyncThunk("projects/edit", async ({ id, formData }, thunkAPI) => {
   try {
-    console.log("Updating Project:", id, data); // ✅ Debugging log
-    const response = await API.put(`projects/${id}/`, data, {
+    const response = await API.patch(`projects/${id}/`, formData, {
       headers: {
-        Authorization: `Token ${localStorage.getItem("token")}`,
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
-
   } catch (error) {
-    console.error("Update Project Error:", error.response?.data || error.message);
     return thunkAPI.rejectWithValue(error.response?.data || "Failed to update project");
   }
 });
@@ -60,7 +50,7 @@ export const removeProject = createAsyncThunk("projects/remove", async (id, thun
   }
 });
 
-// ✅ Fetch project progress
+// Fetch project progress
 export const fetchProjectProgress = createAsyncThunk("projects/fetchProgress", async (projectId, thunkAPI) => {
   try {
     const response = await API.get(`projects/${projectId}/progress/`);
@@ -73,32 +63,32 @@ export const fetchProjectProgress = createAsyncThunk("projects/fetchProgress", a
 // Fetch single project details
 export const fetchProjectDetails = createAsyncThunk("projects/fetchDetails", async (id, thunkAPI) => {
   try {
-      const response = await API.get(`projects/${id}/`);
-      return response.data;
+    const response = await API.get(`projects/${id}/`);
+    return response.data;
   } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch project details");
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch project details");
   }
 });
 
-// Add a progress update
-export const addProjectUpdate = createAsyncThunk("projects/addUpdate", async ({ projectId, data }, thunkAPI) => {
+// Add a progress update (Multipart support)
+export const addProjectUpdate = createAsyncThunk("projects/addUpdate", async ({ projectId, formData }, thunkAPI) => {
   try {
-      const response = await API.post(`projects/${projectId}/add-update/`, data, {
-          headers: { "Content-Type": "multipart/form-data" },
-      });
-      return response.data;
+    const response = await API.post(`projects/${projectId}/add-update/`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || "Failed to add progress update");
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to add progress update");
   }
 });
 
 // Mark project as completed
 export const completeProject = createAsyncThunk("projects/complete", async (id, thunkAPI) => {
   try {
-      const response = await API.post(`projects/${id}/complete/`);
-      return response.data;
+    const response = await API.post(`projects/${id}/complete/`);
+    return response.data;
   } catch (error) {
-      return thunkAPI.rejectWithValue(error.response?.data || "Failed to complete project");
+    return thunkAPI.rejectWithValue(error.response?.data || "Failed to complete project");
   }
 });
 
@@ -131,9 +121,15 @@ const projectsSlice = createSlice({
       .addCase(fetchProjectProgress.fulfilled, (state, action) => {
         state.progress[action.payload.projectId] = action.payload.progress;
       })
-      .addCase(fetchProjectDetails.fulfilled, (state, action) => { state.selectedProject = action.payload; })
-      .addCase(addProjectUpdate.fulfilled, (state, action) => { state.selectedProject.updates.push(action.payload); })
-      .addCase(completeProject.fulfilled, (state, action) => { state.selectedProject.is_completed = true; });
+      .addCase(fetchProjectDetails.fulfilled, (state, action) => {
+        state.selectedProject = action.payload;
+      })
+      .addCase(addProjectUpdate.fulfilled, (state, action) => {
+        state.selectedProject.updates.push(action.payload);
+      })
+      .addCase(completeProject.fulfilled, (state, action) => {
+        state.selectedProject.is_completed = true;
+      });
   },
 });
 

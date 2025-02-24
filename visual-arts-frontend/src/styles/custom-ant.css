@@ -1,4 +1,4 @@
-/* Change Edit button hover color to orange */
+/* Change Edit button hover color to #FF9933 */
 
 
 .custom-view-btn:hover {
@@ -10,35 +10,35 @@
 /* Custom styles for Edit button */
 .custom-edit-btn {
     background-color: white !important;  /* Keep background white */
-    border-color: lightgray !important;  /* Orange border */
+    border-color: lightgray !important;  /* #FF9933 border */
 }
 
 /* Change the hover effect for Edit button */
 .custom-edit-btn:hover {
-    border-color: orange !important;
-    color: orange !important;  /* White text on hover */
+    border-color: #FF9933 !important;
+    color: #FF9933 !important;  /* White text on hover */
 }
 
 /* Customize Edit Icon color */
 .custom-edit-btn .anticon {
-    color: black !important;  /* Orange icon */
+    color: black !important;  /* #FF9933 icon */
 }
 
 /* Change Edit Icon color on hover */
 .custom-edit-btn:hover .anticon {
-    color: orange !important;  /* White icon on hover */
+    color: #FF9933 !important;  /* White icon on hover */
 }
 
 
 
-/* Make 'Add New Artwork' button orange */
+/* Make 'Add New Artwork' button #FF9933 */
 .add-artwork-btn {
-    background-color: orange !important;
-    border-color: orange !important;
+    background-color: #FF9933 !important;
+    border-color: #FF9933 !important;
 }
 
 .add-artwork-btn:hover {
-    background-color: orange !important;
+    background-color: #FF9933 !important;
 }
 
 
