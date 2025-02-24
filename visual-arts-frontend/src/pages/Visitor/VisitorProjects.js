@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects } from "../../redux/slices/projectsSlice";
-import { Card, Input, Spin, Empty, Select, Badge, Image } from "antd";
-import { FilterOutlined, SortAscendingOutlined } from "@ant-design/icons";
+import { Card, Input, Spin, Empty, Select, Badge, Image, Button, Modal } from "antd";
+import { FilterOutlined, SortAscendingOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import AddProjectForm from "../../components/Admin/AddProjectForm"; // ✅ Import form component
 
 const { Meta } = Card;
 const { Option } = Select;
 
 const VisitorProjects = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { projects, loading, error } = useSelector((state) => state.projects);
+    const user = useSelector((state) => state.auth.user); // ✅ Get logged-in user
+    const userRole = useSelector((state) => state.auth?.role);
     
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedFilter, setSelectedFilter] = useState("all");
     const [selectedSort, setSelectedSort] = useState("newest");
     const [filteredProjects, setFilteredProjects] = useState([]);
+    const [isAddProjectModalVisible, setIsAddProjectModalVisible] = useState(false); // ✅ Modal state
 
     useEffect(() => {
         dispatch(fetchProjects());
+        console.log("Logged-in user:", user);
+        console.log("Logged-in user's Role:", userRole);
+
     }, [dispatch]);
 
     useEffect(() => {
@@ -37,7 +46,7 @@ const VisitorProjects = () => {
     };
 
     const applyFiltersAndSorting = (search, filter, sort) => {
-        let updatedProjects = [...projects]; // Avoid mutating state
+        let updatedProjects = [...projects];
 
         if (search) {
             updatedProjects = updatedProjects.filter((project) =>
@@ -46,9 +55,9 @@ const VisitorProjects = () => {
         }
 
         if (filter === "completed") {
-            updatedProjects = updatedProjects.filter((project) => project.status === "completed");
+            updatedProjects = updatedProjects.filter((project) => project.is_completed);
         } else if (filter === "ongoing") {
-            updatedProjects = updatedProjects.filter((project) => project.status === "ongoing");
+            updatedProjects = updatedProjects.filter((project) => !project.is_completed);
         }
 
         if (sort === "newest") {
@@ -66,13 +75,11 @@ const VisitorProjects = () => {
 
     return (
         <div className="p-6 max-w-[1400px] mx-auto font-poppins">
-            {/* ✅ Outer Title */}
             <h2 className="text-black text-[22px] font-semibold">Projects</h2>
             <p className="text-green-500 text-sm">Projects &gt; All Projects</p>
 
-            {/* ✅ Projects Container */}
             <div className="bg-white shadow-lg p-6 rounded-lg mt-4 max-w-full">
-                {/* ✅ Title, Search, Filter & Sort Section */}
+                {/* ✅ Search, Filter, Sort, and Add Project Button */}
                 <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-4 border-b border-gray-300">
                     <h2 className="text-black text-[20px] font-semibold self-start">All Projects</h2>
                     
@@ -104,10 +111,20 @@ const VisitorProjects = () => {
                             <Option value="az">Title: A-Z</Option>
                             <Option value="za">Title: Z-A</Option>
                         </Select>
+
+                        {/* ✅ Add Project Button (Only for Members/Admins) */}
+                        {user && (userRole === "member" || userRole === "admin") && (
+                            <Button
+                                type="primary"
+                                icon={<PlusCircleOutlined />}
+                                onClick={() => setIsAddProjectModalVisible(true)}
+                            >
+                                Add New Project
+                            </Button>
+                        )}
                     </div>
                 </div>
 
-                {/* ✅ Projects List (Everything Scrolls) */}
                 <div className="mt-4">
                     {loading ? (
                         <div className="flex justify-center">
@@ -120,11 +137,12 @@ const VisitorProjects = () => {
                             {filteredProjects.map((project) => (
                                 <Badge.Ribbon
                                     key={project.id}
-                                    text={project.status === "completed" ? "Completed" : "Ongoing"}
-                                    color={project.status === "completed" ? "green" : "orange"}
+                                    text={project.is_completed ? "Completed" : "Ongoing"}
+                                    color={project.is_completed ? "green" : "orange"}
                                 >
                                     <Card
                                         hoverable
+                                        onClick={() => navigate(`/projects/${project.id}`)}
                                         cover={
                                             project.image ? (
                                                 <Image
@@ -134,7 +152,7 @@ const VisitorProjects = () => {
                                                 />
                                             ) : null
                                         }
-                                        className="shadow-md transition duration-300 transform hover:scale-[1.02]"
+                                        className="shadow-md transition duration-300 transform hover:scale-[1.02] cursor-pointer"
                                     >
                                         <Meta
                                             title={<span className="text-lg font-semibold text-black">{project.title}</span>}
@@ -149,6 +167,16 @@ const VisitorProjects = () => {
                     )}
                 </div>
             </div>
+
+            {/* ✅ Add Project Modal */}
+            <Modal
+                title="Add New Project"
+                open={isAddProjectModalVisible}
+                onCancel={() => setIsAddProjectModalVisible(false)}
+                footer={null}
+            >
+                <AddProjectForm onClose={() => setIsAddProjectModalVisible(false)} />
+            </Modal>
         </div>
     );
 };

@@ -15,3 +15,13 @@ class Project(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class ProjectProgress(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="updates")
+    description = models.TextField()
+    image = models.ImageField(upload_to="progress_updates/", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Update for {self.project.title} - {self.created_at.strftime('%Y-%m-%d')}"

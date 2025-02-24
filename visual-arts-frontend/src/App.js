@@ -15,6 +15,7 @@ import NewArtworkForm from "./pages/Member/NewArtworkForm";
 import Portfolio from "./pages/Member/Portfolio";
 import EventRegistration from "./pages/Member/EventRegistration";
 import MemberAnalytics from "./pages/Member/MemberAnalytics";
+import ProjectDetails from "./pages/Member/ProjectDetails";
 import EventStats from "./pages/Admin/EventStats";
 import EventAnalytics from "./pages/Admin/EventAnalytics";
 import ProjectAnalytics from "./pages/Admin/ProjectAnalytics";
@@ -234,6 +235,15 @@ const App = () => {
             }
           />
 
+
+          <Route
+            path="/projects/:projectId"
+            element={
+              <RoleGuard allowedRoles={["member", "admin"]}>
+                <ProjectDetails />
+              </RoleGuard>
+            }
+          />
 
 
           <Route

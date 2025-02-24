@@ -1,12 +1,22 @@
 from rest_framework import serializers
-from .models import Project
+from .models import Project, ProjectProgress
 from users.models import CustomUser
+
+
+class ProjectProgressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectProgress
+        fields = '__all__'
+        read_only_fields = ['project']
+
+
 
 class ProjectSerializer(serializers.ModelSerializer):
     members = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(), many=True, required=False  # ✅ Allow empty members list
+    queryset=CustomUser.objects.all(), many=True, required=False  # ✅ Allow empty members list
     )
     image = serializers.ImageField(required=False, allow_null=True)
+    updates = ProjectProgressSerializer(many=True, read_only=True)  # ✅ Include progress updates
 
     class Meta:
         model = Project

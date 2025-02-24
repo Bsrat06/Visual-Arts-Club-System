@@ -2,13 +2,14 @@ from notifications.models import Notification
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from users.permissions import IsAdminUser
-from .models import Project
-from .serializers import ProjectSerializer
+from .models import Project, ProjectProgress
+from .serializers import ProjectSerializer, ProjectProgressSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
-
+from rest_framework import status
+from django.utils import timezone
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -85,3 +86,37 @@ class ProjectStatsView(APIView):
             "completed_projects": completed_projects,
             "user_contributions": user_contributions,
         })
+        
+        
+        
+
+class ProjectProgressView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+            serializer = ProjectProgressSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(project=project)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class CompleteProjectView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, project_id):
+        try:
+            project = Project.objects.get(id=project_id)
+            if project.creator != request.user:
+                return Response({"error": "You are not authorized to complete this project"}, status=status.HTTP_403_FORBIDDEN)
+
+            project.is_completed = True
+            project.end_date = timezone.now()
+            project.save()
+            return Response({"message": "Project marked as completed!"}, status=status.HTTP_200_OK)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
