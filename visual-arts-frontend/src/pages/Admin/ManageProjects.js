@@ -14,6 +14,7 @@ import {
     Spin,
     Tabs,
     Badge,
+    Switch,
 } from "antd";
 import {
     PlusOutlined,
@@ -39,7 +40,7 @@ const ManageProjects = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { projects, loading } = useSelector((state) => state.projects);
-    const user = useSelector((state) => state.auth.user); // ✅ Get logged-in admin
+    const user = useSelector((state) => state.auth.user);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("");
@@ -50,6 +51,7 @@ const ManageProjects = () => {
     const [projectStats, setProjectStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState("allProjects");
+    const [viewAsMember, setViewAsMember] = useState(false); // ✅ Switch state
 
     useEffect(() => {
         dispatch(fetchProjects());
@@ -135,66 +137,6 @@ const ManageProjects = () => {
         },
     ];
 
-    const columns = [
-        {
-            title: "Preview",
-            dataIndex: "image",
-            key: "image",
-            render: (image) => <Image width={50} height={50} src={image} />,
-        },
-        {
-            title: "Title",
-            dataIndex: "title",
-            key: "title",
-            sorter: (a, b) => a.title.localeCompare(b.title),
-        },
-        {
-            title: "Description",
-            dataIndex: "description",
-            key: "description",
-            ellipsis: true,
-        },
-        {
-            title: "Start Date",
-            dataIndex: "start_date",
-            key: "start_date",
-            sorter: (a, b) => new Date(a.start_date) - new Date(b.start_date),
-        },
-        {
-            title: "End Date",
-            dataIndex: "end_date",
-            key: "end_date",
-            sorter: (a, b) => new Date(a.end_date) - new Date(b.end_date),
-        },
-        {
-            title: "Status",
-            dataIndex: "is_completed",
-            key: "status",
-            render: (is_completed) => (
-                <Tag color={is_completed ? "green" : "orange"}>
-                    {is_completed ? "COMPLETED" : "ONGOING"}
-                </Tag>
-            ),
-        },
-        {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-                <Space>
-                    <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => viewProject(record)}>
-                        View
-                    </Button>
-                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editProject(record)}>
-                        Edit
-                    </Button>
-                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>
-                        Delete
-                    </Button>
-                </Space>
-            ),
-        },
-    ];
-
     return (
         <div className="p-6 space-y-8">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
@@ -221,28 +163,80 @@ const ManageProjects = () => {
                 )}
             </div>
 
-            {/* ✅ Tabs Section */}
-            <Tabs defaultActiveKey="allProjects" onChange={(key) => setSelectedTab(key)}>
-                <TabPane tab="All Projects" key="allProjects">
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                    All Projects
-                </h2>
-                <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                                        Add Project
-                                    </Button>
-                    <Table columns={columns} dataSource={projects} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
-                </TabPane>
+            {/* ✅ Tabs & Switch */}
+            <div className="flex justify-between items-center">
+                <Tabs defaultActiveKey="allProjects" onChange={(key) => setSelectedTab(key)}>
+                    <TabPane tab="All Projects" key="allProjects" />
+                    <TabPane tab="My Projects" key="myProjects" />
+                </Tabs>
 
-                <TabPane tab="My Projects" key="myProjects">
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                    My Projects
-                </h2>
-                <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                                        Add Project
-                                    </Button>
-                    <Table columns={columns} dataSource={myProjects} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
-                </TabPane>
-            </Tabs>
+                {/* ✅ Switch to toggle between Admin & Member View */}
+                <div className="flex items-center space-x-2">
+                    <span className="text-gray-600">View as Member</span>
+                    <Switch checked={viewAsMember} onChange={() => setViewAsMember(!viewAsMember)} />
+                </div>
+            </div>
+
+            {/* ✅ Conditionally Render View */}
+            {viewAsMember ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {displayedProjects.map((project) => (
+                        <Badge.Ribbon
+                            key={project.id}
+                            text={project.is_completed ? "Completed" : "Ongoing"}
+                            color={project.is_completed ? "green" : "orange"}
+                        >
+                            <Card
+                                hoverable
+                                onClick={() => navigate(`/projects/${project.id}`)}
+                                cover={
+                                    project.image ? (
+                                        <Image
+                                            alt={project.title}
+                                            src={project.image}
+                                            className="h-[200px] w-full object-cover rounded-lg"
+                                        />
+                                    ) : null
+                                }
+                                className="shadow-md transition duration-300 transform hover:scale-[1.02] cursor-pointer"
+                            >
+                                <Card.Meta
+                                    title={<span className="text-lg font-semibold text-black">{project.title}</span>}
+                                    description={<p className="text-gray-500">{project.description}</p>}
+                                />
+                            </Card>
+                        </Badge.Ribbon>
+                    ))}
+                </div>
+            ) : (
+                <Table columns={[
+                    {
+                        title: "Title",
+                        dataIndex: "title",
+                        key: "title",
+                    },
+                    {
+                        title: "Start Date",
+                        dataIndex: "start_date",
+                        key: "start_date",
+                    },
+                    {
+                        title: "End Date",
+                        dataIndex: "end_date",
+                        key: "end_date",
+                    },
+                    {
+                        title: "Actions",
+                        key: "actions",
+                        render: (_, record) => (
+                            <Space>
+                                <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => navigate(`/projects/${record.id}`)}>View</Button>
+                                <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
+                            </Space>
+                        ),
+                    },
+                ]} dataSource={displayedProjects} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
+            )}
 
             <Modal title="Add New Project" open={isModalVisible} onCancel={closeModal} footer={null}>
                 <AddProjectForm onClose={closeModal} />
