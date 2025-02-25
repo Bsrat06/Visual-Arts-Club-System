@@ -42,7 +42,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
   const memberMenu = [
     { key: "1", path: "/member/dashboard", label: "Dashboard", icon: <PieChartOutlined /> },
-    { key: "2", path: "/member/portfolio", label: "Artworks Portfolio", icon: <AppstoreOutlined /> },
+    { key: "2", path: "/member/portfolio", label: "My Portfolio", icon: <AppstoreOutlined /> },
     { key: "3", path: "/visitor/events", label: "Events", icon: <CalendarOutlined /> },
     { key: "4", path: "/visitor/projects", label: "Projects", icon: <ProjectOutlined /> },
     { key: "5", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
