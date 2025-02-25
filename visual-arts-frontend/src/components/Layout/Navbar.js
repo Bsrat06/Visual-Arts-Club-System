@@ -40,7 +40,7 @@ const Navbar = ({ onLogout, collapsed }) => {
           <HeartOutlined /> Liked Artworks
         </Link>
       </Menu.Item>
-      <Menu.Item key="logout" onClick={confirmLogout}>
+      <Menu.Item key="logout" onClick={confirmLogout} danger>
         <LogoutOutlined /> Logout
       </Menu.Item>
     </Menu>
