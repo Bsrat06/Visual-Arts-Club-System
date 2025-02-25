@@ -1,19 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Layout, Avatar, Dropdown, Menu, Badge, Modal, Button } from "antd";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { UserOutlined, LogoutOutlined, BellOutlined, DownOutlined, HeartOutlined } from "@ant-design/icons";
+import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 
 const { Header } = Layout;
 
 const Navbar = ({ onLogout, collapsed }) => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const userRole = useSelector((state) => state.auth.role);
   const notifications = useSelector((state) => state.notifications.notifications);
 
   const [isLoggedIn, setIsLoggedIn] = useState(!!user);
+  const [unreadCount, setUnreadCount] = useState(0);
 
-  const unreadCount = notifications.filter((notification) => !notification.read).length;
+  useEffect(() => {
+    setIsLoggedIn(!!user);
+  }, [user]);
+
+  useEffect(() => {
+    setUnreadCount(notifications.filter((notification) => !notification.read).length);
+  }, [notifications]);
+
+  // 🔹 Fetch notifications on component mount
+  useEffect(() => {
+    dispatch(fetchNotifications());
+  }, [dispatch]);
 
   const confirmLogout = () => {
     Modal.confirm({
@@ -61,20 +75,10 @@ const Navbar = ({ onLogout, collapsed }) => {
         justifyContent: "space-between",
       }}
     >
-      {/* Left Section - Greeting / Title (Only if logged in) */}
       <div className="text-black font-medium" style={{ fontSize: "24px", flexGrow: 1 }}>
         {isLoggedIn && userRole !== "visitor" && `Hello ${user?.first_name || "User"} 👋🏼`}
       </div>
 
-      {/* Center Section - Navbar Links */}
-      {/* <div className="flex space-x-8 text-black font-medium" style={{ fontSize: "16px" }}>
-        <Link to="visitor/gallery" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">Gallery</Link>
-        <Link to="visitor/events" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">Event</Link>
-        <Link to="/about" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">About</Link>
-        <Link to="/contact" style={{ color: "grey", textDecoration: "none" }} className="hover:text-gray-600">Contact</Link>
-      </div> */}
-
-      {/* Right Section - Notifications & Profile */}
       <div className="flex items-center space-x-6">
         {/* 🔔 Notifications */}
         <Link to="/notifications" className="relative mr-4">
@@ -83,7 +87,7 @@ const Navbar = ({ onLogout, collapsed }) => {
           </Badge>
         </Link>
 
-        {/* Profile Info & Dropdown */}
+        {/* Profile Info */}
         {isLoggedIn ? (
           <Dropdown overlay={menu} trigger={["click"]}>
             <div className="cursor-pointer flex items-center">
