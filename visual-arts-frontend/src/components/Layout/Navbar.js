@@ -61,15 +61,9 @@ const Navbar = ({ onLogout, collapsed }) => {
         justifyContent: "space-between",
       }}
     >
-      {/* Left Section - Greeting / Title */}
+      {/* Left Section - Greeting / Title (Only if logged in) */}
       <div className="text-black font-medium" style={{ fontSize: "24px", flexGrow: 1 }}>
-        {userRole === "visitor" ? (
-          <Link to="/" style={{ textDecoration: "none", color: "orange" }}>
-            Visual Arts
-          </Link>
-        ) : (
-          `Hello ${user?.first_name || "User"} 👋🏼,`
-        )}
+        {isLoggedIn && userRole !== "visitor" && `Hello ${user?.first_name || "User"} 👋🏼`}
       </div>
 
       {/* Center Section - Navbar Links */}

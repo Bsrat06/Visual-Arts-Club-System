@@ -8,6 +8,7 @@ import {
     Modal,
     message,
     Select,
+    Image,
     Card,
     Spin,
     Tag,
@@ -98,6 +99,12 @@ const ManageEvents = () => {
     ];
 
     const columns = [
+        {
+            title: "Cover",
+            dataIndex: "event_cover",
+            key: "event_cover",
+            render: (event_cover) => <Image width={50} height={50} src={event_cover} />,
+        },
         {
             title: "Name",
             dataIndex: "name",

@@ -211,6 +211,12 @@ const ManageProjects = () => {
             ) : (
                 <Table columns={[
                     {
+                        title: "Preview",
+                        dataIndex: "image",
+                        key: "image",
+                        render: (image) => <Image width={50} height={50} src={image} />,
+                    },
+                    {
                         title: "Title",
                         dataIndex: "title",
                         key: "title",
