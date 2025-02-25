@@ -186,6 +186,51 @@ const VisitorProjects = () => {
                     </TabPane>
 
                     <TabPane tab="My Projects" key="myProjects">
+                        {/* ✅ Search, Filter, Sort, and Add Project Button */}
+                        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pb-4 border-b border-gray-300">
+                            <h2 className="text-black text-[20px] font-semibold self-start">All Projects</h2>
+                            
+                            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                                <Input
+                                    placeholder="Search projects..."
+                                    value={searchQuery}
+                                    onChange={handleSearch}
+                                    className="w-full sm:w-60 shadow-sm border-green-500 focus:border-green-500"
+                                />
+                                <Select
+                                    value={selectedFilter}
+                                    onChange={handleFilterChange}
+                                    className="w-full sm:w-44 shadow-sm border-green-500 focus:border-green-500"
+                                    suffixIcon={<FilterOutlined style={{ color: "green" }} />}
+                                >
+                                    <Option value="all">My Projects</Option>
+                                    <Option value="completed">Completed</Option>
+                                    <Option value="ongoing">Ongoing</Option>
+                                </Select>
+                                <Select
+                                    value={selectedSort}
+                                    onChange={handleSortChange}
+                                    className="w-full sm:w-44 shadow-sm border-green-500 focus:border-green-500"
+                                    suffixIcon={<SortAscendingOutlined style={{ color: "green" }} />}
+                                >
+                                    <Option value="newest">Start Date: Newest First</Option>
+                                    <Option value="oldest">Start Date: Oldest First</Option>
+                                    <Option value="az">Title: A-Z</Option>
+                                    <Option value="za">Title: Z-A</Option>
+                                </Select>
+
+                                {/* ✅ Add Project Button (Only for Members/Admins) */}
+                                {user && (user.role === "member" || user.role === "admin") && (
+                                    <Button
+                                        type="primary"
+                                        icon={<PlusCircleOutlined />}
+                                        onClick={() => setIsAddProjectModalVisible(true)}
+                                    >
+                                        Add New Project
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
                         <div className="mt-4">
                             {filteredProjects.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
