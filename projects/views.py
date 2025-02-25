@@ -30,7 +30,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            self.permission_classes = [IsAuthenticated, IsAdminUser]  # Only admins can modify
+            self.permission_classes = [IsAuthenticated]  # Only admins can modify
         else:
             self.permission_classes = [IsAuthenticated]  # Members can only view
         return super().get_permissions()
