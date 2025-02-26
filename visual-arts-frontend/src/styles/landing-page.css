@@ -1,82 +1,50 @@
-.visitor-home {
-    font-family: "Poppins", sans-serif;
-}
-
-/* ✅ Hero Section */
 .hero-section {
-    position: relative;
-    height:85vh;
-    background: url("../../../media/hero-image/3d-rendering-pen-ai-generated.jpg") no-repeat center center/cover;
+    background: url("../assets/images/hero-bg.png") no-repeat center center / cover;
+    height: 85vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-}
-
-.hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* background: rgba(0, 0, 0, 0.6); */
-}
-
-.hero-content {
     position: relative;
-    max-width: 600px;
-    padding: 20px;
-    text-align: center;
-}
-
-.explore-btn {
-    background-color: transparent;
+  }
+  
+  .hero-content {
+    max-width: 800px;
+  }
+  
+  .explore-btn {
+    border-color: white;
     color: white;
-    border: 2px solid white;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.explore-btn:hover {
-    background-color: white;
-    color: black;
-}
-
-.join-btn {
-    background-color: #FFA500;
-    color: white;
-    font-weight: bold;
-    transition: all 0.3s ease;
-}
-
-.join-btn:hover {
-    background-color: #e68a00;
-}
-
-/* ✅ Feature Cards */
-.feature-card {
+  }
+  
+  .explore-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .join-btn {
+    background: #ff6b6b;
+    border-color: #ff6b6b;
+  }
+  
+  .join-btn:hover {
+    background: #ff5252;
+    border-color: #ff5252;
+  }
+  
+  .feature-card {
     text-align: center;
-    border-radius: 12px;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.feature-icon {
-    font-size: 48px;
-    color: #FFA500;
-    margin: 20px auto;
-}
-
-.feature-btn {
-    background-color: #FFA500;
-    border: none;
-    font-weight: bold;
-}
-
-.feature-btn:hover {
-    background-color: #e68a00;
-}
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .feature-card:hover {
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .feature-icon {
+    font-size: 50px;
+    color: #ff6b6b;
+    text-align: center;
+    margin-top: 20px;
+  }
+  

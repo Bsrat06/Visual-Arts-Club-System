@@ -53,7 +53,7 @@ const App = () => {
       <Layout>
         <Routes>
           {/* Public Routes (Accessible by Anyone) */}
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<VisitorHome />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/contact" element={<ContactUs />} />
           <Route path="/login" element={<Login />} />
@@ -61,7 +61,7 @@ const App = () => {
           <Route path="/notifications" element={<NotificationsList />} />
 
           {/* Visitor-Only Route */}
-          <Route path="/visitor/homepage" element={<VisitorHome />} />
+          <Route path="/homepage" element={<VisitorHome />} />
 
           {/* Role-Restricted Routes */}
           <Route
@@ -269,11 +269,9 @@ const App = () => {
 
 
 <Route
-            path="/homepage"
+            path="/home"
             element={
-              <RoleGuard allowedRoles={["member", "admin", "visitor"]}>
-                <HomePage />
-              </RoleGuard>
+                <VisitorHome />
             }
           />
 

@@ -2,7 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Layout, Avatar, Dropdown, Menu, Badge, Modal, Button } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { UserOutlined, LogoutOutlined, BellOutlined, DownOutlined, HeartOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  LogoutOutlined,
+  BellOutlined,
+  DownOutlined,
+  HeartOutlined,
+} from "@ant-design/icons";
 import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 
 const { Header } = Layout;
@@ -24,7 +30,6 @@ const Navbar = ({ onLogout, collapsed }) => {
     setUnreadCount(notifications.filter((notification) => !notification.read).length);
   }, [notifications]);
 
-  // 🔹 Fetch notifications on component mount
   useEffect(() => {
     dispatch(fetchNotifications());
   }, [dispatch]);
@@ -43,18 +48,18 @@ const Navbar = ({ onLogout, collapsed }) => {
   };
 
   const menu = (
-    <Menu>
+    <Menu style={{ fontFamily: "'Poppins', sans-serif" }}>
       <Menu.Item key="profile">
-        <Link to="/profile">
+        <Link to="/profile" style={{ fontFamily: "'Poppins', sans-serif" }}>
           <UserOutlined /> Profile
         </Link>
       </Menu.Item>
       <Menu.Item key="liked">
-        <Link to="/member/portfolio?tab=liked">
+        <Link to="/member/portfolio?tab=liked" style={{ fontFamily: "'Poppins', sans-serif" }}>
           <HeartOutlined /> Liked Artworks
         </Link>
       </Menu.Item>
-      <Menu.Item key="logout" onClick={confirmLogout} danger>
+      <Menu.Item key="logout" onClick={confirmLogout} danger style={{ fontFamily: "'Poppins', sans-serif" }}>
         <LogoutOutlined /> Logout
       </Menu.Item>
     </Menu>
@@ -64,8 +69,8 @@ const Navbar = ({ onLogout, collapsed }) => {
     <Header
       className="flex justify-between items-center bg-white px-6 fixed top-0"
       style={{
-        left: `${collapsed ? "80px" : "300px"}`,
-        width: `calc(100% - ${collapsed ? "80px" : "300px"})`,
+        left: isLoggedIn ? `${collapsed ? "80px" : "300px"}` : "0",
+        width: isLoggedIn ? `calc(100% - ${collapsed ? "80px" : "300px"})` : "100%",
         height: "80px",
         transition: "all 0.3s ease",
         zIndex: 1,
@@ -75,19 +80,52 @@ const Navbar = ({ onLogout, collapsed }) => {
         justifyContent: "space-between",
       }}
     >
-      <div className="text-black font-medium" style={{ fontSize: "24px", flexGrow: 1 }}>
-        {isLoggedIn && userRole !== "visitor" && `Hello ${user?.first_name || "User"} 👋🏼`}
+      {/* Left-aligned content (e.g., greeting or logo/title) */}
+      <div className="text-black font-medium" style={{ fontSize: "24px" }}>
+        {isLoggedIn && userRole !== "visitor" ? (
+          `Hello ${user?.first_name || "User"} 👋🏼`
+        ) : (
+          <Link to="/" className="flex items-center text-orange-500">
+            <span style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "bold" }}>
+              Visual Arts
+            </span>
+          </Link>
+        )}
       </div>
 
-      <div className="flex items-center space-x-6">
-        {/* 🔔 Notifications */}
-        <Link to="/notifications" className="relative mr-4">
-          <Badge count={unreadCount} size="small">
-            <BellOutlined style={{ fontSize: 20, color: "#333" }} />
-          </Badge>
-        </Link>
+      {/* Centered links */}
+      <div className="flex items-center justify-center flex-grow">
+        {!isLoggedIn && (
+          <div className="flex items-center space-x-10">
+            <Link to="/home" className="text-black hover:text-orange-500">
+              Home
+            </Link>
+            <Link to="/about" className="text-black hover:text-orange-500">
+              About
+            </Link>
+            <Link to="/gallery" className="text-black hover:text-orange-500">
+              Gallery
+            </Link>
+            <Link to="/events" className="text-black hover:text-orange-500">
+              Events
+            </Link>
+            <Link to="/projects" className="text-black hover:text-orange-500">
+              Projects
+            </Link>
+          </div>
+        )}
+      </div>
 
-        {/* Profile Info */}
+      {/* Right-aligned content (e.g., notifications, profile dropdown, login/register buttons) */}
+      <div className="flex items-center space-x-6">
+        {isLoggedIn && (
+          <Link to="/notifications" className="relative mr-4">
+            <Badge count={unreadCount} size="small">
+              <BellOutlined style={{ fontSize: 20, color: "#333" }} />
+            </Badge>
+          </Link>
+        )}
+
         {isLoggedIn ? (
           <Dropdown overlay={menu} trigger={["click"]}>
             <div className="cursor-pointer flex items-center">
