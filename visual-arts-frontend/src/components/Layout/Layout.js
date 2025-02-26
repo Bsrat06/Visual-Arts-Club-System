@@ -5,12 +5,15 @@ import { logout } from "../../redux/slices/authSlice";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 
 const AppLayout = ({ children }) => {
     const dispatch = useDispatch();
     const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+    // Check if user is logged in
+    const user = useSelector((state) => state.auth?.user); 
 
     useEffect(() => {
         const handleResize = () => {
@@ -23,7 +26,8 @@ const AppLayout = ({ children }) => {
 
     return (
         <Layout style={{ minHeight: "100vh", fontFamily: "'Poppins', sans-serif" }}>
-            <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
+            {/* Show Sidebar only if user is logged in */}
+            {user && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />}
 
             <Layout
                 className="site-layout"
@@ -34,8 +38,7 @@ const AppLayout = ({ children }) => {
                     display: "flex",
                     flexDirection: "column",
                     overflowY: "auto",
-                    marginLeft: isMobile ? 70 : collapsed ? 80 : 300,
-                    
+                    marginLeft: user ? (isMobile ? 70 : collapsed ? 80 : 300) : 0,
                 }}
             >
                 <Header
@@ -47,14 +50,23 @@ const AppLayout = ({ children }) => {
                         alignItems: "center",
                         boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)",
                         transition: "left 0.3s ease",
-                        left: isMobile ? 0 : collapsed ? 80 : 300,
-                        width: isMobile ? "100%" : `calc(100% - ${collapsed ? 80 : 300}px)`,
+                        left: user ? (isMobile ? 0 : collapsed ? 80 : 300) : 0,
+                        width: user ? (isMobile ? "100%" : `calc(100% - ${collapsed ? 80 : 300}px)`) : "100%",
                     }}
                 >
                     <Navbar onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
                 </Header>
 
-                <Content style={{ margin: "0px", padding: 24, background: "#fff", borderRadius: "10px", boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)", flex: 1 }}>
+                <Content 
+                    style={{ 
+                        margin: "0px", 
+                        padding: 24, 
+                        background: "#fff", 
+                        borderRadius: "10px", 
+                        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)", 
+                        flex: 1 
+                    }}
+                >
                     {children}
                 </Content>
             </Layout>
