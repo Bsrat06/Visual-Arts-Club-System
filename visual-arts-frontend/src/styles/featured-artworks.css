@@ -55,3 +55,36 @@
 .swiper-pagination {
     bottom: -45px !important;
 }
+
+
+/* Reduce scaling on small screens */
+@media (max-width: 768px) {
+    .swiper-slide:not(.swiper-slide-active) {
+        transform: scale(0.9);
+    }
+    .swiper-slide-active {
+        transform: scale(1.1);
+    }
+}
+
+/* Adjust navigation arrows for mobile */
+@media (max-width: 768px) {
+    .custom-prev, .custom-next {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+    .custom-prev {
+        left: 10px;
+    }
+    .custom-next {
+        right: 10px;
+    }
+}
+
+/* Reduce image height for mobile */
+@media (max-width: 768px) {
+    .swiper-slide img {
+        height: 250px !important;
+    }
+}
