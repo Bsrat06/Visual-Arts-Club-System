@@ -176,6 +176,6 @@ class LikedArtworksView(APIView):
     
     
 class FeaturedArtworkViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Artwork.objects.filter(approval_status="approved").order_by("-submission_date")[:10]  # Get latest 10 featured artworks
+    queryset = Artwork.objects.filter(approval_status="approved").order_by("-submission_date")[:11]  # Get latest 10 featured artworks
     serializer_class = ArtworkSerializer
     permission_classes = [AllowAny]  # Adjust as needed
