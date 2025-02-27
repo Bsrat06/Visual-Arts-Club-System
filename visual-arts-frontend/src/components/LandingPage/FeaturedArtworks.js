@@ -25,10 +25,11 @@ const FeaturedArtworks = () => {
     if (error) return <p className="text-red-500">{error}</p>;
 
     return (
-        <div className="p-6 max-w-6xl mx-auto relative">
+        <div className="p-6 max-w-screen-xl mx-auto relative">
             {/* Title */}
-            <Title level={3} className="mb-6 text-center">Featured Artworks</Title>
-
+            <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900">
+            Featured Artworks
+          </h2>
             {featuredArtworks.length > 0 ? (
                 <div className="relative flex items-center justify-center">
                     {/* Arrows (Positioned Relative to the Artworks) */}
