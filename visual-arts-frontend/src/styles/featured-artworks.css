@@ -16,33 +16,42 @@
     margin: 0px -5px;
 }
 
-/* Custom navigation arrows - moved further out */
+/* Custom navigation arrows - positioned at the center of the artworks */
 .custom-prev, .custom-next {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
-    width: 50px;
-    height: 50px;
-    background: rgba(0, 0, 0, 0.5);
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.7);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     cursor: pointer;
+    font-size: 26px;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-/* Move arrows further from artworks */
+/* Hover effect */
+.custom-prev:hover, .custom-next:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+    transform: scale(1.1);
+}
+
+/* Move arrows to the leftmost and rightmost positions */
 .custom-prev {
-    left: -110px; /* Further left */
+    left: -110px;
 }
 
 .custom-next {
-    right: -110px; /* Further right */
+    right: -110px;
 }
 
 /* Move pagination dots further down */
 .swiper-pagination {
-    bottom: -35px !important;
+    bottom: -45px !important;
 }
