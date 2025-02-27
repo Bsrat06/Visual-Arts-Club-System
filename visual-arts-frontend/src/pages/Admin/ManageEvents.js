@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllEvents, removeEvent } from "../../redux/slices/eventsSlice";
 import {
@@ -16,6 +16,7 @@ import {
     PlusOutlined,
     EditOutlined,
     DeleteOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 import AddEventForm from "../../components/Admin/AddEventForm";
@@ -176,7 +177,32 @@ const ManageEvents = () => {
         <div className="p-6 space-y-8">
             {/* ... (rest of your component) */}
             <div className="bg-white shadow-md rounded-2xl p-6">
-                {/* ... (rest of your component) */}
+                
+            <div className="flex justify-between items-center pb-4">
+                    <div className="flex items-center gap-4">
+                        <h2>All Events</h2>
+                        <Input
+                            placeholder="Search by event name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-40"
+                        />
+                    </div>
+                    <div className="flex gap-4">
+                        <Select
+                            placeholder="Filter by status"
+                            onChange={(value) => setFilterStatus(value)}
+                            allowClear
+                        >
+                            <Option value={true}>Completed</Option>
+                            <Option value={false}>Pending</Option>
+                        </Select>
+                        <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                            Add Event
+                        </Button>
+                    </div>
+                </div>
+
                 {loading ? (
                     <Spin size="large" />
                 ) : filteredTableData.length > 0 ? (
