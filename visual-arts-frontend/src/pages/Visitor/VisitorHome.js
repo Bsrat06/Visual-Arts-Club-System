@@ -1,6 +1,7 @@
 import React from "react";
 import HeroSection from "../../components/LandingPage/HeroSection";
 import AboutSection from "../../components/LandingPage/AboutSection";
+import FeaturedArtworks from "../../components/LandingPage/FeaturedArtworks";
 
 const HomePage = () => {
   return (
@@ -8,6 +9,7 @@ const HomePage = () => {
       <HeroSection />
       {/* Add more sections here */}
       <AboutSection />
+      <FeaturedArtworks />
     </div>
   );
 };

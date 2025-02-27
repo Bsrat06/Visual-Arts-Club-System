@@ -14,6 +14,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework import status
 from django.db import models
 from django.db.models import Count
+from rest_framework.permissions import AllowAny
 
 class ArtworkViewSet(viewsets.ModelViewSet):
     queryset = Artwork.objects.all()#.order_by("-submission_date")
@@ -39,7 +40,7 @@ class ArtworkViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated, IsAdminUser]
          
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
 
     
@@ -172,3 +173,9 @@ class LikedArtworksView(APIView):
 
         serializer = ArtworkSerializer(liked_artworks, many=True)
         return Response(serializer.data, status=200)
+    
+    
+class FeaturedArtworkViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Artwork.objects.filter(approval_status="approved").order_by("-submission_date")[:10]  # Get latest 10 featured artworks
+    serializer_class = ArtworkSerializer
+    permission_classes = [AllowAny]  # Adjust as needed

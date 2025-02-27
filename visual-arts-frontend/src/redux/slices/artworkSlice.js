@@ -95,6 +95,18 @@ export const unlikeArtwork = createAsyncThunk("artwork/unlike", async (artworkId
 });
 
 
+export const fetchFeaturedArtworks = createAsyncThunk(
+  "artwork/fetchFeatured",
+  async (_, thunkAPI) => {
+      try {
+          const response = await API.get("featured-artworks/");
+          console.log("API Response:", response.data); // Log the response
+          return response.data.results; // Return only the `results` array
+      } catch (error) {
+          return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch featured artworks");
+      }
+  }
+);
 
 
 
@@ -103,6 +115,7 @@ const artworkSlice = createSlice({
   name: "artwork",
   initialState: {
     artworks: [],
+    featuredArtworks: [],  // Add featured artworks state
     likedArtworks: [],
     categoryAnalytics: [],
     loading: false,
@@ -138,6 +151,17 @@ const artworkSlice = createSlice({
       })
       .addCase(unlikeArtwork.fulfilled, (state, action) => {
         state.likedArtworks = state.likedArtworks.filter((art) => art.id !== action.payload);
+      })
+      .addCase(fetchFeaturedArtworks.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchFeaturedArtworks.fulfilled, (state, action) => {
+          state.loading = false;
+          state.featuredArtworks = action.payload;
+      })
+      .addCase(fetchFeaturedArtworks.rejected, (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
       });
   },
 });

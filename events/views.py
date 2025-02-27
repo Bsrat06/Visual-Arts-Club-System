@@ -11,6 +11,7 @@ from .models import Event, EventRegistration
 from django.db import models
 from django.db.models import Count
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import AllowAny
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -33,7 +34,7 @@ class EventViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'destroy']:
             permission_classes = [IsAdminUser]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
 
     

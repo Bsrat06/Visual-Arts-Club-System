@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import status
 from django.utils import timezone
+from rest_framework.permissions import AllowAny
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -32,7 +33,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
             self.permission_classes = [IsAuthenticated]  # Only admins can modify
         else:
-            self.permission_classes = [IsAuthenticated]  # Members can only view
+            self.permission_classes = [AllowAny]  # Members can only view
         return super().get_permissions()
     
     def update(self, request, *args, **kwargs):
