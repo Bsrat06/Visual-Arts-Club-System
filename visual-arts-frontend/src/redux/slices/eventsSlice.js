@@ -3,14 +3,27 @@ import { getEvents, createEvent, updateEvent, deleteEvent } from "../../services
 import API from "../../services/api";
 
 // Fetch all events
-export const fetchEvents = createAsyncThunk("events/fetchAll", async (_, thunkAPI) => {
-  try {
-    const response = await getEvents();
-    return response.data.results || []; // ✅ Extract `results`
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || "Failed to fetch events");
+export const fetchAllEvents = createAsyncThunk(
+  "events/fetchAllEvents",
+  async (_, thunkAPI) => {
+      try {
+          let allEvents = [];
+          let nextPage = "events/"; // Start with the first page
+
+          while (nextPage) {
+              const response = await API.get(nextPage);
+              allEvents = [...allEvents, ...response.data.results];
+              nextPage = response.data.next;
+          }
+
+          return allEvents;
+      } catch (error) {
+          return thunkAPI.rejectWithValue(
+              error.response?.data || "Failed to fetch events"
+          );
+      }
   }
-});
+);
 
 // Create new event
 export const addEvent = createAsyncThunk("events/add", async (data, thunkAPI) => {
@@ -43,29 +56,47 @@ export const editEvent = createAsyncThunk("events/edit", async ({ id, data }, th
 });
 
 // Delete event
-export const removeEvent = createAsyncThunk("events/remove", async (id, thunkAPI) => {
-  try {
-    await deleteEvent(id);
-    return id;
-  } catch (error) {
-    return thunkAPI.rejectWithValue(error.response?.data || "Failed to delete event");
+export const removeEvent = createAsyncThunk(
+  "events/remove",
+  async (id, thunkAPI) => {
+      try {
+          await API.delete(`events/${id}/`);
+          return id;
+      } catch (error) {
+          return thunkAPI.rejectWithValue(
+              error.response?.data || "Failed to delete event"
+          );
+      }
   }
-});
+);
+
 
 // Redux slice
 const eventsSlice = createSlice({
   name: "events",
   initialState: {
-    events: [],
-    loading: false,
-    error: null,
+      events: [],
+      loading: false,
+      error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchEvents.fulfilled, (state, action) => {
-        state.events = action.payload;
-      })
+    .addCase(fetchAllEvents.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+  })
+  .addCase(fetchAllEvents.fulfilled, (state, action) => {
+      state.loading = false;
+      state.events = action.payload;
+  })
+  .addCase(fetchAllEvents.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+  })
+  .addCase(removeEvent.fulfilled, (state, action) => {
+      state.events = state.events.filter((event) => event.id !== action.payload);
+  })
       .addCase(addEvent.fulfilled, (state, action) => {
         state.events.push(action.payload);
       })
@@ -74,9 +105,6 @@ const eventsSlice = createSlice({
           event.id === action.payload.id ? action.payload : event
         );
       })
-      .addCase(removeEvent.fulfilled, (state, action) => {
-        state.events = state.events.filter((event) => event.id !== action.payload);
-      });
   },
 });
 

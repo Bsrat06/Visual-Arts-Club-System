@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProjects } from "../../redux/slices/projectsSlice";
-import { fetchEvents } from "../../redux/slices/eventsSlice";
+import { fetchAllEvents } from "../../redux/slices/eventsSlice";
 import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 import { fetchMemberStats } from "../../redux/slices/memberStatsSlice";
 import { Card, List, Typography, Badge, Space, Row, Col } from "antd";
@@ -18,7 +18,7 @@ const MemberDashboard = () => {
 
   useEffect(() => {
     dispatch(fetchProjects());
-    dispatch(fetchEvents());
+    dispatch(fetchAllEvents());
     dispatch(fetchNotifications());
     dispatch(fetchMemberStats());
   }, [dispatch]);

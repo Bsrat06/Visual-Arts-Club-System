@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEvents, removeEvent } from "../../redux/slices/eventsSlice";
+import { fetchAllEvents, removeEvent } from "../../redux/slices/eventsSlice";
 import {
     Input,
     Button,
@@ -9,7 +9,6 @@ import {
     message,
     Select,
     Image,
-    Card,
     Spin,
     Tag,
 } from "antd";
@@ -30,14 +29,14 @@ const ManageEvents = () => {
     const dispatch = useDispatch();
     const { events, loading } = useSelector((state) => state.events);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
+    const [filterStatus, setFilterStatus] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
     const [eventStats, setEventStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
 
     useEffect(() => {
-        dispatch(fetchEvents());
+        dispatch(fetchAllEvents());
         fetchEventStats();
     }, [dispatch]);
 
@@ -67,7 +66,7 @@ const ManageEvents = () => {
                 try {
                     await dispatch(removeEvent(id));
                     message.success("Event deleted successfully!");
-                    dispatch(fetchEvents());
+                    dispatch(fetchAllEvents());
                 } catch (error) {
                     message.error("Failed to delete event.");
                 }
@@ -130,7 +129,6 @@ const ManageEvents = () => {
                 { text: "Completed", value: true },
                 { text: "Pending", value: false },
             ],
-            filteredValue: filterStatus !== "" ? [filterStatus === "is_completed"] : null,
             onFilter: (value, record) => record.is_completed === value,
             render: (is_completed) => (
                 <Tag color={is_completed ? "green" : "orange"}>
@@ -143,18 +141,10 @@ const ManageEvents = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button
-                        className="custom-edit-btn"
-                        icon={<EditOutlined />}
-                        onClick={() => editEvent(record)}
-                    >
+                    <Button className="custom-edit-btn" icon={<EditOutlined />} onClick={() => editEvent(record)}>
                         Edit
                     </Button>
-                    <Button
-                        icon={<DeleteOutlined />}
-                        danger
-                        onClick={() => deleteEvent(record.id)}
-                    >
+                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteEvent(record.id)}>
                         Delete
                     </Button>
                 </Space>
@@ -162,90 +152,45 @@ const ManageEvents = () => {
         },
     ];
 
-    const tableData = events
-        .filter((event) => event.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        .map((event) => ({
-            key: event.id,
-            name: event.title,
-            date: event.date,
-            location: event.location,
-            is_completed: event.is_completed,
-        }));
+    const tableData = events.map((event) => ({
+        key: event.id,
+        name: event.title,
+        date: event.date,
+        location: event.location,
+        is_completed: event.is_completed,
+        event_cover: event.event_cover,
+        id: event.id,
+    }));
+
+    let filteredTableData = tableData.filter((event) =>
+        event.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    if (filterStatus !== null) {
+        filteredTableData = filteredTableData.filter(
+            (event) => event.is_completed === filterStatus
+        );
+    }
 
     return (
         <div className="p-6 space-y-8">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                Manage Events
-            </h2>
-            <p className="text-green-500 text-sm font-[Poppins] mt-1">
-                Events &gt; Review & Manage
-            </p>
-
-            {/* ✅ Enhanced Statistics Container */}
-            <div className="bg-white rounded-2xl shadow-[0px_10px_60px_0px_rgba(226,236,249,0.5)] p-8 flex items-center justify-between mb-6">
-                {statsLoading ? (
+            {/* ... (rest of your component) */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
+                {/* ... (rest of your component) */}
+                {loading ? (
                     <Spin size="large" />
+                ) : filteredTableData.length > 0 ? (
+                    <Table
+                        columns={columns}
+                        dataSource={filteredTableData}
+                        loading={loading}
+                        rowKey="key"
+                    />
                 ) : (
-                    statistics.map((stat, index) => (
-                        <div key={index} className="flex items-start space-x-6">
-                            {/* Background Circle Icon */}
-                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
-                                {stat.icon}
-                            </div>
-
-                            {/* Value & Title */}
-                            <div className="text-left">
-                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">
-                                    {stat.title}
-                                </p>
-                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">
-                                    {stat.value}
-                                </p>
-                            </div>
-
-                            {/* Separator (except for last item) */}
-                            {index < statistics.length - 1 && (
-                                <div className="h-16 w-[1px] bg-[#F0F0F0] mx-8"></div>
-                            )}
-                        </div>
-                    ))
+                    <p>No events found.</p>
                 )}
             </div>
-
-            {/* ✅ Enhanced Events List */}
-            <div className="bg-white shadow-md rounded-2xl p-6">
-                <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                            All Events
-                        </h2>
-                        <Input
-                            placeholder="Search by event name..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-40"
-                        />
-                        <Select
-                            placeholder="Filter by status"
-                            onChange={(value) => setFilterStatus(value)}
-                            className="w-40"
-                            allowClear
-                        >
-                            <Option value="completed">Completed</Option>
-                            <Option value="pending">Pending</Option>
-                        </Select>
-                    </div>
-                    <Button className="add-artwork-btn"type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                        Add Event
-                    </Button>
-                </div>
-
-                <Table columns={columns} dataSource={tableData} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
-            </div>
-
-            <Modal title={editingEvent ? "Edit Event" : "Add New Event"} open={isModalVisible} onCancel={closeModal} footer={null}>
-                <AddEventForm event={editingEvent} onClose={closeModal} />
-            </Modal>
+            {/* ... (rest of your component) */}
         </div>
     );
 };

@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEvents } from "../../redux/slices/eventsSlice";
+import { fetchAllEvents } from "../../redux/slices/eventsSlice";
 
 const EventRegistration = () => {
   const dispatch = useDispatch();
   const { events, loading, error } = useSelector((state) => state.events);
 
   useEffect(() => {
-    dispatch(fetchEvents());
+    dispatch(fetchAllEvents());
   }, [dispatch]);
 
   const handleRegister = (eventId) => {

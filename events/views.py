@@ -12,6 +12,11 @@ from django.db import models
 from django.db.models import Count
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import AllowAny
+from rest_framework.pagination import PageNumberPagination
+
+
+class EventPagination(PageNumberPagination):
+    page_size = 8
 
 
 class EventViewSet(viewsets.ModelViewSet):
@@ -19,6 +24,19 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     parser_classes = (MultiPartParser, FormParser)
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    pagination_class = EventPagination
+    
+    
+    def list(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
     
     # Enable filtering by date and location
     filterset_fields = ['date', 'location']

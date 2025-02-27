@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
 import { fetchAllUsers } from "../../redux/slices/userSlice";
-import { fetchEvents } from "../../redux/slices/eventsSlice";
+import { fetchAllEvents } from "../../redux/slices/eventsSlice";
 import { Card, Tabs, Calendar, Typography, Spin, Modal } from "antd";
 import { Line } from "@ant-design/plots";
 import { FloatButton } from "antd";
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     dispatch(fetchAllArtworks());
     dispatch(fetchAllUsers());
-    dispatch(fetchEvents());
+    dispatch(fetchAllEvents());
   }, [dispatch]);
 
   useEffect(() => {

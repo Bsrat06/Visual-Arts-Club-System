@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEvents } from "../../redux/slices/eventsSlice";
+import { fetchAllEvents } from "../../redux/slices/eventsSlice";
 import { Spin, Card, Button, Empty, Modal } from "antd";
 import { CalendarOutlined, EnvironmentOutlined, ClockCircleOutlined } from "@ant-design/icons";
 
@@ -10,7 +10,7 @@ const UpcomingEvents = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);
 
   useEffect(() => {
-    dispatch(fetchEvents());
+    dispatch(fetchAllEvents());
   }, [dispatch]);
 
   const upcomingEvents = events.filter((event) => !event.is_completed);
