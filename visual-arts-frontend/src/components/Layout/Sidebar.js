@@ -53,7 +53,7 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
 
   const commonMenu = [
     { key: "8", path: "/", label: "Home", icon: <HomeOutlined /> },
-    { key: "9", path: "/gallery", label: "Gallery", icon: <PictureOutlined /> },
+    { key: "9", path: "/visitor/gallery", label: "Gallery", icon: <PictureOutlined /> },
     // { key: "10", path: "/notifications", label: "Notifications", icon: <NotificationOutlined /> },
     { key: "11", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];

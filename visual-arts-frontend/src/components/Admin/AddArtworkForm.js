@@ -1,79 +1,76 @@
 import React, { useState } from "react";
-import { Form, Input, Upload, Select, Button, message } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { addArtwork } from "../../redux/slices/artworkSlice";
+import { Form, Input, Button, Upload, message, Select } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import "../../styles/custom-ant.css";
+import { useDispatch } from "react-redux";
+import { addArtwork } from "../../redux/slices/artworkSlice";
 
 const { TextArea } = Input;
 const { Option } = Select;
 
 const AddArtworkForm = ({ onArtworkAdded }) => {
-    const dispatch = useDispatch();
     const [form] = Form.useForm();
-    const user = useSelector((state) => state.auth.user);
-    const [preview, setPreview] = useState(null);
+    const dispatch = useDispatch();
+    const [fileList, setFileList] = useState([]); // State to hold the uploaded file
+    const [loading, setLoading] = useState(false);
 
-    // ✅ Handle Image Upload Preview
-    const handleImageChange = (info) => {
-        if (info.file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setPreview(e.target.result);
-            };
-            reader.readAsDataURL(info.file);
-        }
+    // Handle file upload
+    const handleFileChange = ({ fileList }) => {
+        setFileList(fileList); // Update the file list when a file is selected
     };
 
-    // ✅ Handle Form Submission
+    // Handle form submission
     const onFinish = async (values) => {
         try {
-            if (!user) {
-                message.error("You must be logged in to submit artwork.");
-                return;
-            }
+            setLoading(true);
 
+            // Create a FormData object
             const formData = new FormData();
-            formData.append("title", values.title);
-            formData.append("description", values.description);
-            formData.append("category", values.category);
-            formData.append("artist", user.pk);
 
-            if (values.image?.file?.originFileObj) {
-                formData.append("image", values.image.file.originFileObj);
+            // Append all form values to FormData
+            for (const key in values) {
+                formData.append(key, values[key]);
             }
 
-            console.log("Submitting Artwork Data:", Object.fromEntries(formData.entries()));
+            // Append the image file to FormData
+            if (fileList.length > 0) {
+                formData.append("image", fileList[0].originFileObj); // Append the actual file
+            }
 
+            // Dispatch the addArtwork action
             await dispatch(addArtwork(formData)).unwrap();
+
+            // Show success message
             message.success("Artwork added successfully! 🎨");
 
+            // Reset the form and close the modal
             form.resetFields();
-            setPreview(null);
+            setFileList([]);
             onArtworkAdded();
         } catch (error) {
             message.error("Failed to add artwork. Please try again.");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Form layout="vertical" form={form} onFinish={onFinish}>
+        <Form form={form} onFinish={onFinish} layout="vertical">
             {/* Title */}
             <Form.Item
-                label="Artwork Title"
                 name="title"
-                rules={[{ required: true, message: "Artwork title is required" }]}
+                label="Title"
+                rules={[{ required: true, message: "Please enter the title of the artwork!" }]}
             >
                 <Input placeholder="Enter artwork title" />
             </Form.Item>
 
             {/* Description */}
             <Form.Item
-                label="Description"
                 name="description"
-                rules={[{ required: true, message: "Description is required" }]}
+                label="Description"
+                rules={[{ required: true, message: "Please enter a description!" }]}
             >
-                <TextArea rows={3} placeholder="Enter artwork description" />
+                <TextArea rows={4} placeholder="Enter artwork description" />
             </Form.Item>
 
             {/* Category */}
@@ -93,14 +90,18 @@ const AddArtworkForm = ({ onArtworkAdded }) => {
 
             {/* Image Upload */}
             <Form.Item
-                label="Upload Artwork"
                 name="image"
-                rules={[{ required: true, message: "Please upload an artwork image" }]}
+                label="Artwork Image"
+                rules={[{ required: true, message: "Please upload an image!" }]}
             >
-                <Upload beforeUpload={() => false} onChange={handleImageChange} showUploadList={false}>
-                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                <Upload
+                    fileList={fileList}
+                    onChange={handleFileChange}
+                    beforeUpload={() => false} // Prevent automatic upload
+                    maxCount={1} // Allow only one file
+                >
+                    <Button icon={<UploadOutlined />}>Upload Image</Button>
                 </Upload>
-                {preview && <img src={preview} alt="Preview" className="mt-4 w-32 h-32 object-cover rounded" />}
             </Form.Item>
 
             {/* Submit Button */}

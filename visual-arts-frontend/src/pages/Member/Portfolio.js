@@ -26,6 +26,8 @@ import {
 } from "antd";
 import { UploadOutlined, HeartFilled, DownloadOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
+import AddArtworkForm from "../../components/Admin/AddArtworkForm"; // Import the AddArtworkForm
+import EditArtworkForm from "../../components/Admin/EditArtworkForm"; // Import the EditArtworkForm
 import "../../styles/mansory-layout.css";
 import "../../styles/tabs.css";
 
@@ -43,7 +45,7 @@ const Portfolio = () => {
     const [sortOrder, setSortOrder] = useState("newest");
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+    const [isAddModalVisible, setIsAddModalVisible] = useState(false); // State for Add Modal
     const [selectedArtwork, setSelectedArtwork] = useState(null);
     const [form] = Form.useForm();
     const [pageSize, setPageSize] = useState(8); // Added to manage page size
@@ -184,17 +186,23 @@ const Portfolio = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button icon={<FaEdit />} onClick={() => {
-                        setSelectedArtwork(record);
-                        form.setFieldsValue(record);
-                        setIsEditModalVisible(true);
-                    }}>
+                    <Button
+                        icon={<FaEdit />}
+                        onClick={() => {
+                            setSelectedArtwork(record);
+                            setIsEditModalVisible(true);
+                        }}
+                    >
                         Edit
                     </Button>
-                    <Button icon={<FaTrashAlt />} danger onClick={() => {
-                        setSelectedArtwork(record);
-                        setIsDeleteModalVisible(true);
-                    }}>
+                    <Button
+                        icon={<FaTrashAlt />}
+                        danger
+                        onClick={() => {
+                            setSelectedArtwork(record);
+                            setIsDeleteModalVisible(true);
+                        }}
+                    >
                         Delete
                     </Button>
                 </Space>
@@ -268,6 +276,51 @@ const Portfolio = () => {
                     </div>
                 </TabPane>
             </Tabs>
+
+            {/* Add Artwork Modal */}
+            <Modal
+                title="Add New Artwork"
+                visible={isAddModalVisible}
+                onCancel={() => setIsAddModalVisible(false)}
+                footer={null}
+            >
+                <AddArtworkForm
+                    onArtworkAdded={() => {
+                        setIsAddModalVisible(false); // Close the modal
+                        dispatch(fetchAllArtworks()); // Refresh the table
+                    }}
+                />
+            </Modal>
+
+            {/* Edit Artwork Modal */}
+            <Modal
+                title="Edit Artwork"
+                visible={isEditModalVisible}
+                onCancel={() => setIsEditModalVisible(false)}
+                footer={null}
+            >
+                {selectedArtwork && (
+                    <EditArtworkForm
+                        artwork={selectedArtwork}
+                        onClose={() => {
+                            setIsEditModalVisible(false);
+                            dispatch(fetchAllArtworks());
+                        }}
+                    />
+                )}
+            </Modal>
+
+            {/* Delete Artwork Modal */}
+            <Modal
+                title="Confirm Delete"
+                okText= "Yes, Delete"
+                okType= "danger"
+                visible={isDeleteModalVisible}
+                onOk={deleteArtwork}
+                onCancel={() => setIsDeleteModalVisible(false)}
+            >
+                <p>Are you sure you want to delete this artwork?</p>
+            </Modal>
         </div>
     );
 };

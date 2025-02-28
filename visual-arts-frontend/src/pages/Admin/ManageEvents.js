@@ -11,7 +11,10 @@ import {
     Image,
     Spin,
     Tag,
-    Table as AntTable, // Renamed to avoid conflicts
+    Table as AntTable,
+    Card,
+    Badge,
+    Switch,
 } from "antd";
 import {
     PlusOutlined,
@@ -22,7 +25,7 @@ import {
 import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 import API from "../../services/api";
 import AddEventForm from "../../components/Admin/AddEventForm";
-import EditEventForm from "../../components/Admin/EditEventForm"; // Import the EditEventForm
+import EditEventForm from "../../components/Admin/EditEventForm";
 import "../../styles/custom-ant.css";
 
 const { Option } = Select;
@@ -33,11 +36,12 @@ const ManageEvents = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isEditModalVisible, setIsEditModalVisible] = useState(false); // State for edit modal
-    const [editingEvent, setEditingEvent] = useState(null); // State to hold the event being edited
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+    const [editingEvent, setEditingEvent] = useState(null);
     const [eventStats, setEventStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
-    const [pageSize, setPageSize] = useState(8); // Added to manage page size
+    const [pageSize, setPageSize] = useState(8);
+    const [viewAsMember, setViewAsMember] = useState(false); // ✅ Switch state
 
     useEffect(() => {
         dispatch(fetchAllEvents());
@@ -62,8 +66,8 @@ const ManageEvents = () => {
     };
 
     const showEditModal = (event) => {
-        setEditingEvent(event); // Set the event to be edited
-        setIsEditModalVisible(true); // Open the edit modal
+        setEditingEvent(event);
+        setIsEditModalVisible(true);
     };
 
     const closeEditModal = () => {
@@ -90,11 +94,11 @@ const ManageEvents = () => {
 
     const editEvent = (event) => {
         setEditingEvent(event);
-        showEditModal(event); // Open the edit modal
+        showEditModal(event);
     };
 
     const handlePageSizeChange = (current, size) => {
-        setPageSize(size); // Update pageSize state when the user changes the page size
+        setPageSize(size);
     };
 
     const statistics = [
@@ -214,57 +218,99 @@ const ManageEvents = () => {
                 {editingEvent && <EditEventForm event={editingEvent} onClose={closeEditModal} />}
             </Modal>
 
-            {/* ... (rest of your component) */}
-            <div className="bg-white shadow-md rounded-2xl p-6">
-                <div className="flex justify-between items-center pb-4">
-                    <div className="flex items-center gap-4">
-                        <h2>All Events</h2>
-                        <Input
-                            placeholder="Search by event name..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-40"
-                        />
-                    </div>
-                    <div className="flex gap-4">
-                        <Select
-                            placeholder="Filter by status"
-                            onChange={(value) => setFilterStatus(value)}
-                            allowClear
-                        >
-                            <Option value={true}>Completed</Option>
-                            <Option value={false}>Pending</Option>
-                        </Select>
-                        <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                            Add Event
-                        </Button>
-                    </div>
-                </div>
-
-                {loading ? (
-                    <Spin size="large" />
-                ) : filteredTableData.length > 0 ? (
-                    <div className="overflow-x-auto"> {/* Added this wrapper */}
-                        <AntTable
-                            columns={columns}
-                            dataSource={filteredTableData}
-                            loading={loading}
-                            rowKey="key"
-                            scroll={{ x: "max-content" }} // Enable horizontal scroll
-                            size="small" // Added for smaller padding
-                            pagination={{
-                                pageSize: pageSize, // Use pageSize state
-                                showSizeChanger: true, // Enable page size changer
-                                pageSizeOptions: ["8", "10", "15", "30", "50"], // Options for rows per page
-                                showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`, // Show total items
-                                onShowSizeChange: handlePageSizeChange, // Handle page size change
-                            }}
-                        />
-                    </div>
-                ) : (
-                    <p>No events found.</p>
-                )}
+            {/* ✅ Switch to toggle between Admin & Member View */}
+            <div className="flex justify-end items-center space-x-2">
+                <span className="text-gray-600">View as Member</span>
+                <Switch checked={viewAsMember} onChange={() => setViewAsMember(!viewAsMember)} />
             </div>
+
+            {/* ✅ Conditionally Render View */}
+            {viewAsMember ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                    {filteredTableData.map((event) => (
+                        <Badge.Ribbon
+                            key={event.key}
+                            text={event.is_completed ? "Completed" : "Pending"}
+                            color={event.is_completed ? "green" : "orange"}
+                        >
+                            <Card
+                                hoverable
+                                cover={
+                                    event.event_cover ? (
+                                        <Image
+                                            alt={event.name}
+                                            src={event.event_cover}
+                                            className="h-[200px] w-full object-cover rounded-lg"
+                                        />
+                                    ) : null
+                                }
+                                className="shadow-md transition duration-300 transform hover:scale-[1.02] cursor-pointer"
+                            >
+                                <Card.Meta
+                                    title={<span className="text-lg font-semibold text-black">{event.name}</span>}
+                                    description={
+                                        <div className="text-gray-500">
+                                            <p>{event.date}</p>
+                                            <p>{event.location}</p>
+                                        </div>
+                                    }
+                                />
+                            </Card>
+                        </Badge.Ribbon>
+                    ))}
+                </div>
+            ) : (
+                <div className="bg-white shadow-md rounded-2xl p-6">
+                    <div className="flex justify-between items-center pb-4">
+                        <div className="flex items-center gap-4">
+                            <h2>All Events</h2>
+                            <Input
+                                placeholder="Search by event name..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-40"
+                            />
+                        </div>
+                        <div className="flex gap-4">
+                            <Select
+                                placeholder="Filter by status"
+                                onChange={(value) => setFilterStatus(value)}
+                                allowClear
+                            >
+                                <Option value={true}>Completed</Option>
+                                <Option value={false}>Pending</Option>
+                            </Select>
+                            <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
+                                Add Event
+                            </Button>
+                        </div>
+                    </div>
+
+                    {loading ? (
+                        <Spin size="large" />
+                    ) : filteredTableData.length > 0 ? (
+                        <div className="overflow-x-auto">
+                            <AntTable
+                                columns={columns}
+                                dataSource={filteredTableData}
+                                loading={loading}
+                                rowKey="key"
+                                scroll={{ x: "max-content" }}
+                                size="small"
+                                pagination={{
+                                    pageSize: pageSize,
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ["8", "10", "15", "30", "50"],
+                                    showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`,
+                                    onShowSizeChange: handlePageSizeChange,
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <p>No events found.</p>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
