@@ -264,22 +264,15 @@ const ManageEvents = () => {
                     <div className="flex justify-between items-center pb-4">
                         <div className="flex items-center gap-4">
                             <h2>All Events</h2>
+                        </div>
+                        <div className="flex gap-4">
+                            
                             <Input
                                 placeholder="Search by event name..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-40"
                             />
-                        </div>
-                        <div className="flex gap-4">
-                            <Select
-                                placeholder="Filter by status"
-                                onChange={(value) => setFilterStatus(value)}
-                                allowClear
-                            >
-                                <Option value={true}>Completed</Option>
-                                <Option value={false}>Pending</Option>
-                            </Select>
                             <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
                                 Add Event
                             </Button>
