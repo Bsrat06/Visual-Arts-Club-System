@@ -49,6 +49,7 @@ const ManageUsers = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [statsLoading, setStatsLoading] = useState(true);
+    const [pageSize, setPageSize] = useState(8); // Added to manage page size
 
     useEffect(() => {
         dispatch(fetchAllUsers());
@@ -72,6 +73,10 @@ const ManageUsers = () => {
 
     const handleViewProfile = (pk) => {
         navigate(`/admin/user/${pk}`);
+    };
+
+    const handlePageSizeChange = (current, size) => {
+        setPageSize(size); // Update pageSize state when the user changes the page size
     };
 
     const totalUsers = users.length;
@@ -217,7 +222,13 @@ const ManageUsers = () => {
                         columns={columns}
                         dataSource={tableData}
                         onChange={handleChange}
-                        pagination={{ pageSize: 8 }}
+                        pagination={{
+                            pageSize: pageSize, // Use pageSize state
+                            showSizeChanger: true, // Enable page size changer
+                            pageSizeOptions: ["8", "10", "15", "30", "50"], // Options for rows per page
+                            showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`, // Show total items
+                            onShowSizeChange: handlePageSizeChange, // Handle page size change
+                        }}
                         loading={loading}
                         rowKey="key"
                         size="small" // Added for smaller padding
