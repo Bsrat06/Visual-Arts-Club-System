@@ -1,20 +1,28 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import { Input, Button, Card, Typography, message } from "antd";
 import API from "../../services/api";
+
+const { Title, Text } = Typography;
 
 const ResetPassword = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const { uid, token } = useParams(); // Get these from the URL
+  const [loading, setLoading] = useState(false);
+  const { uid, token } = useParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (newPassword.length < 8) {
+      message.warning("Password must be at least 8 characters long.");
+      return;
+    }
     if (newPassword !== confirmPassword) {
-      setMessage("Passwords do not match.");
+      message.error("Passwords do not match.");
       return;
     }
 
+    setLoading(true);
     try {
       await API.post("auth/password/reset/confirm/", {
         uid,
@@ -22,37 +30,37 @@ const ResetPassword = () => {
         new_password1: newPassword,
         new_password2: confirmPassword,
       });
-      setMessage("Password successfully reset! You can now log in.");
+      message.success("Password successfully reset! You can now log in.");
     } catch (error) {
-      setMessage("Error resetting password. Please try again.");
+      message.error("Error resetting password. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center mt-10">
-      <h2 className="text-2xl font-bold mb-4">Reset Password</h2>
-      {message && <p className="text-blue-500">{message}</p>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="New Password"
-          required
-          className="border p-2 rounded w-full"
-        />
-        <input
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          placeholder="Confirm New Password"
-          required
-          className="border p-2 rounded w-full"
-        />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
-          Reset Password
-        </button>
-      </form>
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md p-6 shadow-lg rounded-lg">
+        <Title level={2} className="text-center mb-4">Reset Password</Title>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input.Password
+            placeholder="New Password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            className="py-2 px-3 w-full"
+          />
+          <Input.Password
+            placeholder="Confirm New Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            className="py-2 px-3 w-full"
+          />
+          
+          <Button type="primary" htmlType="submit" block loading={loading}>
+            Reset Password
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 };

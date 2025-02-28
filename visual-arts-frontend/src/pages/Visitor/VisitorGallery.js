@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import API from "../../services/api";
 import { Image, Typography, Button, Input, Select, Skeleton, Empty } from "antd";
-import { HeartFilled, DownloadOutlined } from "@ant-design/icons"; // Use Ant Design icons
+import { HeartFilled, DownloadOutlined } from "@ant-design/icons";
 import "../../styles/mansory-layout.css";
 
 const { Text } = Typography;
@@ -18,10 +18,10 @@ const VisitorGallery = () => {
     const [error, setError] = useState("");
     const [isFetching, setIsFetching] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const [likedArtworks, setLikedArtworks] = useState(new Set()); // Use Set for better performance
+    const [likedArtworks, setLikedArtworks] = useState(new Set());
 
     const user = useSelector((state) => state.auth.user);
-    const nextPageRef = useRef("artwork/?approval_status=approved&page=1");
+    const nextPageRef = useRef("artwork/?approval_status=approved&page=1&page_size=20"); // Increase page_size
 
     useEffect(() => {
         fetchAllArtworks();

@@ -95,13 +95,13 @@ const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
             <Link to="/about" className="text-black hover:text-orange-500">
               About
             </Link>
-            <Link to="/gallery" className="text-black hover:text-orange-500">
+            <Link to="/visitor/gallery" className="text-black hover:text-orange-500">
               Gallery
             </Link>
-            <Link to="/events" className="text-black hover:text-orange-500">
+            <Link to="/visitor/events" className="text-black hover:text-orange-500">
               Events
             </Link>
-            <Link to="/projects" className="text-black hover:text-orange-500">
+            <Link to="/visitor/projects" className="text-black hover:text-orange-500">
               Projects
             </Link>
           </div>

@@ -83,7 +83,7 @@ const Login = () => {
                 Remember me
               </label>
             </div>
-            <a href="#" className="text-sm text-orange-600 hover:underline">
+            <a href="/forgot-password" className="text-sm text-orange-600 hover:underline">
               Forgot password?
             </a>
           </div>
