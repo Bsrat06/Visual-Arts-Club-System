@@ -20,7 +20,8 @@ from django.utils.timezone import now, timedelta
 from django.db.models.functions import TruncMonth
 from rest_framework.pagination import PageNumberPagination
 from datetime import datetime
-
+from dj_rest_auth.views import PasswordResetView
+from django.core.exceptions import ValidationError
 
 
 User = get_user_model()
@@ -264,3 +265,10 @@ class MemberStatsView(APIView):
                 } for log in activity_logs
             ]
         })
+        
+        
+
+class CustomPasswordResetView(PasswordResetView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        return Response({"message": "If your email exists, a reset link has been sent."})

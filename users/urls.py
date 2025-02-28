@@ -1,10 +1,10 @@
 from django.urls import path, include
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LogoutView
-from .views import CustomAuthToken, UserListView, UserDetailView, DeactivateUserView, ActivateUserView, UpdateUserRoleView, ProfileUpdateView, ActivityLogListView, UserPreferencesView, AnalyticsView, MemberStatsView
+from .views import CustomAuthToken, UserListView, UserDetailView, DeactivateUserView, ActivateUserView, UpdateUserRoleView, ProfileUpdateView, ActivityLogListView, UserPreferencesView, AnalyticsView, MemberStatsView, CustomPasswordResetView
 
 urlpatterns = [
     # Password Reset Endpoints (Manually Defined)
-    path('auth/password/reset/', PasswordResetView.as_view(), name='password_reset'),
+    path('auth/password/reset/', CustomPasswordResetView.as_view(), name='password_reset'),
     path('auth/password/reset/confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 
     # Logout Endpoint
