@@ -22,7 +22,7 @@ import {
     DeleteOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
-import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaCalendarAlt, FaCheckCircle, FaClock, FaPlusCircle } from "react-icons/fa";
 import API from "../../services/api";
 import AddEventForm from "../../components/Admin/AddEventForm";
 import EditEventForm from "../../components/Admin/EditEventForm";
@@ -184,6 +184,7 @@ const ManageEvents = () => {
         id: event.id,
     }));
 
+    // ✅ Filtered data for both table and card views
     let filteredTableData = tableData.filter((event) =>
         event.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -224,86 +225,85 @@ const ManageEvents = () => {
                 <Switch checked={viewAsMember} onChange={() => setViewAsMember(!viewAsMember)} />
             </div>
 
-            {/* ✅ Conditionally Render View */}
-            {viewAsMember ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {filteredTableData.map((event) => (
-                        <Badge.Ribbon
-                            key={event.key}
-                            text={event.is_completed ? "Completed" : "Pending"}
-                            color={event.is_completed ? "green" : "orange"}
-                        >
-                            <Card
-                                hoverable
-                                cover={
-                                    event.event_cover ? (
-                                        <Image
-                                            alt={event.name}
-                                            src={event.event_cover}
-                                            className="h-[200px] w-full object-cover rounded-lg"
-                                        />
-                                    ) : null
-                                }
-                                className="shadow-md transition duration-300 transform hover:scale-[1.02] cursor-pointer"
-                            >
-                                <Card.Meta
-                                    title={<span className="text-lg font-semibold text-black">{event.name}</span>}
-                                    description={
-                                        <div className="text-gray-500">
-                                            <p>{event.date}</p>
-                                            <p>{event.location}</p>
-                                        </div>
-                                    }
-                                />
-                            </Card>
-                        </Badge.Ribbon>
-                    ))}
-                </div>
-            ) : (
-                <div className="bg-white shadow-md rounded-2xl p-6">
-                    <div className="flex justify-between items-center pb-4">
-                        <div className="flex items-center gap-4">
-                            <h2>All Events</h2>
-                        </div>
-                        <div className="flex gap-4">
-                            
-                            <Input
-                                placeholder="Search by event name..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-40"
-                            />
-                            <Button className="add-artwork-btn" type="primary" icon={<PlusOutlined />} onClick={showModal}>
-                                Add Event
-                            </Button>
-                        </div>
+            {/* ✅ Search and Filter Section */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
+                <div className="flex justify-between items-center pb-4">
+                    <div className="flex items-center gap-4">
+                        <h2>All Events</h2>
                     </div>
-
-                    {loading ? (
-                        <Spin size="large" />
-                    ) : filteredTableData.length > 0 ? (
-                        <div className="overflow-x-auto">
-                            <AntTable
-                                columns={columns}
-                                dataSource={filteredTableData}
-                                loading={loading}
-                                rowKey="key"
-                                scroll={{ x: "max-content" }}
-                                size="small"
-                                pagination={{
-                                    pageSize: pageSize,
-                                    showSizeChanger: true,
-                                    pageSizeOptions: ["8", "10", "15", "30", "50"],
-                                    showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`,
-                                    onShowSizeChange: handlePageSizeChange,
-                                }}
-                            />
-                        </div>
-                    ) : (
-                        <p>No events found.</p>
-                    )}
+                    <div className="flex gap-4">
+                        
+                        <Input
+                            placeholder="Search by event name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-40"
+                            prefix={<SearchOutlined />}
+                        />
+                        <Button className="add-artwork-btn" type="primary" icon={<FaPlusCircle />} onClick={showModal}>
+                                                    Add New Event
+                                                </Button>
+                    </div>
                 </div>
-            )}
+
+                {/* ✅ Conditionally Render View */}
+                {viewAsMember ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        {filteredTableData.map((event) => (
+                            <Badge.Ribbon
+                                key={event.key}
+                                text={event.is_completed ? "Completed" : "Pending"}
+                                color={event.is_completed ? "green" : "orange"}
+                            >
+                                <Card
+                                    hoverable
+                                    cover={
+                                        event.event_cover ? (
+                                            <Image
+                                                alt={event.name}
+                                                src={event.event_cover}
+                                                className="h-[200px] w-full object-cover rounded-lg"
+                                            />
+                                        ) : null
+                                    }
+                                    className="shadow-md transition duration-300 transform hover:scale-[1.02] cursor-pointer"
+                                >
+                                    <Card.Meta
+                                        title={<span className="text-lg font-semibold text-black">{event.name}</span>}
+                                        description={
+                                            <div className="text-gray-500">
+                                                <p>{event.date}</p>
+                                                <p>{event.location}</p>
+                                            </div>
+                                        }
+                                    />
+                                </Card>
+                            </Badge.Ribbon>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <AntTable
+                            columns={columns}
+                            dataSource={filteredTableData}
+                            loading={loading}
+                            rowKey="key"
+                            scroll={{ x: "max-content" }}
+                            size="small"
+                            pagination={{
+                                pageSize: pageSize,
+                                showSizeChanger: true,
+                                pageSizeOptions: ["8", "10", "15", "30", "50"],
+                                showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`,
+                                onShowSizeChange: handlePageSizeChange,
+                            }}
+                        />
+                    </div>
+                )}
+
+                {loading && <Spin size="large" />}
+                {!loading && filteredTableData.length === 0 && <p>No events found.</p>}
+            </div>
         </div>
     );
 };

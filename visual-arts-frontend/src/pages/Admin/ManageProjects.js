@@ -187,7 +187,7 @@ const ManageProjects = () => {
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => navigate(`/projects/${record.id}`)}>View</Button>
+                    <Button className="custom-edit-btn" icon={<EyeOutlined />} onClick={() => navigate(`/projects/${record.id}`)}>View</Button>
                     <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
                 </Space>
             ),

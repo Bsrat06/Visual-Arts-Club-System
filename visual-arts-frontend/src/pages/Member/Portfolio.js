@@ -24,7 +24,7 @@ import {
     Empty,
     Table as AntTable, // Renamed to avoid conflicts
 } from "antd";
-import { UploadOutlined, HeartFilled, DownloadOutlined } from "@ant-design/icons";
+import { UploadOutlined, HeartFilled, DownloadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
 import AddArtworkForm from "../../components/Admin/AddArtworkForm"; // Import the AddArtworkForm
 import EditArtworkForm from "../../components/Admin/EditArtworkForm"; // Import the EditArtworkForm
@@ -187,7 +187,8 @@ const Portfolio = () => {
             render: (_, record) => (
                 <Space>
                     <Button
-                        icon={<FaEdit />}
+                        className="custom-edit-btn"
+                        icon={<EditOutlined />}
                         onClick={() => {
                             setSelectedArtwork(record);
                             setIsEditModalVisible(true);
@@ -195,8 +196,9 @@ const Portfolio = () => {
                     >
                         Edit
                     </Button>
+
                     <Button
-                        icon={<FaTrashAlt />}
+                        icon={<DeleteOutlined />}
                         danger
                         onClick={() => {
                             setSelectedArtwork(record);
