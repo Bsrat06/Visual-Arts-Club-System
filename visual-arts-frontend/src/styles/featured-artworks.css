@@ -13,25 +13,18 @@
 
 /* Adjust spacing for even gaps */
 .swiper-slide {
-    margin: 0px -5px;
+    margin: 0px 7px;
 }
 
 /* Custom navigation arrows - positioned at the center of the artworks */
 .custom-prev, .custom-next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     background: rgba(0, 0, 0, 0.7);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     color: white;
     cursor: pointer;
-    font-size: 26px;
+    font-size: 22px;
     transition: background 0.3s ease, transform 0.2s ease;
 }
 
@@ -53,8 +46,9 @@
 
 /* Move pagination dots further down */
 .swiper-pagination {
-    bottom: -15px !important;
+    bottom: -10px !important;
 }
+
 
 
 /* Reduce scaling on small screens */

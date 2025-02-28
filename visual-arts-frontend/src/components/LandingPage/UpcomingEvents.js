@@ -71,7 +71,7 @@ const UpcomingEvents = () => {
             <Card
               key={event.id}
               hoverable
-              className="shadow-md border border-gray-50 rounded-lg overflow-hidden flex"
+              className="shadow-md border border-gray-50 rounded-lg overflow-hidden flex hover:shadow-lg transition-shadow duration-300"
             >
               <div className="grid grid-cols-2 w-full h-full">
                 <div className="h-full">
@@ -97,7 +97,7 @@ const UpcomingEvents = () => {
 
                     {timers[event.id] && (
                       <div className="mt-3 text-center text-gray-700 text-sm">
-                        <ClockCircleOutlined className="mr-2 text-orange-600" />
+                        <ClockCircleOutlined className="mr-2 text-[#FF9933]" /> {/* Updated to #FF9933 */}
                         <span className="font-semibold">
                           {timers[event.id].days}d {timers[event.id].hours}h {timers[event.id].minutes}m {timers[event.id].seconds}s
                         </span>
@@ -107,7 +107,7 @@ const UpcomingEvents = () => {
                   </div>
                   <Button
                     type="primary"
-                    className="mt-4 bg-orange-600 w-full"
+                    className="mt-4 bg-[#FF9933] hover:bg-[#FF9933]/90 hover:text-white border-none w-full transition-colors duration-200"
                     onClick={() => setSelectedEvent(event)}
                   >
                     View Details
@@ -141,8 +141,8 @@ const UpcomingEvents = () => {
             </div>
             <div className="flex flex-col justify-between">
               <div>
-                <h1>{selectedEvent.title}</h1>
-                <p className="text-gray-700 text-lg">{selectedEvent.description}</p> {/* Increased font size */}
+                <h1 className="text-2xl font-bold text-gray-900">{selectedEvent.title}</h1>
+                <p className="text-gray-700 text-lg mt-4">{selectedEvent.description}</p> {/* Increased font size */}
                 <div className="mt-4 flex flex-col text-gray-700 space-y-2 text-lg"> {/* Increased font and space */}
                   <span>
                     <CalendarOutlined className="mr-2" />

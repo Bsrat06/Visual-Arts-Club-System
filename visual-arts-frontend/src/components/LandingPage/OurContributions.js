@@ -51,11 +51,22 @@ const OurContributions = () => {
 
       <div className="grid grid-cols-1 mt-12 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {contributions.map((contribution) => (
-          <div key={contribution.id} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200">
-            <img src={contribution.image} alt={contribution.title} className="w-full h-40 object-cover rounded-lg" />
+          <div
+            key={contribution.id}
+            className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-shadow duration-300"
+          >
+            <img
+              src={contribution.image}
+              alt={contribution.title}
+              className="w-full h-40 object-cover rounded-lg"
+            />
             <h3 className="text-2xl font-bold text-gray-900">{contribution.title}</h3>
             <p className="text-gray-600">{contribution.description}</p>
-            <Button type="primary" className="bg-orange-600" onClick={() => showModal(contribution)}>
+            <Button
+              type="primary"
+              className="bg-[#FF9933] hover:bg-[#FF9933]/90 hover:text-white border-none transition-colors duration-200"
+              onClick={() => showModal(contribution)}
+            >
               Learn More
             </Button>
           </div>
@@ -68,7 +79,11 @@ const OurContributions = () => {
         open={isModalOpen}
         onCancel={handleCancel}
         footer={[
-          <Button key="close" onClick={handleCancel}>
+          <Button
+            key="close"
+            className="bg-[#FF9933] hover:bg-[#FF9933]/90 hover:text-white border-none transition-colors duration-200"
+            onClick={handleCancel}
+          >
             Close
           </Button>,
         ]}

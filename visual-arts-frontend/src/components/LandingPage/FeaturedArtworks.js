@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { EffectCoverflow, Navigation, Pagination } from "swiper/modules";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons"; // Import icons
+import "../../styles/featured-artworks.css";
 
 const { Title, Text } = Typography;
 
@@ -49,7 +50,7 @@ const FeaturedArtworks = () => {
                             spaceBetween={5}
                             coverflowEffect={{
                                 rotate: 0,
-                                stretch: 0,
+                                stretch: 5,
                                 depth: 200,
                                 modifier: 2.5,
                                 slideShadows: false,
