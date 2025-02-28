@@ -11,6 +11,7 @@ import {
     Image,
     Spin,
     Tag,
+    Table as AntTable, // Renamed to avoid conflicts
 } from "antd";
 import {
     PlusOutlined,
@@ -19,10 +20,9 @@ import {
     SearchOutlined,
 } from "@ant-design/icons";
 import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
+import API from "../../services/api";
 import AddEventForm from "../../components/Admin/AddEventForm";
 import EditEventForm from "../../components/Admin/EditEventForm"; // Import the EditEventForm
-import Table from "../../components/Shared/Table";
-import API from "../../services/api";
 import "../../styles/custom-ant.css";
 
 const { Option } = Select;
@@ -37,6 +37,7 @@ const ManageEvents = () => {
     const [editingEvent, setEditingEvent] = useState(null); // State to hold the event being edited
     const [eventStats, setEventStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
+    const [pageSize, setPageSize] = useState(8); // Added to manage page size
 
     useEffect(() => {
         dispatch(fetchAllEvents());
@@ -90,6 +91,10 @@ const ManageEvents = () => {
     const editEvent = (event) => {
         setEditingEvent(event);
         showEditModal(event); // Open the edit modal
+    };
+
+    const handlePageSizeChange = (current, size) => {
+        setPageSize(size); // Update pageSize state when the user changes the page size
     };
 
     const statistics = [
@@ -239,12 +244,23 @@ const ManageEvents = () => {
                 {loading ? (
                     <Spin size="large" />
                 ) : filteredTableData.length > 0 ? (
-                    <Table
-                        columns={columns}
-                        dataSource={filteredTableData}
-                        loading={loading}
-                        rowKey="key"
-                    />
+                    <div className="overflow-x-auto"> {/* Added this wrapper */}
+                        <AntTable
+                            columns={columns}
+                            dataSource={filteredTableData}
+                            loading={loading}
+                            rowKey="key"
+                            scroll={{ x: "max-content" }} // Enable horizontal scroll
+                            size="small" // Added for smaller padding
+                            pagination={{
+                                pageSize: pageSize, // Use pageSize state
+                                showSizeChanger: true, // Enable page size changer
+                                pageSizeOptions: ["8", "10", "15", "30", "50"], // Options for rows per page
+                                showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`, // Show total items
+                                onShowSizeChange: handlePageSizeChange, // Handle page size change
+                            }}
+                        />
+                    </div>
                 ) : (
                     <p>No events found.</p>
                 )}
