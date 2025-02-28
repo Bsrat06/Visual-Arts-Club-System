@@ -18,6 +18,7 @@ import {
     Modal,
     Card,
     Spin,
+    Table as AntTable, // Renamed to avoid confusion with custom Table
 } from "antd";
 import {
     CheckOutlined,
@@ -198,8 +199,6 @@ const ManageUsers = () => {
         <div className="p-6 space-y-8">
             <p className="text-green-500 text-sm font-[Poppins] mt-1">User Management &gt; View & Manage</p>
 
-            
-
             {/* ✅ Enhanced Users List */}
             <div className="bg-white shadow-md rounded-2xl p-6">
                 <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Users</h2>
@@ -213,8 +212,20 @@ const ManageUsers = () => {
                     </Select>
                 </div>
 
-                <Table columns={columns} dataSource={tableData} onChange={handleChange} pagination={{ pageSize: 8 }} loading={loading} rowKey="key" />
+                <div className="overflow-x-auto"> {/* Added this wrapper */}
+                    <AntTable
+                        columns={columns}
+                        dataSource={tableData}
+                        onChange={handleChange}
+                        pagination={{ pageSize: 8 }}
+                        loading={loading}
+                        rowKey="key"
+                        size="small" // Added for smaller padding
+                        scroll={{ x: 'max-content' }} // Enable horizontal scroll
+                    />
+                </div>
             </div>
+
             <Modal
                 title="User Details"
                 visible={isViewModalVisible}
