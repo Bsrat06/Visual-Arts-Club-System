@@ -12,6 +12,7 @@ import {
     message,
     Card,
     Spin,
+    Table as AntTable,
 } from "antd";
 import {
     CheckOutlined,
@@ -27,7 +28,6 @@ import {
     FaTimesCircle,
 } from "react-icons/fa";
 import API from "../../services/api";
-import Table from "../../components/Shared/Table";
 import "../../styles/custom-ant.css";
 
 const { Option } = Select;
@@ -37,12 +37,13 @@ const ManageArtworks = () => {
     const dispatch = useDispatch();
     const { artworks, loading } = useSelector((state) => state.artwork);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filterStatus, setFilterStatus] = useState("");
     const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState(null);
     const [artworkStats, setArtworkStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
     const [feedback, setFeedback] = useState("");
+    const [filteredInfo, setFilteredInfo] = useState({}); // Added to manage column filters
+    const [pageSize, setPageSize] = useState(8); // Added to manage page size
 
     useEffect(() => {
         dispatch(fetchAllArtworks());
@@ -99,6 +100,14 @@ const ManageArtworks = () => {
         });
     };
 
+    const handleTableChange = (pagination, filters) => {
+        setFilteredInfo(filters); // Update filteredInfo state when filters change
+    };
+
+    const handlePageSizeChange = (current, size) => {
+        setPageSize(size); // Update pageSize state when the user changes the page size
+    };
+
     const columns = [
         {
             title: "Preview",
@@ -133,8 +142,12 @@ const ManageArtworks = () => {
                 { text: "Pending", value: "pending" },
                 { text: "Rejected", value: "rejected" },
             ],
-            filteredValue: filterStatus ? [filterStatus] : null,
-            onFilter: (value, record) => record.approval_status === value,
+            filteredValue: filteredInfo.approval_status || null, // Use filteredInfo state
+            onFilter: (value, record) => {
+                // Handle multiple filter values
+                if (!filteredInfo.approval_status) return true; // No filter applied
+                return filteredInfo.approval_status.includes(record.approval_status);
+            },
             render: (status) => {
                 const color =
                     status === "approved"
@@ -209,9 +222,10 @@ const ManageArtworks = () => {
         artwork.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    if (filterStatus) {
-        filteredArtworks = filteredArtworks.filter(
-            (artwork) => artwork.approval_status === filterStatus
+    // Apply column filters
+    if (filteredInfo.approval_status) {
+        filteredArtworks = filteredArtworks.filter((artwork) =>
+            filteredInfo.approval_status.includes(artwork.approval_status)
         );
     }
 
@@ -230,26 +244,23 @@ const ManageArtworks = () => {
                             className="w-40"
                         />
                     </div>
-                    <div className="flex gap-4">
-                        <Select
-                            placeholder="Filter by status"
-                            onChange={(value) => setFilterStatus(value)}
-                            allowClear
-                        >
-                            <Option value="approved">Approved</Option>
-                            <Option value="pending">Pending</Option>
-                            <Option value="rejected">Rejected</Option>
-                        </Select>
-                    </div>
                 </div>
 
-                <div style={{ overflowX: "auto" }}>
-                    <Table
+                <div className="overflow-x-auto">
+                    <AntTable
                         columns={columns}
                         dataSource={filteredArtworks}
                         rowKey="id"
                         scroll={{ x: "max-content" }}
-                        key={filterStatus} // Added key to force re-render
+                        onChange={handleTableChange} // Handle table changes (e.g., filtering)
+                        size="small"
+                        pagination={{
+                            pageSize: pageSize, // Use pageSize state
+                            showSizeChanger: true, // Enable page size changer
+                            pageSizeOptions: ["8", "10", "15", "30", "50"], // Options for rows per page
+                            showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`, // Show total items
+                            onShowSizeChange: handlePageSizeChange, // Handle page size change
+                        }}
                     />
                 </div>
             </div>
