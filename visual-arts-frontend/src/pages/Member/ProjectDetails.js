@@ -123,7 +123,7 @@ const ProjectDetails = () => {
             {/* Danger Zone: Delete Project (Only for Owner) */}
             {isOwner && (
                 <div className="mt-10 p-6 bg-red-50 border border-red-400 rounded-lg">
-                    <Title level={4} type="danger">Danger Zone</Title>
+                    <Title level={4} type="danger">Caution!</Title>
                     <Text type="danger">Deleting this project is irreversible.</Text>
                     <Button danger icon={<DeleteOutlined />} className="mt-2" onClick={confirmDelete}>
                         Delete Project

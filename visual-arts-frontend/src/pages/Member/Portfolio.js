@@ -22,13 +22,12 @@ import {
     Upload,
     Tabs,
     Empty,
+    Table as AntTable, // Renamed to avoid conflicts
 } from "antd";
 import { UploadOutlined, HeartFilled, DownloadOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
 import "../../styles/mansory-layout.css";
 import "../../styles/tabs.css";
-import Table from "../../components/Shared/Table";
-
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -38,7 +37,7 @@ const Portfolio = () => {
     const dispatch = useDispatch();
     const { artworks, likedArtworks, loading, error } = useSelector((state) => state.artwork);
     const user = useSelector((state) => state.auth.user);
-    
+
     const [selectedTab, setSelectedTab] = useState("myArtworks");
     const [searchQuery, setSearchQuery] = useState("");
     const [sortOrder, setSortOrder] = useState("newest");
@@ -47,6 +46,7 @@ const Portfolio = () => {
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState(null);
     const [form] = Form.useForm();
+    const [pageSize, setPageSize] = useState(8); // Added to manage page size
 
     useEffect(() => {
         if (user?.pk) {
@@ -133,6 +133,10 @@ const Portfolio = () => {
         a.click();
     };
 
+    const handlePageSizeChange = (current, size) => {
+        setPageSize(size); // Update pageSize state when the user changes the page size
+    };
+
     const columns = [
         {
             title: "Preview",
@@ -144,16 +148,29 @@ const Portfolio = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
+            sorter: (a, b) => a.title.localeCompare(b.title), // Add sorter
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
+            sorter: (a, b) => a.category.localeCompare(b.category), // Add sorter
+            filters: artworks
+                .map((art) => art.category)
+                .filter((value, index, self) => self.indexOf(value) === index)
+                .map((category) => ({ text: category, value: category })),
+            onFilter: (value, record) => record.category === value, // Add filter
         },
         {
             title: "Status",
             dataIndex: "approval_status",
             key: "approval_status",
+            filters: [
+                { text: "Approved", value: "approved" },
+                { text: "Pending", value: "pending" },
+                { text: "Rejected", value: "rejected" },
+            ],
+            onFilter: (value, record) => record.approval_status === value, // Add filter
             render: (status) => (
                 <Tag color={status === "approved" ? "green" : "red"}>{status.toUpperCase()}</Tag>
             ),
@@ -198,41 +215,58 @@ const Portfolio = () => {
                             Add New Artwork
                         </Button>
                     </div>
-                    {loading ? <Spin size="large" /> : <Table columns={columns} dataSource={filteredArtworks} pagination={{ pageSize: 8 }} rowKey="id" />}
+                    {loading ? (
+                        <Spin size="large" />
+                    ) : (
+                        <div className="overflow-x-auto"> {/* Added wrapper for My Artworks table */}
+                            <AntTable
+                                columns={columns}
+                                dataSource={filteredArtworks}
+                                pagination={{
+                                    pageSize: pageSize, // Use pageSize state
+                                    showSizeChanger: true, // Enable page size changer
+                                    pageSizeOptions: ["8", "15", "30", "50"], // Options for rows per page
+                                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`, // Show total items
+                                    onShowSizeChange: handlePageSizeChange, // Handle page size change
+                                }}
+                                rowKey="id"
+                                scroll={{ x: "max-content" }} // Enable horizontal scroll
+                                size="small" // Added for smaller padding
+                            />
+                        </div>
+                    )}
                 </TabPane>
 
                 {/* Liked Artworks Tab */}
                 <TabPane tab="Liked Artworks" key="liked">
-                <div className="masonry">
-                    {filteredLikedArtworks.length > 0 ? (
-                        filteredLikedArtworks.map((artwork) => (
-                            <div key={artwork.id} className="masonry-item">
-                                <div className="artwork-container">
-                                    {artwork.image ? (
-                                        <Image alt={artwork.title} src={`http://127.0.0.1:8000/${artwork.image}`} className="w-full h-auto rounded-lg" />
-                                    ) : (
-                                        <div className="bg-gray-200 w-full h-40 flex items-center justify-center text-gray-500">
-                                            No Image Available
+                    <div className="masonry">
+                        {filteredLikedArtworks.length > 0 ? (
+                            filteredLikedArtworks.map((artwork) => (
+                                <div key={artwork.id} className="masonry-item">
+                                    <div className="artwork-container">
+                                        {artwork.image ? (
+                                            <Image alt={artwork.title} src={`http://127.0.0.1:8000/${artwork.image}`} className="w-full h-auto rounded-lg" />
+                                        ) : (
+                                            <div className="bg-gray-200 w-full h-40 flex items-center justify-center text-gray-500">
+                                                No Image Available
+                                            </div>
+                                        )}
+                                        <div className="artwork-hover">
+                                            <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
+                                                <DownloadOutlined />
+                                            </Button>
+                                            <Button shape="circle" className="icon-button" onClick={() => dispatch(unlikeArtwork(artwork.id))}>
+                                                <HeartFilled className="text-red-500" /> {/* Unlike button */}
+                                            </Button>
                                         </div>
-                                    )}
-                                    <div className="artwork-hover">
-                                        <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
-                                            <DownloadOutlined />
-                                        </Button>
-                                        <Button shape="circle" className="icon-button" onClick={() => dispatch(unlikeArtwork(artwork.id))}>
-                                            <HeartFilled className="text-red-500" /> {/* Unlike button */}
-                                        </Button>
                                     </div>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <Empty description="No liked artworks yet." />
-                    )}
-                </div>
-            </TabPane>
-
-
+                            ))
+                        ) : (
+                            <Empty description="No liked artworks yet." />
+                        )}
+                    </div>
+                </TabPane>
             </Tabs>
         </div>
     );

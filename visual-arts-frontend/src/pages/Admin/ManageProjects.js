@@ -15,6 +15,7 @@ import {
     Tabs,
     Badge,
     Switch,
+    Table as AntTable, // Renamed to avoid conflicts
 } from "antd";
 import {
     PlusOutlined,
@@ -30,7 +31,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import AddProjectForm from "../../components/Admin/AddProjectForm";
 import API from "../../services/api";
-import Table from "../../components/Shared/Table";
 import "../../styles/custom-ant.css";
 
 const { Option } = Select;
@@ -52,6 +52,7 @@ const ManageProjects = () => {
     const [statsLoading, setStatsLoading] = useState(true);
     const [selectedTab, setSelectedTab] = useState("allProjects");
     const [viewAsMember, setViewAsMember] = useState(false); // ✅ Switch state
+    const [pageSize, setPageSize] = useState(8); // Added to manage page size
 
     useEffect(() => {
         dispatch(fetchProjects());
@@ -106,6 +107,10 @@ const ManageProjects = () => {
         setIsViewModalVisible(true);
     };
 
+    const handlePageSizeChange = (current, size) => {
+        setPageSize(size); // Update pageSize state when the user changes the page size
+    };
+
     // ✅ Filter projects based on the selected tab
     const myProjects = projects.filter((project) => project.creator === user?.pk);
     const displayedProjects = selectedTab === "allProjects" ? projects : myProjects;
@@ -137,11 +142,61 @@ const ManageProjects = () => {
         },
     ];
 
+    const columns = [
+        {
+            title: "Preview",
+            dataIndex: "image",
+            key: "image",
+            render: (image) => <Image width={50} height={50} src={image} />,
+        },
+        {
+            title: "Title",
+            dataIndex: "title",
+            key: "title",
+            sorter: (a, b) => a.title.localeCompare(b.title), // Add sorter
+        },
+        {
+            title: "Start Date",
+            dataIndex: "start_date",
+            key: "start_date",
+            sorter: (a, b) => new Date(a.start_date) - new Date(b.start_date), // Add sorter
+        },
+        {
+            title: "End Date",
+            dataIndex: "end_date",
+            key: "end_date",
+            sorter: (a, b) => new Date(a.end_date) - new Date(b.end_date), // Add sorter
+        },
+        {
+            title: "Status",
+            dataIndex: "is_completed",
+            key: "is_completed",
+            filters: [
+                { text: "Completed", value: true },
+                { text: "Ongoing", value: false },
+            ],
+            onFilter: (value, record) => record.is_completed === value,
+            render: (is_completed) => (
+                <Tag color={is_completed ? "green" : "orange"}>
+                    {is_completed ? "Completed" : "Ongoing"}
+                </Tag>
+            ),
+        },
+        {
+            title: "Actions",
+            key: "actions",
+            render: (_, record) => (
+                <Space>
+                    <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => navigate(`/projects/${record.id}`)}>View</Button>
+                    <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
+                </Space>
+            ),
+        },
+    ];
+
     return (
         <div className="p-6 space-y-8">
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Projects &gt; Review & Manage</p>
-
-            
 
             {/* ✅ Tabs & Switch */}
             <div className="flex justify-between items-center">
@@ -189,39 +244,23 @@ const ManageProjects = () => {
                     ))}
                 </div>
             ) : (
-                <Table columns={[
-                    {
-                        title: "Preview",
-                        dataIndex: "image",
-                        key: "image",
-                        render: (image) => <Image width={50} height={50} src={image} />,
-                    },
-                    {
-                        title: "Title",
-                        dataIndex: "title",
-                        key: "title",
-                    },
-                    {
-                        title: "Start Date",
-                        dataIndex: "start_date",
-                        key: "start_date",
-                    },
-                    {
-                        title: "End Date",
-                        dataIndex: "end_date",
-                        key: "end_date",
-                    },
-                    {
-                        title: "Actions",
-                        key: "actions",
-                        render: (_, record) => (
-                            <Space>
-                                <Button className="custom-view-btn" icon={<EyeOutlined />} onClick={() => navigate(`/projects/${record.id}`)}>View</Button>
-                                <Button icon={<DeleteOutlined />} danger onClick={() => deleteProject(record.id)}>Delete</Button>
-                            </Space>
-                        ),
-                    },
-                ]} dataSource={displayedProjects} pagination={{ pageSize: 8 }} loading={loading} rowKey="id" />
+                <div className="overflow-x-auto"> {/* Added wrapper for All Projects/My Projects table */}
+                    <AntTable
+                        columns={columns}
+                        dataSource={displayedProjects}
+                        pagination={{
+                            pageSize: pageSize, // Use pageSize state
+                            showSizeChanger: true, // Enable page size changer
+                            pageSizeOptions: ["8", "10", "15", "30", "50"], // Options for rows per page
+                            showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`, // Show total items
+                            onShowSizeChange: handlePageSizeChange, // Handle page size change
+                        }}
+                        loading={loading}
+                        rowKey="id"
+                        scroll={{ x: "max-content" }} // Enable horizontal scroll
+                        size="small" // Added for smaller padding
+                    />
+                </div>
             )}
 
             <Modal title="Add New Project" open={isModalVisible} onCancel={closeModal} footer={null}>
