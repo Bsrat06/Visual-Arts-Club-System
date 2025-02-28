@@ -20,6 +20,7 @@ import {
     EyeOutlined,
     ExclamationCircleOutlined,
     FilterOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
     FaImages,
@@ -237,12 +238,18 @@ const ManageArtworks = () => {
                 <div className="flex justify-between items-center pb-4">
                     <div className="flex items-center gap-4">
                         <h2>All Artworks</h2>
+                    </div>
+                        
+                    <div className="flex gap-4 justify-end">
+                        
                         <Input
                             placeholder="Search by title..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-40"
+                            prefix={<SearchOutlined />}
                         />
+
                     </div>
                 </div>
 

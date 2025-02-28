@@ -22,6 +22,7 @@ import {
     EditOutlined,
     DeleteOutlined,
     EyeOutlined,
+    SearchOutlined,
 } from "@ant-design/icons";
 import {
     FaProjectDiagram,
@@ -211,6 +212,18 @@ const ManageProjects = () => {
                     <Switch checked={viewAsMember} onChange={() => setViewAsMember(!viewAsMember)} />
                 </div>
             </div>
+
+            <div className="flex gap-4 justify-end my-4">
+                <Input
+                    placeholder="Search by title..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-40"
+                    prefix={<SearchOutlined />}
+                />
+            </div>
+
+
 
             {/* ✅ Conditionally Render View */}
             {viewAsMember ? (
