@@ -2,11 +2,11 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
-import { useNavigate } from "react-router-dom"; // ✅ Import useNavigate
+import { useNavigate } from "react-router-dom"; // ✅ Navigation Hook
 
 const Login = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // ✅ Hook for redirection
+  const navigate = useNavigate(); // ✅ Redirect Hook
 
   const {
     register,
@@ -33,42 +33,80 @@ const Login = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium">Email</label>
-          <input
-            type="email"
-            {...register("email", { required: "Email is required" })}
-            className="w-full p-2 border rounded-md"
-          />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+    <section className="bg-gray-50 min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img className="w-12 h-12" src="/logo.svg" alt="Logo" />
         </div>
 
-        {/* Password */}
-        <div>
-          <label className="block text-sm font-medium">Password</label>
-          <input
-            type="password"
-            {...register("password", { required: "Password is required" })}
-            className="w-full p-2 border rounded-md"
-          />
-          {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
-        </div>
+        {/* Heading */}
+        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+          Sign in to your account
+        </h2>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600"
-        >
-          {isSubmitting ? "Logging in..." : "Login"}
-        </button>
-      </form>
-    </div>
+        {/* Login Form */}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {/* Email Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              {...register("email", { required: "Email is required" })}
+              className="w-full p-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500"
+              placeholder="name@example.com"
+            />
+            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          </div>
+
+          {/* Password Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              {...register("password", { required: "Password is required" })}
+              className="w-full p-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500"
+              placeholder="••••••••"
+            />
+            {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+          </div>
+
+          {/* Remember Me & Forgot Password */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <input
+                id="remember"
+                type="checkbox"
+                className="w-4 h-4 text-orange-600 focus:ring-orange-500"
+              />
+              <label htmlFor="remember" className="ml-2 text-sm text-gray-600">
+                Remember me
+              </label>
+            </div>
+            <a href="#" className="text-sm text-orange-600 hover:underline">
+              Forgot password?
+            </a>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
+          >
+            {isSubmitting ? "Logging in..." : "Sign In"}
+          </button>
+        </form>
+
+        {/* Register Link */}
+        <p className="text-sm text-center text-gray-600 mt-4">
+          Don’t have an account yet?{" "}
+          <a href="#" className="text-orange-600 hover:underline">
+            Sign up
+          </a>
+        </p>
+      </div>
+    </section>
   );
 };
 

@@ -175,6 +175,9 @@ const ManageEvents = () => {
 
     return (
         <div className="p-6 space-y-8">
+            
+            <p className="text-green-500 text-sm font-[Poppins] mt-1">Event Management &gt; View & Manage</p>
+
             {/* ... (rest of your component) */}
             <div className="bg-white shadow-md rounded-2xl p-6">
                 

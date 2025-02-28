@@ -13,7 +13,7 @@ import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 
 const { Header } = Layout;
 
-const Navbar = ({ onLogout, collapsed }) => {
+const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const userRole = useSelector((state) => state.auth.role);
@@ -80,17 +80,9 @@ const Navbar = ({ onLogout, collapsed }) => {
         justifyContent: "space-between",
       }}
     >
-      {/* Left-aligned content (e.g., greeting or logo/title) */}
-      <div className="text-black font-medium" style={{ fontSize: "24px" }}>
-        {isLoggedIn && userRole !== "visitor" ? (
-          `Hello ${user?.first_name || "User"} 👋🏼`
-        ) : (
-          <Link to="/" className="flex items-center text-orange-500">
-            <span style={{ fontFamily: "'Poppins', sans-serif", fontWeight: "bold" }}>
-              Visual Arts
-            </span>
-          </Link>
-        )}
+      {/* Left-aligned Title (Replaces Greeting) */}
+      <div className="text-black font-semibold" style={{ fontSize: "22px", padding: "24px"}}>
+        {selectedMenu}
       </div>
 
       {/* Centered links */}

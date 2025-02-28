@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 const { Header, Content } = Layout;
 
 const AppLayout = ({ children }) => {
+    const [selectedMenu, setSelectedMenu] = useState("Home"); // Default to Home
     const dispatch = useDispatch();
     const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -26,8 +27,8 @@ const AppLayout = ({ children }) => {
 
     return (
         <Layout style={{ minHeight: "100vh", fontFamily: "'Poppins', sans-serif" }}>
-            {/* Show Sidebar only if user is logged in */}
-            {user && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />}
+            {/* Sidebar (only if user is logged in) */}
+            {user && <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} onMenuSelect={setSelectedMenu} />}
 
             <Layout
                 className="site-layout"
@@ -41,6 +42,7 @@ const AppLayout = ({ children }) => {
                     marginLeft: user ? (isMobile ? 70 : collapsed ? 80 : 300) : 0,
                 }}
             >
+                {/* Navbar at the top */}
                 <Header
                     style={{
                         padding: 0,
@@ -54,7 +56,7 @@ const AppLayout = ({ children }) => {
                         width: user ? (isMobile ? "100%" : `calc(100% - ${collapsed ? 80 : 300}px)`) : "100%",
                     }}
                 >
-                    <Navbar onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
+                    <Navbar selectedMenu={selectedMenu} onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
                 </Header>
 
                 <Content 

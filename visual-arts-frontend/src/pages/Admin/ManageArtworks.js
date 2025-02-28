@@ -18,6 +18,7 @@ import {
     CloseOutlined,
     EyeOutlined,
     ExclamationCircleOutlined,
+    FilterOutlined,
 } from "@ant-design/icons";
 import {
     FaImages,
@@ -109,16 +110,19 @@ const ManageArtworks = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
+            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
+            sorter: (a, b) => a.category.localeCompare(b.category),
         },
         {
             title: "Artist",
             dataIndex: "artist_name",
             key: "artist_name",
+            sorter: (a, b) => a.artist_name.localeCompare(b.artist_name),
         },
         {
             title: "Status",
@@ -140,6 +144,9 @@ const ManageArtworks = () => {
                         : "red";
                 return <Tag color={color}>{status.toUpperCase()}</Tag>;
             },
+            filterIcon: (filtered) => (
+                <FilterOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+            ),
         },
         {
             title: "Actions",
@@ -185,71 +192,45 @@ const ManageArtworks = () => {
                     )}
                     {record.approval_status === "rejected" && (
                         <Button
-                        className="custom-activate-btn"
-                        icon={<CheckOutlined />}
-                        type="primary"
-                        onClick={() => handleApproveArtwork(record.id)}
-                    >
-                        Approve
-                    </Button>
+                            className="custom-activate-btn"
+                            icon={<CheckOutlined />}
+                            type="primary"
+                            onClick={() => handleApproveArtwork(record.id)}
+                        >
+                            Approve
+                        </Button>
                     )}
                 </Space>
             ),
         },
     ];
 
+    let filteredArtworks = artworks.filter((artwork) =>
+        artwork.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    if (filterStatus) {
+        filteredArtworks = filteredArtworks.filter(
+            (artwork) => artwork.approval_status === filterStatus
+        );
+    }
+
     return (
         <div className="p-6 space-y-8">
-           <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Artworks</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Artworks &gt; Review & Manage</p>
-            <div className="bg-white rounded-2xl shadow p-8 flex items-center justify-between mb-6">
-                {statsLoading ? (
-                    <Spin size="large" />
-                ) : (
-                    [
-                        {
-                            title: "Total Artworks",
-                            value: artworkStats.total_artworks || 0,
-                            icon: <FaImages className="text-[#FFA500] text-3xl" />,
-                        },
-                        {
-                            title: "Approved Artworks",
-                            value: artworkStats.approved_artworks || 0,
-                            icon: <FaCheckCircle className="text-[#FFA500] text-3xl" />,
-                        },
-                        {
-                            title: "Pending Artworks",
-                            value: artworkStats.pending_artworks || 0,
-                            icon: <FaClock className="text-[#FFA500] text-3xl" />,
-                        },
-                        {
-                            title: "Rejected Artworks",
-                            value: artworkStats.rejected_artworks || 0,
-                            icon: <FaTimesCircle className="text-[#FFA500] text-3xl" />,
-                        },
-                    ].map((stat, index) => (
-                        <div key={index} className="flex items-start space-x-6">
-                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
-                                {stat.icon}
-                            </div>
-                            <div className="text-left">
-                                <p>{stat.title}</p>
-                                <p className="text-xl font-semibold">{stat.value}</p>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
 
             <div className="bg-white shadow-md rounded-2xl p-6">
                 <div className="flex justify-between items-center pb-4">
-                    <h2>All Artworks</h2>
-                    <div className="flex gap-4">
+                    <div className="flex items-center gap-4">
+                        <h2>All Artworks</h2>
                         <Input
-                            placeholder="Search..."
+                            placeholder="Search by title..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-40"
                         />
+                    </div>
+                    <div className="flex gap-4">
                         <Select
                             placeholder="Filter by status"
                             onChange={(value) => setFilterStatus(value)}
@@ -262,7 +243,15 @@ const ManageArtworks = () => {
                     </div>
                 </div>
 
-                <Table columns={columns} dataSource={artworks} rowKey="id" />
+                <div style={{ overflowX: "auto" }}>
+                    <Table
+                        columns={columns}
+                        dataSource={filteredArtworks}
+                        rowKey="id"
+                        scroll={{ x: "max-content" }}
+                        key={filterStatus} // Added key to force re-render
+                    />
+                </div>
             </div>
 
             <Modal

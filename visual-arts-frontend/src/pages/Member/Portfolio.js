@@ -187,7 +187,6 @@ const Portfolio = () => {
 
     return (
         <div className="p-6 space-y-8">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Portfolio</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
 
             <Tabs defaultActiveKey="myArtworks" onChange={setSelectedTab}>

@@ -71,7 +71,7 @@ const UpcomingEvents = () => {
             <Card
               key={event.id}
               hoverable
-              className="shadow-md border border-gray-200 rounded-lg overflow-hidden flex"
+              className="shadow-md border border-gray-50 rounded-lg overflow-hidden flex"
             >
               <div className="grid grid-cols-2 w-full h-full">
                 <div className="h-full">

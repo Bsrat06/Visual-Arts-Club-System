@@ -139,29 +139,9 @@ const ManageProjects = () => {
 
     return (
         <div className="p-6 space-y-8">
-            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">
-                Manage Projects
-            </h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Projects &gt; Review & Manage</p>
 
-            {/* ✅ Statistics Section */}
-            <div className="bg-white rounded-2xl shadow-md p-8 flex items-center justify-between mb-6">
-                {statsLoading ? (
-                    <Spin size="large" />
-                ) : (
-                    statistics.map((stat, index) => (
-                        <div key={index} className="flex items-start space-x-6">
-                            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[#FFA5001F]">
-                                {stat.icon}
-                            </div>
-                            <div className="text-left">
-                                <p className="text-[#ACACAC] text-[14px] font-[Poppins]">{stat.title}</p>
-                                <p className="text-[#333333] text-[34px] font-semibold font-[Poppins]">{stat.value}</p>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
+            
 
             {/* ✅ Tabs & Switch */}
             <div className="flex justify-between items-center">
