@@ -79,16 +79,27 @@ const VisitorEvents = () => {
   const applyFiltersAndSorting = (search, filter, sort) => {
     let updatedEvents = [...events];
 
+    
+  
+    // Apply search filter
     if (search) {
-      updatedEvents = updatedEvents.filter((event) => event.title.toLowerCase().includes(search));
+      updatedEvents = updatedEvents.filter(event => 
+        event.title.toLowerCase().includes(search)
+      );
     }
-
+  
+    // Apply event status filter (Upcoming, Passed, or All)
     if (filter === "upcoming") {
-      updatedEvents = updatedEvents.filter((event) => dayjs(event.date).isAfter(dayjs()));
+      updatedEvents = updatedEvents.filter(event => 
+        dayjs(event.date).isAfter(dayjs(), 'day')
+      );
     } else if (filter === "passed") {
-      updatedEvents = updatedEvents.filter((event) => dayjs(event.date).isBefore(dayjs()));
+      updatedEvents = updatedEvents.filter(event => 
+        dayjs(event.date).isBefore(dayjs(), 'day')
+      );
     }
-
+  
+    // Apply sorting logic
     if (sort === "newest") {
       updatedEvents.sort((a, b) => dayjs(b.date).diff(dayjs(a.date)));
     } else if (sort === "oldest") {
@@ -98,9 +109,11 @@ const VisitorEvents = () => {
     } else if (sort === "za") {
       updatedEvents.sort((a, b) => b.title.localeCompare(a.title));
     }
-
+  
+    // Update filtered events state
     setFilteredEvents(updatedEvents);
   };
+  
 
   const handleEventClick = (event) => {
     setSelectedEvent(event);
@@ -149,57 +162,51 @@ const VisitorEvents = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredEvents.length > 0 ? (
-            filteredEvents.map((event) => (
-              <Badge.Ribbon key={event.id} text={dayjs(event.date).isAfter(dayjs()) ? "Upcoming" : "Passed"} color={dayjs(event.date).isAfter(dayjs()) ? "green" : "red"}>
+    {filteredEvents.length > 0 ? (
+        filteredEvents.map((event) => (
+            <Badge.Ribbon key={event.id} text={dayjs(event.date).isAfter(dayjs()) ? "Upcoming" : "Passed"} color={dayjs(event.date).isAfter(dayjs()) ? "green" : "red"}>
                 <Card
-                  key={event.id}
-                  hoverable
-                  className="shadow-md border border-gray-200 rounded-lg overflow-hidden flex"
-                  onClick={() => handleEventClick(event)}
+                    key={event.id}
+                    hoverable
+                    className="shadow-md border border-gray-200 rounded-lg overflow-hidden flex"
+                    onClick={() => handleEventClick(event)}
                 >
-                  <div className="grid grid-cols-2 w-full h-full">
-                    <div className="h-full">
-                      <img
-                        alt={event.title}
-                        src={event.event_cover || "/images/default-event.jpg"}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="p-4 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
-                        <div className="mt-2 flex flex-col text-gray-700 space-y-1 text-sm">
-                          <span>
-                            <CalendarOutlined className="mr-2" />
-                            {dayjs(event.date).format("MMMM D, YYYY")}
-                          </span>
-                          <span>
-                            <EnvironmentOutlined className="mr-2" />
-                            {event.location}
-                          </span>
+                    <div className="grid grid-cols-2 w-full h-full">
+                        <div className="h-full">
+                            <img
+                                alt={event.title}
+                                src={event.event_cover || "/images/default-event.jpg"}
+                                className="h-full w-full object-cover"
+                            />
                         </div>
-                        {timers[event.id] && (
-                          <div className="mt-3 text-center text-gray-700 text-sm">
-                            <ClockCircleOutlined className="mr-2 text-orange-600" />
-                            <span className="font-semibold">
-                              {timers[event.id].days}d {timers[event.id].hours}h {timers[event.id].minutes}m {timers[event.id].seconds}s
-                            </span>
-                            <span className="text-gray-500"> until event starts</span>
-                          </div>
-                        )}
-                      </div>
+                        <div className="p-4 flex flex-col justify-between">
+                            <div>
+                                <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
+                                <div className="mt-2 flex flex-col text-gray-700 space-y-1 text-sm">
+                                    <span><CalendarOutlined className="mr-2" /> {dayjs(event.date).format("MMMM D, YYYY")}</span>
+                                    <span><EnvironmentOutlined className="mr-2" /> {event.location}</span>
+                                </div>
+                                {timers[event.id] && (
+                                    <div className="mt-3 text-center text-gray-700 text-sm">
+                                        <ClockCircleOutlined className="mr-2 text-orange-600" />
+                                        <span className="font-semibold">
+                                            {timers[event.id].days}d {timers[event.id].hours}h {timers[event.id].minutes}m {timers[event.id].seconds}s
+                                        </span>
+                                        <span className="text-gray-500"> until event starts</span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </Card>
-              </Badge.Ribbon>
-            ))
-          ) : (
-            <div className="flex justify-center w-full col-span-full">
-              <Empty description="No events found" />
-            </div>
-          )}
+            </Badge.Ribbon>
+        ))
+    ) : (
+        <div className="flex justify-center w-full col-span-full">
+            <Empty description="No events found" />
         </div>
+    )}
+</div>
       </div>
 
       {selectedEvent && (

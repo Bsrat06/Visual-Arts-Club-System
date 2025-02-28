@@ -55,7 +55,13 @@ export const deleteArtwork = (id) => API.delete(`artwork/${id}/`);
 // CRUD for Events
 export const getEvents = () => API.get("events/");
 export const createEvent = (data) => API.post("events/", data);
-export const updateEvent = (id, data) => API.put(`events/${id}/`, data);
+export const updateEvent = async (id, data) => {
+  return await API.put(`events/${id}/`, data, {
+      headers: {
+          "Content-Type": "multipart/form-data",
+      },
+  });
+};
 export const deleteEvent = (id) => API.delete(`events/${id}/`);
 
 // CRUD for Projects

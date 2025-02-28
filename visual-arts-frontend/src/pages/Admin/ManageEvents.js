@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllEvents, removeEvent } from "../../redux/slices/eventsSlice";
 import {
@@ -20,6 +20,7 @@ import {
 } from "@ant-design/icons";
 import { FaCalendarAlt, FaCheckCircle, FaClock } from "react-icons/fa";
 import AddEventForm from "../../components/Admin/AddEventForm";
+import EditEventForm from "../../components/Admin/EditEventForm"; // Import the EditEventForm
 import Table from "../../components/Shared/Table";
 import API from "../../services/api";
 import "../../styles/custom-ant.css";
@@ -32,7 +33,8 @@ const ManageEvents = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [editingEvent, setEditingEvent] = useState(null);
+    const [isEditModalVisible, setIsEditModalVisible] = useState(false); // State for edit modal
+    const [editingEvent, setEditingEvent] = useState(null); // State to hold the event being edited
     const [eventStats, setEventStats] = useState({});
     const [statsLoading, setStatsLoading] = useState(true);
 
@@ -58,6 +60,16 @@ const ManageEvents = () => {
         setEditingEvent(null);
     };
 
+    const showEditModal = (event) => {
+        setEditingEvent(event); // Set the event to be edited
+        setIsEditModalVisible(true); // Open the edit modal
+    };
+
+    const closeEditModal = () => {
+        setIsEditModalVisible(false);
+        setEditingEvent(null);
+    };
+
     const deleteEvent = (id) => {
         Modal.confirm({
             title: "Are you sure you want to delete this event?",
@@ -77,7 +89,7 @@ const ManageEvents = () => {
 
     const editEvent = (event) => {
         setEditingEvent(event);
-        showModal();
+        showEditModal(event); // Open the edit modal
     };
 
     const statistics = [
@@ -175,13 +187,31 @@ const ManageEvents = () => {
 
     return (
         <div className="p-6 space-y-8">
-            
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Event Management &gt; View & Manage</p>
+
+            {/* Add Event Modal */}
+            <Modal
+                title="Add New Event"
+                visible={isModalVisible}
+                onCancel={closeModal}
+                footer={null}
+            >
+                <AddEventForm onClose={closeModal} />
+            </Modal>
+
+            {/* Edit Event Modal */}
+            <Modal
+                title="Edit Event"
+                visible={isEditModalVisible}
+                onCancel={closeEditModal}
+                footer={null}
+            >
+                {editingEvent && <EditEventForm event={editingEvent} onClose={closeEditModal} />}
+            </Modal>
 
             {/* ... (rest of your component) */}
             <div className="bg-white shadow-md rounded-2xl p-6">
-                
-            <div className="flex justify-between items-center pb-4">
+                <div className="flex justify-between items-center pb-4">
                     <div className="flex items-center gap-4">
                         <h2>All Events</h2>
                         <Input
@@ -219,7 +249,6 @@ const ManageEvents = () => {
                     <p>No events found.</p>
                 )}
             </div>
-            {/* ... (rest of your component) */}
         </div>
     );
 };
