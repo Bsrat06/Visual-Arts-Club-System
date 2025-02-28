@@ -24,7 +24,7 @@ import {
     Empty,
     Table as AntTable, // Renamed to avoid conflicts
 } from "antd";
-import { UploadOutlined, HeartFilled, DownloadOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { UploadOutlined, HeartFilled, DownloadOutlined, EditOutlined, DeleteOutlined,SearchOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
 import AddArtworkForm from "../../components/Admin/AddArtworkForm"; // Import the AddArtworkForm
 import EditArtworkForm from "../../components/Admin/EditArtworkForm"; // Import the EditArtworkForm
@@ -219,12 +219,25 @@ const Portfolio = () => {
             <Tabs defaultActiveKey="myArtworks" onChange={setSelectedTab}>
                 {/* My Artworks Tab */}
                 <TabPane tab="My Artworks" key="myArtworks">
-                    <div className="flex justify-between items-center mb-4">
-                        <Input placeholder="Search artworks..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-60" />
-                        <Button className="add-artwork-btn" type="primary" icon={<FaPlusCircle />} onClick={() => setIsAddModalVisible(true)}>
-                            Add New Artwork
-                        </Button>
-                    </div>
+                <div className="flex justify-end gap-4 mb-4">
+                    <Input
+                        placeholder="Search artworks by name..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-60"
+                        prefix={<SearchOutlined />}
+                    />
+                    <Button
+                        className="add-artwork-btn"
+                        type="primary"
+                        icon={<FaPlusCircle />}
+                        onClick={() => setIsAddModalVisible(true)}
+                    >
+                        Add New Artwork
+                    </Button>
+                </div>
+
+
                     {loading ? (
                         <Spin size="large" />
                     ) : (
