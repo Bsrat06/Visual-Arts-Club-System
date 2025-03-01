@@ -29,29 +29,29 @@ const FeaturedArtworks = () => {
         <div className="p-6 max-w-screen-xl mx-auto relative">
             {/* Title */}
             <h2 className="mb-4 text-4xl tracking-tight font-extrabold text-gray-900">
-            Featured Artworks
-          </h2>
+                Featured Artworks
+            </h2>
             {featuredArtworks.length > 0 ? (
                 <div className="relative flex items-center justify-center">
                     {/* Arrows (Positioned Relative to the Artworks) */}
                     <button className="custom-prev">
                         <LeftOutlined />
                     </button>
-                    
+
                     {/* Artwork Swiper Container */}
-                    <div className="relative mx-auto max-w-4xl">
+                    <div className="relative mx-auto max-w-4xl w-full">
                         <Swiper
                             modules={[EffectCoverflow, Navigation, Pagination]}
                             effect="coverflow"
                             grabCursor={true}
-                            centeredSlides={true}
-                            slidesPerView={3}
-                            initialSlide={5}
-                            spaceBetween={5}
+                            centeredSlides={true} // Ensure slides are centered
+                            slidesPerView={3} // Show 3 slides (1 center + 2 partial sides)
+                            initialSlide={1}
+                            spaceBetween={10}
                             coverflowEffect={{
                                 rotate: 0,
-                                stretch: 5,
-                                depth: 200,
+                                stretch: 0,
+                                depth: 100,
                                 modifier: 2.5,
                                 slideShadows: false,
                             }}
@@ -59,11 +59,25 @@ const FeaturedArtworks = () => {
                                 prevEl: ".custom-prev",
                                 nextEl: ".custom-next",
                             }}
-                            pagination={{ clickable: true }}
+                            pagination={{ 
+                                clickable: true,
+                                el: ".swiper-pagination", // Use a custom class for pagination
+                                dynamicBullets: true, // Enable dynamic bullets for better visibility
+                            }}
                             breakpoints={{
-                                320: { slidesPerView: 1, spaceBetween: 5 },
-                                768: { slidesPerView: 2, spaceBetween: 10 },
-                                1024: { slidesPerView: 3, spaceBetween: 10 },
+                                320: { 
+                                    slidesPerView: 3, // Show 3 slides on small screens
+                                    spaceBetween: 10, // Adjust spacing for small screens
+                                    coverflowEffect: {
+                                        rotate: 0,
+                                        stretch: 0,
+                                        depth: 100,
+                                        modifier: 2.5,
+                                        slideShadows: false,
+                                    },
+                                },
+                                640: { slidesPerView: 3, spaceBetween: 20 },
+                                1024: { slidesPerView: 3, spaceBetween: 30 },
                             }}
                         >
                             {featuredArtworks.map((art) => (
@@ -87,6 +101,9 @@ const FeaturedArtworks = () => {
                                 </SwiperSlide>
                             ))}
                         </Swiper>
+
+                        {/* Custom Pagination Container */}
+                        <div className="swiper-pagination"></div>
                     </div>
 
                     {/* Right Arrow */}

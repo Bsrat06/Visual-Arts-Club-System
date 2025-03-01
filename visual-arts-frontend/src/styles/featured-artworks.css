@@ -8,7 +8,7 @@
 /* Ensure active slide is larger */
 .swiper-slide-active {
     filter: brightness(1);
-    transform: scale(1.2);
+    transform: scale(1.1);
 }
 
 /* Adjust spacing for even gaps */
@@ -20,36 +20,55 @@
 .custom-prev, .custom-next {
     width: 50px;
     height: 50px;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.5); /* More translucent */
     border-radius: 50%;
     color: white;
     cursor: pointer;
     font-size: 22px;
     transition: background 0.3s ease, transform 0.2s ease;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
 }
 
 /* Hover effect */
 .custom-prev:hover, .custom-next:hover {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.7); /* Slightly less translucent on hover */
     color: black;
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.1);
 }
 
 /* Move arrows to the leftmost and rightmost positions */
 .custom-prev {
-    left: -110px;
+    left: 10px;
 }
 
 .custom-next {
-    right: -110px;
+    right: 10px;
 }
 
-/* Move pagination dots further down */
+/* Custom Pagination Styling */
 .swiper-pagination {
-    bottom: -10px !important;
+    position: relative; /* Ensure pagination is positioned relative to the Swiper container */
+    bottom: -40px; /* Move pagination further down */
+    margin-top: 20px; /* Add margin to prevent overlap with slides */
+    text-align: center; /* Center the pagination bullets */
 }
 
+/* Pagination Bullets */
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+    margin: 0 5px !important;
+}
 
+/* Active Pagination Bullet */
+.swiper-pagination-bullet-active {
+    background: #000;
+}
 
 /* Reduce scaling on small screens */
 @media (max-width: 768px) {
@@ -57,28 +76,30 @@
         transform: scale(0.9);
     }
     .swiper-slide-active {
-        transform: scale(1.1);
+        transform: scale(1);
     }
-}
 
-/* Adjust navigation arrows for mobile */
-@media (max-width: 768px) {
+    /* Adjust navigation arrows for mobile */
     .custom-prev, .custom-next {
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        background: rgba(0, 0, 0, 0.4); /* More translucent on mobile */
     }
     .custom-prev {
-        left: 10px;
+        left: 5px;
     }
     .custom-next {
-        right: 10px;
+        right: 5px;
     }
-}
 
-/* Reduce image height for mobile */
-@media (max-width: 768px) {
+    /* Reduce image height for mobile */
     .swiper-slide img {
         height: 250px !important;
+    }
+
+    /* Adjust pagination for mobile */
+    .swiper-pagination {
+        bottom: -30px; /* Move pagination further down on mobile */
     }
 }
