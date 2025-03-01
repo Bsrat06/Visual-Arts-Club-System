@@ -55,7 +55,7 @@ const HeroSection = () => {
             </svg>
           </a>
           <a
-            href="/join"
+            href="/login"
             className="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-gray-900 rounded-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-600 focus:ring-4 focus:ring-gray-100 transition-colors duration-200"
           >
             Join the Community

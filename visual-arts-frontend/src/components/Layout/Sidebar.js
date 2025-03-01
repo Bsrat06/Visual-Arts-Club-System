@@ -14,7 +14,6 @@ import {
   MenuUnfoldOutlined,
   HomeOutlined,
   PictureOutlined,
-  NotificationOutlined,
 } from "@ant-design/icons";
 
 const { Sider } = Layout;
@@ -40,7 +39,6 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
     { key: "4", path: "/admin/manage-events", label: "Manage Events", icon: <CalendarOutlined /> },
     { key: "5", path: "/admin/project-management", label: "Manage Projects", icon: <ProjectOutlined /> },
     { key: "6", path: "/member/portfolio", label: "Portfolio", icon: <AppstoreOutlined /> },
-    // { key: "7", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
   const memberMenu = [
@@ -48,20 +46,16 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
     { key: "2", path: "/member/portfolio", label: "Portfolio", icon: <AppstoreOutlined /> },
     { key: "3", path: "/visitor/events", label: "Events", icon: <CalendarOutlined /> },
     { key: "4", path: "/visitor/projects", label: "Projects", icon: <ProjectOutlined /> },
-    // { key: "5", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
   const commonMenu = [
     { key: "8", path: "/", label: "Home", icon: <HomeOutlined /> },
     { key: "9", path: "/visitor/gallery", label: "Gallery", icon: <PictureOutlined /> },
-    // { key: "10", path: "/notifications", label: "Notifications", icon: <NotificationOutlined /> },
     { key: "11", path: "/settings", label: "Settings", icon: <SettingOutlined /> },
   ];
 
-  const menuItems = userRole === "admin" ? [...adminMenu, ...commonMenu] : [...memberMenu, ...commonMenu];
-
   const handleMenuSelect = (key) => {
-    const selectedItem = menuItems.find((item) => item.key === key);
+    const selectedItem = [...commonMenu, ...adminMenu, ...memberMenu].find((item) => item.key === key);
     if (selectedItem && onMenuSelect) {
       onMenuSelect(selectedItem.label);
     }
@@ -87,11 +81,11 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
       )}
 
       <Sider
-        width={300} // Full width when expanded
-        collapsedWidth={80} // Ensure collapsed state is visible
+        width={300}
+        collapsedWidth={80}
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        breakpoint="md" // Collapse automatically on small screens
+        breakpoint="md"
         style={{
           position: "fixed",
           height: "100vh",
@@ -99,11 +93,31 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
           boxShadow: "0px 10px 60px rgba(226, 236, 249, 0.5)",
           transition: "width 0.3s ease, left 0.3s ease",
           zIndex: 100,
-          left: collapsed ? 0 : "0px", // Keep the sidebar visible in collapsed state
+          left: collapsed ? 0 : "0px",
         }}
       >
-        {/* Collapse Button */}
-        <div style={{ padding: "16px", display: "flex", justifyContent: "flex-start" }}>
+        {/* Logo and Collapse Button */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: collapsed ? "center" : "space-between",
+            padding: "16px",
+            borderBottom: "1px solid #f0f0f0",
+          }}
+        >
+          {/* Logo */}
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="/images/your-logo.png"
+              style={{ height: "32px", marginRight: collapsed ? 0 : "10px" }}
+            />
+            {!collapsed && (
+              <span style={{ fontSize: "18px", fontWeight: "bold", color: "#333" }}>Visual Arts</span>
+            )}
+          </div>
+
+          {/* Collapse Button */}
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -126,7 +140,13 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
             letterSpacing: "-1%",
           }}
         >
-          {menuItems.map((item) => (
+          {/* General Section */}
+          {!collapsed && (
+            <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
+              General
+            </div>
+          )}
+          {commonMenu.map((item) => (
             <Menu.Item
               key={item.key}
               icon={item.icon}
@@ -140,10 +160,7 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                 justifyContent: "space-between",
               }}
             >
-              <Link
-                to={item.path}
-                style={{ color: "inherit", display: "flex", alignItems: "center", width: "100%" }}
-              >
+              <Link to={item.path} style={{ color: "inherit", display: "flex", alignItems: "center", width: "100%" }}>
                 <span>{item.label}</span>
                 <RightOutlined
                   style={{
@@ -154,6 +171,72 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
               </Link>
             </Menu.Item>
           ))}
+
+          {/* Admin Section */}
+          {userRole === "admin" && !collapsed && (
+            <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
+              Admin
+            </div>
+          )}
+          {userRole === "admin" &&
+            adminMenu.map((item) => (
+              <Menu.Item
+                key={item.key}
+                icon={item.icon}
+                style={{
+                  marginBottom: "15px",
+                  color: location.pathname === item.path ? "#FFFFFF" : "#9197B3",
+                  backgroundColor: location.pathname === item.path ? "#FFA500" : "transparent",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Link to={item.path} style={{ color: "inherit", display: "flex", alignItems: "center", width: "100%" }}>
+                  <span>{item.label}</span>
+                  <RightOutlined
+                    style={{
+                      marginLeft: "auto",
+                      color: location.pathname === item.path ? "#FFFFFF" : "#9197B3",
+                    }}
+                  />
+                </Link>
+              </Menu.Item>
+            ))}
+
+          {/* Member Section */}
+          {userRole !== "admin" && !collapsed && (
+            <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
+              Member
+            </div>
+          )}
+          {userRole !== "admin" &&
+            memberMenu.map((item) => (
+              <Menu.Item
+                key={item.key}
+                icon={item.icon}
+                style={{
+                  marginBottom: "15px",
+                  color: location.pathname === item.path ? "#FFFFFF" : "#9197B3",
+                  backgroundColor: location.pathname === item.path ? "#FFA500" : "transparent",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Link to={item.path} style={{ color: "inherit", display: "flex", alignItems: "center", width: "100%" }}>
+                  <span>{item.label}</span>
+                  <RightOutlined
+                    style={{
+                      marginLeft: "auto",
+                      color: location.pathname === item.path ? "#FFFFFF" : "#9197B3",
+                    }}
+                  />
+                </Link>
+              </Menu.Item>
+            ))}
         </Menu>
       </Sider>
     </>
