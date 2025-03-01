@@ -39,7 +39,7 @@ const FeaturedArtworks = () => {
                     </button>
 
                     {/* Artwork Swiper Container */}
-                    <div className="relative mx-auto max-w-4xl w-full">
+                    <div className="relative mx-auto max-w-4xl w-full" style={{ height: "350px" }}> {/* Increased height */}
                         <Swiper
                             modules={[EffectCoverflow, Navigation, Pagination]}
                             effect="coverflow"

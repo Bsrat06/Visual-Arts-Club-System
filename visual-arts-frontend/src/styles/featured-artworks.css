@@ -51,8 +51,8 @@
 /* Custom Pagination Styling */
 .swiper-pagination {
     position: relative; /* Ensure pagination is positioned relative to the Swiper container */
-    bottom: -40px; /* Move pagination further down */
-    margin-top: 20px; /* Add margin to prevent overlap with slides */
+    bottom: -60px; /* Move pagination further down */
+    margin-top: 40px; /* Add more margin to increase the gap */
     text-align: center; /* Center the pagination bullets */
 }
 
@@ -99,7 +99,7 @@
     }
 
     /* Adjust pagination for mobile */
-    .swiper-pagination {
-        bottom: -30px; /* Move pagination further down on mobile */
+    .swiper-pagination { /* Move pagination further down on mobile */
+        margin-top: 50px; /* Add more margin to increase the gap on mobile */
     }
 }
