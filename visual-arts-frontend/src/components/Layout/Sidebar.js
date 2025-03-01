@@ -55,7 +55,7 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
   ];
 
   const handleMenuSelect = (key) => {
-    const selectedItem = [...commonMenu, ...adminMenu, ...memberMenu].find((item) => item.key === key);
+    const selectedItem = [...adminMenu, ...memberMenu, ...commonMenu].find((item) => item.key === key);
     if (selectedItem && onMenuSelect) {
       onMenuSelect(selectedItem.label);
     }
@@ -139,7 +139,8 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
           }}
         >
           {/* General Section */}
-          {!collapsed && (
+                
+          {userRole == "admin" && !collapsed && (
             <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
               General
             </div>
@@ -204,11 +205,11 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
             ))}
 
           {/* Member Section */}
-          {userRole !== "admin" && !collapsed && (
+          {/* {userRole !== "admin" && !collapsed && (
             <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
               Member
             </div>
-          )}
+          )} */}
           {userRole !== "admin" &&
             memberMenu.map((item) => (
               <Menu.Item

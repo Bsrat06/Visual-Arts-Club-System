@@ -4,9 +4,6 @@
     left: 10px;
     display: flex;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.5);
-    padding: 5px;
-    border-radius: 5px;
 }
 
 .artwork-actions .icon-button {
