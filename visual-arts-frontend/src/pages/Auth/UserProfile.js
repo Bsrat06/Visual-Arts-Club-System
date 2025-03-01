@@ -1,94 +1,92 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, updateProfile } from "../../redux/slices/profileSlice";
-import { Form, Input, Button, Avatar, Upload, Card, Row, Col, Switch } from "antd";
+import { Form, Input, Button, Avatar, Upload, Card, Row, Col, Switch, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import "../../styles/userprofile.css";
+import API from "../../services/api";
 
 const UserProfile = () => {
-  const dispatch = useDispatch();
-  const { user, loading } = useSelector((state) => state.profile) || {};
-  const [form] = Form.useForm();
-  const [isEditing, setIsEditing] = useState(false);
-  const [profilePicPreview, setProfilePicPreview] = useState(user?.profile_picture || "/default-avatar.png");
+    const dispatch = useDispatch();
+    const { user, loading } = useSelector((state) => state.profile) || {};
+    const [form] = Form.useForm();
+    const [isEditing, setIsEditing] = useState(false);
+    const [profilePicPreview, setProfilePicPreview] = useState(null);
+    const [profilePicFile, setProfilePicFile] = useState(null);
 
-  // ✅ Fetch user data when component loads
-  useEffect(() => {
-    dispatch(fetchUserProfile());
-  }, [dispatch]);
+    // ✅ Fetch user data when component loads
+    useEffect(() => {
+        dispatch(fetchUserProfile());
+    }, [dispatch]);
 
-  // ✅ Pre-fill form when user data is available
-  useEffect(() => {
-    if (user) {
-      form.setFieldsValue({
-        username: user.username,
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name,
-      });
-      setProfilePicPreview(user.profile_picture || "/default-avatar.png");
-    }
-  }, [user, form]);
+    // ✅ Pre-fill form when user data is available
+    useEffect(() => {
+        if (user) {
+            form.setFieldsValue({
+                username: user.username,
+                email: user.email,
+                first_name: user.first_name,
+                last_name: user.last_name,
+            });
+            setProfilePicPreview(user.profile_picture ? `${API.defaults.baseURL}${user.profile_picture}` : "/default-avatar.png");
+        }
+    }, [user, form]);
 
-  // ✅ Handle Profile Update
-  const handleUpdateProfile = async (values) => {
-    try {
-      const formData = new FormData();
-      Object.entries(values).forEach(([key, value]) => {
-        if (value) formData.append(key, value);
-      });
+    // ✅ Handle Profile Update
+    const handleUpdateProfile = async (values) => {
+        try {
+            const formData = new FormData();
+            Object.entries(values).forEach(([key, value]) => {
+                if (value) formData.append(key, value);
+            });
 
-      await dispatch(updateProfile(formData)).unwrap();
-      alert("Profile updated successfully!");
-      setIsEditing(false); // Disable editing after successful update
-    } catch (error) {
-      alert("Profile update failed.");
-    }
-  };
+            if (profilePicFile) {
+                formData.append("profile_picture", profilePicFile);
+            }
 
-  // ✅ Handle Profile Picture Change
-  const handleFileChange = ({ file }) => {
-    if (file) {
-      setProfilePicPreview(URL.createObjectURL(file)); // Preview selected image
-    }
-  };
+            await dispatch(updateProfile(formData)).unwrap();
+            message.success("Profile updated successfully!");
+            setIsEditing(false); // Disable editing after successful update
+            dispatch(fetchUserProfile()); // Refresh profile data
+        } catch (error) {
+            message.error("Profile update failed.");
+        }
+    };
 
-  return (
-    <Card className="user-profile-card max-w-lg mx-auto mt-6 shadow-md">
-      <h2 className="text-2xl font-bold text-center mb-4">My Profile</h2>
+    // ✅ Handle Profile Picture Change
+    const handleFileChange = ({ file }) => {
+        if (file) {
+            setProfilePicPreview(URL.createObjectURL(file)); // Preview selected image
+            setProfilePicFile(file); // Store the file
+        }
+    };
 
-      {loading ? (
-        <p>Loading profile...</p>
-      ) : (
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleUpdateProfile}
-        >
-          {/* Profile Picture & Edit Toggle */}
-          <Row align="middle" justify="center" className="mb-4">
-            <Avatar size={80} src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "/default-avatar.png"} />
-          </Row>
+    return (
+        <Card className="user-profile-card max-w-lg mx-auto mt-6 shadow-md">
+            <h2 className="text-2xl font-bold text-center mb-4">My Profile</h2>
 
-          <Row justify="center">
-            <Switch
-              checked={isEditing}
-              onChange={(checked) => setIsEditing(checked)}
-              className="mb-4"
-            />
-            <span className="ml-2 text-gray-600">
-              {isEditing ? "Editing Enabled" : "Editing Disabled"}
-            </span>
-          </Row>
+            {loading ? (
+                <p>Loading profile...</p>
+            ) : (
+                <Form form={form} layout="vertical" onFinish={handleUpdateProfile}>
+                    {/* Profile Picture & Edit Toggle */}
+                    <Row align="middle" justify="center" className="mb-4">
+                        <Avatar size={80} src={user?.profile_picture ? `http://127.0.0.1:8000/${user.profile_picture}` : "/default-avatar.png"} />
+                    </Row>
 
-          {/* Profile Picture Upload */}
-          <Form.Item label="Profile Picture" name="profile_picture">
-            <Upload beforeUpload={() => false} onChange={handleFileChange}>
-              <Button icon={<UploadOutlined />} disabled={!isEditing}>
-                Upload New Picture
-              </Button>
-            </Upload>
-          </Form.Item>
+                    <Row justify="center">
+                        <Switch checked={isEditing} onChange={(checked) => setIsEditing(checked)} className="mb-4" />
+                        <span className="ml-2 text-gray-600">{isEditing ? "Editing Enabled" : "Editing Disabled"}</span>
+                    </Row>
+
+                    {/* Profile Picture Upload */}
+                    <Form.Item label="Profile Picture" name="profile_picture">
+                        <Upload beforeUpload={() => false} onChange={handleFileChange}>
+                            <Button icon={<UploadOutlined />} disabled={!isEditing}>
+                                Upload New Picture
+                            </Button>
+                        </Upload>
+                    </Form.Item>
 
           <Row gutter={16}>
             {/* Username */}
@@ -137,14 +135,14 @@ const UserProfile = () => {
 
           {/* Submit Button */}
           <Form.Item>
-            <Button className="add-artwork-btn" type="primary" htmlType="submit" block disabled={!isEditing}>
-              Update Profile
-            </Button>
-          </Form.Item>
-        </Form>
-      )}
-    </Card>
-  );
+                        <Button className="add-artwork-btn" type="primary" htmlType="submit" block disabled={!isEditing}>
+                            Update Profile
+                        </Button>
+                    </Form.Item>
+                </Form>
+            )}
+        </Card>
+    );
 };
 
 export default UserProfile;
