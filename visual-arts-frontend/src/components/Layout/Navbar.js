@@ -12,14 +12,16 @@ import {
     InfoCircleOutlined,
     PictureOutlined,
     CalendarOutlined,
-    ProjectOutlined
+    ProjectOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
 } from "@ant-design/icons";
 import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 import API from "../../services/api";
 
 const { Header } = Layout;
 
-const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
+const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user);
     const userRole = useSelector((state) => state.auth.role);
@@ -28,6 +30,7 @@ const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
     const [unreadCount, setUnreadCount] = useState(0);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const location = useLocation();
+    const [menuVisible, setMenuVisible] = useState(false);
 
     useEffect(() => {
         setIsLoggedIn(!!user);
@@ -81,30 +84,40 @@ const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
         </Menu>
     );
 
-    // Conditionally render the logo based on the user's login status and current page
     const showLogo = !isLoggedIn || location.pathname === "/home";
 
     return (
         <Header
             className="flex justify-between items-center bg-white px-6 fixed top-0"
             style={{
-                left: isLoggedIn ? `${collapsed ? "80px" : "300px"}` : "0",
-                width: isLoggedIn ? `calc(100% - ${collapsed ? "80px" : "300px"})` : "100%",
+                left: isLoggedIn ? (isMobile && collapsed ? 0 : collapsed ? 80 : 300) : 0,
+                width: isLoggedIn ? (isMobile && collapsed ? "100%" : `calc(100% - ${collapsed ? 80 : 300}px)`) : "100%",
                 height: "80px",
                 transition: "all 0.3s ease",
-                zIndex: 1,
+                zIndex: 98, // Ensure navbar is below the sidebar overlay
                 fontFamily: "'Poppins', sans-serif",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
             }}
         >
-            {/* Left-aligned Logo */}
-            {showLogo && (
-                <div className="text-black font-semibold" style={{ fontSize: "22px", padding: "24px" }}>
-                    <img src="/images/your-logo.png" alt="Logo" style={{ height: "40px" }} />
-                </div>
-            )}
+            {/* Left-aligned Logo and Collapser */}
+            <div className="flex items-center">
+                {/* Show collapse button only when sidebar is collapsed on small screens */}
+                {isLoggedIn && isMobile && collapsed && (
+                    <Button
+                        type="text"
+                        icon={<MenuUnfoldOutlined />}
+                        onClick={() => setCollapsed(!collapsed)}
+                        style={{ fontSize: "16px", color: "#333", padding: 0, marginRight: "10px" }}
+                    />
+                )}
+                {showLogo && (
+                    <div className="text-black font-semibold" style={{ fontSize: "22px", padding: "24px" }}>
+                        <img src="/images/your-logo.png" alt="Logo" style={{ height: "40px" }} />
+                    </div>
+                )}
+            </div>
 
             {/* Centered links */}
             <div className="flex items-center justify-center flex-grow">
@@ -149,7 +162,7 @@ const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
                             />
                             {!isMobile && (
                                 <div className="flex flex-col justify-center text-left">
-                                    <span className="text-black text-[14px] font-medium leading-none">
+                                    <span className="text-black text-[14px]font-medium leading-none">
                                         {user?.first_name} {user?.last_name}
                                     </span>
                                     <span className="text-[#757575] text-[12px] leading-none">
@@ -157,7 +170,6 @@ const Navbar = ({ onLogout, collapsed, selectedMenu }) => {
                                     </span>
                                 </div>
                             )}
-                            {/* Hide the arrow on small screens */}
                             {!isMobile && (
                                 <DownOutlined style={{ marginLeft: "32px", fontSize: "14px", color: "#757575" }} />
                             )}

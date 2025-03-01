@@ -8,13 +8,12 @@ import Navbar from "./Navbar";
 const { Header, Content } = Layout;
 
 const AppLayout = ({ children }) => {
-    const [selectedMenu, setSelectedMenu] = useState("Home"); // Default to Home
+    const [selectedMenu, setSelectedMenu] = useState("Home");
     const dispatch = useDispatch();
-    const [collapsed, setCollapsed] = useState(false);
+    const [collapsed, setCollapsed] = useState(true); // default to true
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
-    // Check if user is logged in
-    const user = useSelector((state) => state.auth?.user); 
+    const user = useSelector((state) => state.auth?.user);
 
     useEffect(() => {
         const handleResize = () => {
@@ -39,7 +38,7 @@ const AppLayout = ({ children }) => {
                     display: "flex",
                     flexDirection: "column",
                     overflowY: "auto",
-                    marginLeft: user ? (isMobile ? 70 : collapsed ? 80 : 300) : 0,
+                    marginLeft: user && !isMobile ? (collapsed ? 80 : 300) : 0, // Adjust margin for non-mobile screens
                 }}
             >
                 {/* Navbar at the top */}
@@ -52,21 +51,22 @@ const AppLayout = ({ children }) => {
                         alignItems: "center",
                         boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)",
                         transition: "left 0.3s ease",
-                        left: user ? (isMobile ? 0 : collapsed ? 80 : 300) : 0,
-                        width: user ? (isMobile ? "100%" : `calc(100% - ${collapsed ? 80 : 300}px)`) : "100%",
+                        left: 0,
+                        width: "100%", // Ensure 100% width on mobile
+                        zIndex: 98, // Ensure navbar is below the sidebar overlay
                     }}
                 >
                     <Navbar selectedMenu={selectedMenu} onLogout={() => dispatch(logout())} collapsed={collapsed} setCollapsed={setCollapsed} />
                 </Header>
 
-                <Content 
-                    style={{ 
-                        margin: "0px", 
-                        padding: 24, 
-                        background: "#fff", 
-                        borderRadius: "10px", 
-                        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)", 
-                        flex: 1 
+                <Content
+                    style={{
+                        margin: "0px",
+                        padding: 24,
+                        background: "#fff",
+                        borderRadius: "10px",
+                        boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.05)",
+                        flex: 1,
                     }}
                 >
                     {children}
