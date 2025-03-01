@@ -19,13 +19,20 @@ const VisitorGallery = () => {
     const [isFetching, setIsFetching] = useState(false);
     const [hasMore, setHasMore] = useState(true);
     const [likedArtworks, setLikedArtworks] = useState(new Set());
+    const [hoveredArtworkId, setHoveredArtworkId] = useState(null); // New state for hover effect
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // New state for mobile detection
     const user = useSelector((state) => state.auth.user);
     const nextPageRef = useRef("artwork/?approval_status=approved&page=1&page_size=20");
+    const lastTap = useRef(null); // New ref for double-tap detection
 
     useEffect(() => {
         fetchAllArtworks();
         window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
+        window.addEventListener("resize", handleResize); // New resize listener
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleResize); // Cleanup resize listener
+        };
     }, []);
 
     useEffect(() => {
@@ -116,6 +123,22 @@ const VisitorGallery = () => {
         a.click();
     };
 
+    // New function to handle window resize
+    const handleResize = () => {
+        setIsMobile(window.innerWidth <= 768);
+    };
+
+    // New function to handle double-tap on mobile
+    const handleDoubleTap = (artworkId) => {
+        const now = Date.now();
+        const DOUBLE_PRESS_DELAY = 300;
+        if (lastTap.current && (now - lastTap.current) < DOUBLE_PRESS_DELAY) {
+            handleLikeToggle(artworkId);
+        } else {
+            lastTap.current = now;
+        }
+    };
+
     return (
         <div className="p-6 max-w-full mx-auto font-poppins">
             {/* Search and Filter Section */}
@@ -150,21 +173,30 @@ const VisitorGallery = () => {
                                 (searchQuery === "" || artwork.title.toLowerCase().includes(searchQuery.toLowerCase()))
                             )
                             .map((artwork) => (
-                                <div key={artwork.id} className="masonry-item">
+                                <div
+                                    key={artwork.id}
+                                    className="masonry-item"
+                                    onMouseEnter={() => setHoveredArtworkId(artwork.id)} // Hover effect
+                                    onMouseLeave={() => setHoveredArtworkId(null)} // Hover effect
+                                    onTouchStart={() => handleDoubleTap(artwork.id)} // Double-tap for mobile
+                                >
                                     <div className="artwork-container">
                                         <Image alt={artwork.title} src={artwork.image} className="w-full h-auto rounded-lg" />
-                                        <div className="artwork-actions">
-                                            <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
-                                                <DownloadOutlined />
-                                            </Button>
-                                            <Button
-                                                shape="circle"
-                                                className="icon-button"
-                                                onClick={() => handleLikeToggle(artwork.id)}
-                                            >
-                                                <HeartFilled className={likedArtworks.has(artwork.id) ? "text-red-500" : ""} />
-                                            </Button>
-                                        </div>
+                                        {/* Show actions on hover or mobile */}
+                                        {(isMobile || hoveredArtworkId === artwork.id) && (
+                                            <div className="artwork-actions">
+                                                <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
+                                                    <DownloadOutlined />
+                                                </Button>
+                                                <Button
+                                                    shape="circle"
+                                                    className="icon-button"
+                                                    onClick={() => handleLikeToggle(artwork.id)}
+                                                >
+                                                    <HeartFilled className={likedArtworks.has(artwork.id) ? "text-red-500" : ""} />
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
