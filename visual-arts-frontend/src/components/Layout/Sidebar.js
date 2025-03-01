@@ -100,22 +100,19 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
         <div
           style={{
             display: "flex",
+            flexDirection: collapsed ? "column" : "row",
             alignItems: "center",
             justifyContent: collapsed ? "center" : "space-between",
             padding: "16px",
-            borderBottom: "1px solid #f0f0f0",
+            paddingBottom: collapsed ? "10px" : "16px", // Adjust padding for collapsed state
           }}
         >
           {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <img
-              src="/images/your-logo.png"
-              style={{ height: "32px", marginRight: collapsed ? 0 : "10px" }}
-            />
-            {!collapsed && (
-              <span style={{ fontSize: "18px", fontWeight: "bold", color: "#333" }}>Visual Arts</span>
-            )}
-          </div>
+          <img
+            src="/images/your-logo.png"
+            alt="Logo"
+            style={{ height: "32px", marginBottom: collapsed ? "10px" : 0 }} // Add marginBottom for collapsed state
+          />
 
           {/* Collapse Button */}
           <Button
@@ -138,6 +135,7 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
             fontSize: "14px",
             fontWeight: "500",
             letterSpacing: "-1%",
+            marginTop: collapsed ? "10px" : "20px", // Add marginTop to move contents further down
           }}
         >
           {/* General Section */}
