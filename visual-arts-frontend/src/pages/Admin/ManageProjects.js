@@ -197,6 +197,7 @@ const ManageProjects = () => {
 
     return (
         <div className="p-6 space-y-8">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Projects</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Projects &gt; Review & Manage</p>
 
             {/* ✅ Tabs & Switch */}

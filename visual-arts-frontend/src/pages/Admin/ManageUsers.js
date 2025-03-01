@@ -202,11 +202,12 @@ const ManageUsers = () => {
 
     return (
         <div className="p-6 space-y-8">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Users</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">User Management &gt; View & Manage</p>
 
             {/* ✅ Enhanced Users List */}
             <div className="bg-white shadow-md rounded-2xl p-6">
-                <h2 className="text-black text-[22px] font-semibold font-[Poppins]">All Users</h2>
+                
 
                 <div className="flex flex-col md:flex-row md:justify-between items-center pb-4">
                     <Input placeholder="Search by name or email..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-40" />

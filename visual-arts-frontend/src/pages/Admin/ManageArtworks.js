@@ -232,13 +232,12 @@ const ManageArtworks = () => {
 
     return (
         <div className="p-6 space-y-8">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Artworks</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Artworks &gt; Review & Manage</p>
 
             <div className="bg-white shadow-md rounded-2xl p-6">
                 <div className="flex justify-between items-center pb-4">
-                    <div className="flex items-center gap-4">
-                        <h2>All Artworks</h2>
-                    </div>
+                    
                         
                     <div className="flex gap-4 justify-end">
                         
