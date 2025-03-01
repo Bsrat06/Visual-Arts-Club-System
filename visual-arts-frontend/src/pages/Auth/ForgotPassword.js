@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { message, Input, Button, Card, Typography } from "antd";
 import API from "../../services/api";
+import "../../styles/custom-ant.css"
 
 const { Title, Text } = Typography;
 
@@ -42,7 +43,7 @@ const ForgotPassword = () => {
             htmlType="submit"
             block
             loading={loading}
-            className="mt-2"
+            className="add-artwork-btn"
           >
             Send Reset Link
           </Button>
