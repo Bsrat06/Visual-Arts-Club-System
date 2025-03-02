@@ -1,4 +1,4 @@
-/// admindashboard.js
+// admindashboard.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
@@ -16,155 +16,150 @@ const { TabPane } = Tabs;
 const { Title, Text } = Typography;
 
 const AdminDashboard = () => {
-  const dispatch = useDispatch();
-  const { artworks, loading: artworkLoading } = useSelector((state) => state.artwork);
-  const { users, loading: userLoading } = useSelector((state) => state.users);
-  const { events, loading: eventsLoading } = useSelector((state) => state.events);
+    const dispatch = useDispatch();
+    const { artworks, loading: artworkLoading } = useSelector((state) => state.artwork);
+    const { users, loading: userLoading } = useSelector((state) => state.users);
+    const { events, loading: eventsLoading } = useSelector((state) => state.events);
 
-  const [markedEvents, setMarkedEvents] = useState([]);
-  const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
+    const [markedEvents, setMarkedEvents] = useState([]);
+    const [isCalendarModalOpen, setCalendarModalOpen] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchAllArtworks());
-    dispatch(fetchAllUsers());
-    dispatch(fetchAllEvents());
-  }, [dispatch]);
+    useEffect(() => {
+        dispatch(fetchAllArtworks());
+        dispatch(fetchAllUsers());
+        dispatch(fetchAllEvents());
+    }, [dispatch]);
 
-  useEffect(() => {
-    if (events.length > 0) {
-      const eventData = events.map((event) => ({
-        date: dayjs(event.date).format("YYYY-MM-DD"),
-        title: event.title,
-      }));
-      setMarkedEvents(eventData);
-    }
-  }, [events]);
-
-  const dateCellRender = (value) => {
-    const formattedDate = value.format("YYYY-MM-DD");
-    const event = markedEvents.find((event) => event.date === formattedDate);
-    return event ? <Text type="warning">{event.title}</Text> : null;
-  };
-
-
-  
-
-  const monthlySubmissions = artworks.reduce((acc, artwork) => {
-    if (artwork.submission_date) { // Add this check
-        try {
-            const createdAt = dayjs(artwork.submission_date);
-            if (createdAt.isValid()) {
-                const month = createdAt.format("YYYY-MM");
-                acc[month] = (acc[month] || 0) + 1;
-            } else {
-                console.error("Invalid date:", artwork.submission_date);
-            }
-        } catch (error) {
-            console.error("Date parsing error:", error);
+    useEffect(() => {
+        if (events.length > 0) {
+            const eventData = events.map((event) => ({
+                date: dayjs(event.date).format("YYYY-MM-DD"),
+                title: event.title,
+            }));
+            setMarkedEvents(eventData);
         }
-    } else {
-        console.warn("submission_date is undefined for artwork:", artwork.id); // Warn about missing dates
-    }
+    }, [events]);
 
-    return acc;
-}, {});
+    const dateCellRender = (value) => {
+        const formattedDate = value.format("YYYY-MM-DD");
+        const event = markedEvents.find((event) => event.date === formattedDate);
+        return event ? <Text type="warning">{event.title}</Text> : null;
+    };
 
-  const chartData = Object.entries(monthlySubmissions).map(([month, count]) => ({
-    month,
-    count,
-  }));
+    const monthlySubmissions = artworks.reduce((acc, artwork) => {
+        if (artwork.submission_date) { // Use submission_date
+            try {
+                const submissionDate = dayjs(artwork.submission_date); // Use submissionDate
+                if (submissionDate.isValid()) {
+                    const month = submissionDate.format("YYYY-MM");
+                    acc[month] = (acc[month] || 0) + 1;
+                } else {
+                    console.error("Invalid date:", artwork.submission_date);
+                }
+            } catch (error) {
+                console.error("Date parsing error:", error);
+            }
+        } else {
+            console.warn("submission_date is undefined for artwork:", artwork.id);
+        }
 
-  const lineChartConfig = {
-    data: chartData,
-    xField: "month",
-    yField: "count",
-    height: 300,
-    width: 500,
-    smooth: true,
-    color: "#FFA500",
-    point: {
-      size: 5,
-      shape: "circle",
-      style: {
-        fill: "#FFA500",
-        stroke: "#FFF",
-        lineWidth: 2,
-      },
-    },
-    xAxis: {
-      label: {
-        formatter: (val) => dayjs(val, "YYYY-MM").format("MMM YYYY"), // Format x-axis labels
-      },
-    },
-  };
+        return acc;
+    }, {});
 
-  return (
-    <div className="admin-dashboard p-6">
-      <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Admin Dashboard</h2>
+    const chartData = Object.entries(monthlySubmissions).map(([month, count]) => ({
+        month,
+        count,
+    }));
 
-      <Tabs defaultActiveKey="1" className="custom-tabs">
-        <TabPane tab="Overview" key="1">
-          <p>Detailed Overview of Activities...</p>
-        </TabPane>
-        <TabPane tab="Analytics" key="2">
-          <AnalyticsDashboard />
-        </TabPane>
-      </Tabs>
+    const lineChartConfig = {
+        data: chartData,
+        xField: "month",
+        yField: "count",
+        height: 300,
+        width: 500,
+        smooth: true,
+        color: "#FFA500",
+        point: {
+            size: 5,
+            shape: "circle",
+            style: {
+                fill: "#FFA500",
+                stroke: "#FFF",
+                lineWidth: 2,
+            },
+        },
+        xAxis: {
+            label: {
+                formatter: (val) => dayjs(val, "YYYY-MM").format("MMM YYYY"), // Format x-axis labels
+            },
+        },
+    };
 
-      <div className="dashboard-grid">
-        <div className="stats-section">
-          <Card title="Total Artworks">
-            {artworkLoading ? <Spin /> : artworks.length}
-          </Card>
-          <Card title="Total Users">{userLoading ? <Spin /> : users.length}</Card>
-          <Card title="Pending Artworks">
-            {artworkLoading ? (
-              <Spin />
-            ) : (
-              artworks.filter((a) => a.approval_status === "pending").length
-            )}
-          </Card>
-          <Card title="Rejected Artworks">
-            {artworkLoading ? (
-              <Spin />
-            ) : (
-              artworks.filter((a) => a.approval_status === "rejected").length
-            )}
-          </Card>
+    return (
+        <div className="admin-dashboard p-6">
+            <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Admin Dashboard</h2>
 
-          <div className="line-chart-container">
-            <Title level={4} className="chart-title">
-              Monthly Artwork Submissions
-            </Title>
-            {artworkLoading ? <Spin /> : <Line {...lineChartConfig} />}
-          </div>
+            <Tabs defaultActiveKey="1" className="custom-tabs">
+                <TabPane tab="Overview" key="1">
+                    <p>Detailed Overview of Activities...</p>
+                </TabPane>
+                <TabPane tab="Analytics" key="2">
+                    <AnalyticsDashboard />
+                </TabPane>
+            </Tabs>
+
+            <div className="dashboard-grid">
+                <div className="stats-section">
+                    <Card title="Total Artworks">{artworkLoading ? <Spin /> : artworks.length}</Card>
+                    <Card title="Total Users">{userLoading ? <Spin /> : users.length}</Card>
+                    <Card title="Pending Artworks">
+                        {artworkLoading ? (
+                            <Spin />
+                        ) : (
+                            artworks.filter((a) => a.approval_status === "pending").length
+                        )}
+                    </Card>
+                    <Card title="Rejected Artworks">
+                        {artworkLoading ? (
+                            <Spin />
+                        ) : (
+                            artworks.filter((a) => a.approval_status === "rejected").length
+                        )}
+                    </Card>
+
+                    <div className="line-chart-container">
+                        <Title level={4} className="chart-title">
+                            Monthly Artwork Submissions
+                        </Title>
+                        {artworkLoading ? <Spin /> : <Line {...lineChartConfig} />}
+                    </div>
+                </div>
+            </div>
+
+            {/* Floating Calendar Button */}
+            <FloatButton
+                icon={<CalendarOutlined style={{ color: "black" }} />}
+                onClick={() => setCalendarModalOpen(true)}
+                style={{
+                    right: 24,
+                    bottom: 80,
+                    backgroundColor: "white",
+                    border: "1px solid #ddd",
+                }}
+            />
+
+            {/* Calendar Modal */}
+            <Modal
+                title="Upcoming Events Calendar"
+                visible={isCalendarModalOpen}
+                onCancel={() => setCalendarModalOpen(false)}
+                footer={null}
+                centered
+            >
+                <Calendar dateCellRender={dateCellRender} className="custom-calendar" />
+            </Modal>
         </div>
-      </div>
-
-      {/* Floating Calendar Button */}
-      <FloatButton
-        icon={<CalendarOutlined style={{ color: "black" }} />}
-        onClick={() => setCalendarModalOpen(true)}
-        style={{
-          right: 24,
-          bottom: 80,
-          backgroundColor: "white",
-          border: "1px solid #ddd",
-        }}
-      />
-
-      {/* Calendar Modal */}
-      <Modal
-        title="Upcoming Events Calendar"
-        visible={isCalendarModalOpen}
-        onCancel={() => setCalendarModalOpen(false)}
-        footer={null}
-        centered
-      >
-        <Calendar dateCellRender={dateCellRender} className="custom-calendar" />
-      </Modal>
-    </div>
-  );
+    );
 };
 
 export default AdminDashboard;
