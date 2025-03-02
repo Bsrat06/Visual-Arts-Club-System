@@ -116,6 +116,11 @@ const ManageProjects = () => {
     const myProjects = projects.filter((project) => project.creator === user?.pk);
     const displayedProjects = selectedTab === "allProjects" ? projects : myProjects;
 
+    // ✅ Filter projects based on the search query
+    const filteredProjects = displayedProjects.filter((project) =>
+        project.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     const statistics = [
         {
             title: "Total Projects",
@@ -224,12 +229,10 @@ const ManageProjects = () => {
                 />
             </div>
 
-
-
             {/* ✅ Conditionally Render View */}
             {viewAsMember ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    {displayedProjects.map((project) => (
+                    {filteredProjects.map((project) => (
                         <Badge.Ribbon
                             key={project.id}
                             text={project.is_completed ? "Completed" : "Ongoing"}
@@ -261,7 +264,7 @@ const ManageProjects = () => {
                 <div className="overflow-x-auto"> {/* Added wrapper for All Projects/My Projects table */}
                     <AntTable
                         columns={columns}
-                        dataSource={displayedProjects}
+                        dataSource={filteredProjects} // Use filteredProjects instead of displayedProjects
                         pagination={{
                             pageSize: pageSize, // Use pageSize state
                             showSizeChanger: true, // Enable page size changer
