@@ -2,6 +2,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import API from "../../services/api";
 import { useNavigate } from "react-router-dom";
+import logo from '../../assets/images/logo.png';
 
 const Register = () => {
   const navigate = useNavigate(); // ✅ Redirect Hook
@@ -29,7 +30,7 @@ const Register = () => {
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <img className="w-12 h-12" src="/logo.svg" alt="Logo" />
+          <img className="w-24 h-24" src={logo} alt="Logo" />
         </div>
 
         {/* Heading */}

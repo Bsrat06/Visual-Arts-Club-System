@@ -15,6 +15,7 @@ import {
     HomeOutlined,
     PictureOutlined,
 } from "@ant-design/icons";
+import logo from '../../assets/images/logo.png';
 
 const { Sider } = Layout;
 
@@ -104,16 +105,14 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                         flexDirection: collapsed ? "column" : "row",
                         alignItems: "center",
                         justifyContent: collapsed ? "center" : "space-between",
-                        padding: "16px",
-                        paddingBottom: collapsed ? "10px" : "16px",
+                        padding: "0px",
+                        paddingBottom: collapsed ? "10px" : "0px",
                     }}
                 >
                     {/* Logo */}
-                    <img
-                        src="/images/your-logo.png"
-                        alt="Logo"
-                        style={{ height: "32px", marginBottom: collapsed ? "10px" : 0 }}
-                    />
+                    <div className="text-black font-semibold" style={{ fontSize: "24px", padding: "0px" }}>
+                                            <img src={logo} style={{ height: "80px" }} />
+                                        </div>
 
                     {/* Collapse Button */}
                     <Button

@@ -18,6 +18,7 @@ import {
 } from "@ant-design/icons";
 import { fetchNotifications } from "../../redux/slices/notificationsSlice";
 import API from "../../services/api";
+import logo from '../../assets/images/logo.png';
 
 const { Header } = Layout;
 
@@ -113,8 +114,8 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
                     />
                 )}
                 {showLogo && (
-                    <div className="text-black font-semibold" style={{ fontSize: "22px", padding: "24px" }}>
-                        <img src="/images/your-logo.png" alt="Logo" style={{ height: "40px" }} />
+                    <div className="text-black font-semibold" style={{ fontSize: "24px", padding: "0px" }}>
+                        <img src={logo} style={{ height: "80px" }} />
                     </div>
                 )}
             </div>
@@ -125,9 +126,6 @@ const Navbar = ({ onLogout, collapsed, setCollapsed }) => {
                     <div className="flex items-center space-x-4 md:space-x-10">
                         <Link to="/home" className="text-black hover:text-orange-500 text-sm md:text-base">
                             Home
-                        </Link>
-                        <Link to="/about" className="text-black hover:text-orange-500 text-sm md:text-base">
-                            About
                         </Link>
                         <Link to="/visitor/gallery" className="text-black hover:text-orange-500 text-sm md:text-base">
                             Gallery

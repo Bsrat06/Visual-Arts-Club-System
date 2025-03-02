@@ -77,8 +77,8 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard p-6">
-      <Title level={2} className="dashboard-title">Admin Dashboard</Title>
-
+      <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Admin Dashboard</h2>
+            
       <Tabs defaultActiveKey="1" className="custom-tabs">
         <TabPane tab="Overview" key="1">
           <p>Detailed Overview of Activities...</p>

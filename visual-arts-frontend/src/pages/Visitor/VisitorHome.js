@@ -4,6 +4,7 @@ import AboutSection from "../../components/LandingPage/AboutSection";
 import FeaturedArtworks from "../../components/LandingPage/FeaturedArtworks";
 import OurContributions from "../../components/LandingPage/OurContributions";
 import UpcomingEvents from "../../components/LandingPage/UpcomingEvents";
+import Team from "../../components/LandingPage/Team";
 
 const HomePage = () => {
   return (
@@ -14,6 +15,7 @@ const HomePage = () => {
       <FeaturedArtworks />
       <UpcomingEvents/>
       <OurContributions />
+      <Team />
     </div>
   );
 };
