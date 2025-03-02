@@ -1,3 +1,4 @@
+/// admindashboard.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
@@ -31,9 +32,9 @@ const AdminDashboard = () => {
 
   useEffect(() => {
     if (events.length > 0) {
-      const eventData = events.map(event => ({
+      const eventData = events.map((event) => ({
         date: dayjs(event.date).format("YYYY-MM-DD"),
-        title: event.title
+        title: event.title,
       }));
       setMarkedEvents(eventData);
     }
@@ -41,19 +42,36 @@ const AdminDashboard = () => {
 
   const dateCellRender = (value) => {
     const formattedDate = value.format("YYYY-MM-DD");
-    const event = markedEvents.find(event => event.date === formattedDate);
+    const event = markedEvents.find((event) => event.date === formattedDate);
     return event ? <Text type="warning">{event.title}</Text> : null;
   };
 
+
+  
+
   const monthlySubmissions = artworks.reduce((acc, artwork) => {
-    const month = dayjs(artwork.created_at).format("YYYY-MM");
-    acc[month] = (acc[month] || 0) + 1;
+    if (artwork.submission_date) { // Add this check
+        try {
+            const createdAt = dayjs(artwork.submission_date);
+            if (createdAt.isValid()) {
+                const month = createdAt.format("YYYY-MM");
+                acc[month] = (acc[month] || 0) + 1;
+            } else {
+                console.error("Invalid date:", artwork.submission_date);
+            }
+        } catch (error) {
+            console.error("Date parsing error:", error);
+        }
+    } else {
+        console.warn("submission_date is undefined for artwork:", artwork.id); // Warn about missing dates
+    }
+
     return acc;
-  }, {});
+}, {});
 
   const chartData = Object.entries(monthlySubmissions).map(([month, count]) => ({
     month,
-    count
+    count,
   }));
 
   const lineChartConfig = {
@@ -73,12 +91,17 @@ const AdminDashboard = () => {
         lineWidth: 2,
       },
     },
+    xAxis: {
+      label: {
+        formatter: (val) => dayjs(val, "YYYY-MM").format("MMM YYYY"), // Format x-axis labels
+      },
+    },
   };
 
   return (
     <div className="admin-dashboard p-6">
       <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Admin Dashboard</h2>
-            
+
       <Tabs defaultActiveKey="1" className="custom-tabs">
         <TabPane tab="Overview" key="1">
           <p>Detailed Overview of Activities...</p>
@@ -90,32 +113,47 @@ const AdminDashboard = () => {
 
       <div className="dashboard-grid">
         <div className="stats-section">
-          <Card title="Total Artworks">{artworkLoading ? <Spin /> : artworks.length}</Card>
+          <Card title="Total Artworks">
+            {artworkLoading ? <Spin /> : artworks.length}
+          </Card>
           <Card title="Total Users">{userLoading ? <Spin /> : users.length}</Card>
-          <Card title="Pending Artworks">{artworkLoading ? <Spin /> : artworks.filter(a => a.approval_status === "pending").length}</Card>
-          <Card title="Rejected Artworks">{artworkLoading ? <Spin /> : artworks.filter(a => a.approval_status === "rejected").length}</Card>
+          <Card title="Pending Artworks">
+            {artworkLoading ? (
+              <Spin />
+            ) : (
+              artworks.filter((a) => a.approval_status === "pending").length
+            )}
+          </Card>
+          <Card title="Rejected Artworks">
+            {artworkLoading ? (
+              <Spin />
+            ) : (
+              artworks.filter((a) => a.approval_status === "rejected").length
+            )}
+          </Card>
 
           <div className="line-chart-container">
-            <Title level={4} className="chart-title">Monthly Artwork Submissions</Title>
+            <Title level={4} className="chart-title">
+              Monthly Artwork Submissions
+            </Title>
             {artworkLoading ? <Spin /> : <Line {...lineChartConfig} />}
           </div>
         </div>
       </div>
 
-      {/* ✅ Floating Calendar Button */}
+      {/* Floating Calendar Button */}
       <FloatButton
         icon={<CalendarOutlined style={{ color: "black" }} />}
         onClick={() => setCalendarModalOpen(true)}
         style={{
           right: 24,
-          bottom: 80, // Adjusted position (moved higher)
+          bottom: 80,
           backgroundColor: "white",
           border: "1px solid #ddd",
         }}
       />
 
-
-      {/* ✅ Calendar Modal */}
+      {/* Calendar Modal */}
       <Modal
         title="Upcoming Events Calendar"
         visible={isCalendarModalOpen}

@@ -1,3 +1,4 @@
+// analyticsdashboard.js
 import React, { useEffect, useState } from "react";
 import { Pie, Bar } from "react-chartjs-2";
 import API from "../../services/api";
@@ -13,8 +14,8 @@ import {
   Legend,
   Title,
 } from "chart.js";
+import dayjs from "dayjs";
 
-// Register Chart.js components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend, Title);
 
 const AnalyticsDashboard = () => {
@@ -42,7 +43,6 @@ const AnalyticsDashboard = () => {
   if (loading) return <p>Loading analytics...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
-  // User Role Chart
   const userRoleData = {
     labels: analyticsData.user_roles.map((role) => role.role),
     datasets: [
@@ -63,16 +63,17 @@ const AnalyticsDashboard = () => {
     },
   };
 
-  // Artwork Submission Chart
   const artworkSubmissionData = {
-    labels: analyticsData.monthly_artwork_data.map((data) => data.month),
+    labels: analyticsData.monthly_artwork_data.map((data) =>
+      dayjs(data.month, "YYYY-MM").format("MMM YYYY")
+    ),
     datasets: [
       {
         label: "Monthly Artwork Submissions",
         data: analyticsData.monthly_artwork_data.map((data) => data.count),
         backgroundColor: ["#2196F3", "#4CAF50", "#FF9800", "#E91E63", "#9C27B0"],
         hoverBackgroundColor: "#1E88E5",
-        borderColor: "#1976D2",
+        borderColor: "#1976D",// analyticsdashboard.js (continued)
         borderWidth: 1,
         barThickness: 40,
       },
@@ -103,13 +104,11 @@ const AnalyticsDashboard = () => {
       <h1 className="text-3xl font-bold mb-6">Analytics Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* User Role Distribution (Pie Chart) */}
         <div className="bg-white p-4 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold mb-4">User Role Distribution</h2>
           <Pie data={userRoleData} options={userRoleOptions} />
         </div>
 
-        {/* Monthly Artwork Submissions (Bar Chart) */}
         <div className="bg-white p-4 rounded-lg shadow-lg h-[400px]">
           <h2 className="text-xl font-semibold mb-4">Monthly Artwork Submissions</h2>
           <Bar data={artworkSubmissionData} options={artworkSubmissionOptions} />
