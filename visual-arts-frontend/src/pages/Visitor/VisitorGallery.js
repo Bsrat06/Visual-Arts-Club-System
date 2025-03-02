@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import API from "../../services/api";
-import { Image, Typography, Button, Select, Skeleton, Empty } from "antd";
+import { Image, Button, Select, Skeleton, Empty } from "antd";
 import { HeartFilled, DownloadOutlined } from "@ant-design/icons";
 import "../../styles/mansory-layout.css";
 import "../../styles/visitorgallery.css";
-import SearchBar from "../../components/Shared/SearchBar"; // Import the SearchBar component
+import SearchBar from "../../components/Shared/SearchBar";
 
 const { Option } = Select;
 
@@ -18,27 +18,17 @@ const VisitorGallery = () => {
     const [error, setError] = useState("");
     const [isFetching, setIsFetching] = useState(false);
     const [hasMore, setHasMore] = useState(true);
-    const [likedArtworks, setLikedArtworks] = useState(new Set());
-    const [hoveredArtworkId, setHoveredArtworkId] = useState(null); // New state for hover effect
-    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768); // New state for mobile detection
+    const [userLikedArtworks, setUserLikedArtworks] = useState({}); // Initialize as empty object
+    const [allArtworksLikes, setAllArtworksLikes] = useState({});
+    const [hoveredArtworkId, setHoveredArtworkId] = useState(null);
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const user = useSelector((state) => state.auth.user);
     const nextPageRef = useRef("artwork/?approval_status=approved&page=1&page_size=20");
-    const lastTap = useRef(null); // New ref for double-tap detection
+    const lastTap = useRef(null);
+    const initialLoad = useRef(true);
+    const [likesLoading, setLikesLoading] = useState(true);
 
-    useEffect(() => {
-        fetchAllArtworks();
-        window.addEventListener("scroll", handleScroll);
-        window.addEventListener("resize", handleResize); // New resize listener
-        return () => {
-            window.removeEventListener("scroll", handleScroll);
-            window.removeEventListener("resize", handleResize); // Cleanup resize listener
-        };
-    }, []);
-
-    useEffect(() => {
-        if (user) fetchLikedArtworks();
-    }, [user]);
-
+    // Fetch all artworks
     const fetchAllArtworks = async () => {
         if (!hasMore || isFetching || !nextPageRef.current) return;
 
@@ -56,6 +46,23 @@ const VisitorGallery = () => {
                 extractCategories([...artworks, ...response.data.results]);
                 nextPageRef.current = response.data.next;
                 if (!response.data.next) setHasMore(false);
+
+                const likesPromises = response.data.results.map((artwork) =>
+                    API.get(`artwork/${artwork.id}/likes/`).then((res) => ({
+                        artworkId: artwork.id,
+                        likes: res.data.likes,
+                    }))
+                );
+                const likesData = await Promise.all(likesPromises);
+
+                setAllArtworksLikes((prev) => {
+                    const updatedLikes = likesData.reduce((acc, curr) => {
+                        acc[curr.artworkId] = curr.likes;
+                        return acc;
+                    }, {});
+
+                    return { ...prev, ...updatedLikes };
+                });
             } else {
                 setHasMore(false);
             }
@@ -68,16 +75,27 @@ const VisitorGallery = () => {
         }
     };
 
-    const fetchLikedArtworks = async () => {
+    // Fetch user's liked artworks
+    const fetchUserLikedArtworks = async () => {
         try {
-            const response = await API.get("users/liked-artworks/");
-            const likedIds = new Set(response.data.map((artwork) => artwork.id));
-            setLikedArtworks(likedIds);
+            const response = await API.get("/artworks/liked/");
+            console.log("User Liked Artworks Response:", response.data); // Log the response data
+            const likedIds = response.data.reduce((acc, artwork) => {
+                acc[artwork.id] = 1; // Mark the artwork as liked
+                return acc;
+            }, {});
+            setUserLikedArtworks(likedIds);
+            localStorage.setItem('likedArtworks', JSON.stringify(likedIds)); // Store in localStorage
         } catch (error) {
-            console.error("Error fetching liked artworks:", error);
+            console.error("Error fetching user liked artworks:", error);
+            setUserLikedArtworks({});
+            localStorage.setItem('likedArtworks', JSON.stringify({})); // Fallback to empty object
+        } finally {
+            setLikesLoading(false);
         }
     };
 
+    // Handle scroll for infinite loading
     const handleScroll = () => {
         if (
             window.innerHeight + document.documentElement.scrollTop + 200 >=
@@ -87,11 +105,13 @@ const VisitorGallery = () => {
         }
     };
 
+    // Extract unique categories
     const extractCategories = (artworks) => {
         const uniqueCategories = ["All", ...new Set(artworks.map((artwork) => artwork.category))];
         setCategories(uniqueCategories);
     };
 
+    // Handle like/unlike toggle
     const handleLikeToggle = async (artworkId) => {
         if (!user) {
             alert("Please log in to like artworks!");
@@ -99,23 +119,26 @@ const VisitorGallery = () => {
         }
 
         try {
-            const isLiked = likedArtworks.has(artworkId);
+            const isLiked = userLikedArtworks[artworkId] > 0;
             if (isLiked) {
                 await API.delete(`artwork/${artworkId}/unlike/`);
-                setLikedArtworks((prev) => {
-                    const updatedLikes = new Set(prev);
-                    updatedLikes.delete(artworkId);
+                setUserLikedArtworks((prev) => {
+                    const updatedLikes = { ...prev, [artworkId]: (prev[artworkId] || 1) - 1 };
                     return updatedLikes;
                 });
             } else {
                 await API.post(`artwork/${artworkId}/like/`);
-                setLikedArtworks((prev) => new Set(prev).add(artworkId));
+                setUserLikedArtworks((prev) => {
+                    const updatedLikes = { ...prev, [artworkId]: (prev[artworkId] || 0) + 1 };
+                    return updatedLikes;
+                });
             }
         } catch (error) {
             console.error("Error liking artwork:", error);
         }
     };
 
+    // Handle download
     const handleDownload = (imageUrl) => {
         const a = document.createElement("a");
         a.href = imageUrl;
@@ -123,12 +146,12 @@ const VisitorGallery = () => {
         a.click();
     };
 
-    // New function to handle window resize
+    // Handle window resize
     const handleResize = () => {
         setIsMobile(window.innerWidth <= 768);
     };
 
-    // New function to handle double-tap on mobile
+    // Handle double tap (for mobile)
     const handleDoubleTap = (artworkId) => {
         const now = Date.now();
         const DOUBLE_PRESS_DELAY = 300;
@@ -139,31 +162,55 @@ const VisitorGallery = () => {
         }
     };
 
+    // Initialize userLikedArtworks from localStorage or fetch from backend
+    useEffect(() => {
+        const storedLikes = JSON.parse(localStorage.getItem('likedArtworks')) || {};
+        setUserLikedArtworks(storedLikes); // Initialize from localStorage
+        setLikesLoading(false);
+
+        if (user) {
+            fetchUserLikedArtworks(); // Fetch fresh data if user is logged in
+        }
+    }, [user]);
+
+    // Persist userLikedArtworks to localStorage
+    useEffect(() => {
+        if (!initialLoad.current && user) {
+            localStorage.setItem('likedArtworks', JSON.stringify(userLikedArtworks));
+        }
+        initialLoad.current = false;
+    }, [userLikedArtworks, user]);
+
+    // Handle scroll and resize events
+    useEffect(() => {
+        fetchAllArtworks();
+        window.addEventListener("scroll", handleScroll);
+        window.addEventListener("resize", handleResize);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
+
     return (
         <div className="p-6 max-w-full mx-auto font-poppins">
-            {/* Search and Filter Section */}
-            <div className="flex flex-wrap gap-4 mt-6 sticky-filter">
-                <SearchBar onSearch={(value) => setSearchQuery(value)} /> {/* Using SearchBar component */}
+            {/* Search and category filter */}
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <SearchBar onSearch={(query) => setSearchQuery(query)} />
                 <Select
-                    value={selectedCategory}
+                    defaultValue="All"
+                    style={{ width: 200 }}
                     onChange={(value) => setSelectedCategory(value)}
-                    className="w-full md:w-1/4 lg:w-1/5"
-                    style={{
-                        backgroundColor: "#FFA500",
-                        border: "1px solid #FFA500",
-                        borderRadius: "8px",
-                        color: "white",
-                    }}
                 >
                     {categories.map((category) => (
-                        <Option key={category} value={category} style={{ color: "#333" }}>
+                        <Option key={category} value={category}>
                             {category}
                         </Option>
                     ))}
                 </Select>
             </div>
 
-            {/* Artworks Grid */}
+            {/* Artworks grid */}
             <div className="mt-6 p-4 w-full">
                 {artworks.length > 0 ? (
                     <div className="masonry">
@@ -176,13 +223,12 @@ const VisitorGallery = () => {
                                 <div
                                     key={artwork.id}
                                     className="masonry-item"
-                                    onMouseEnter={() => setHoveredArtworkId(artwork.id)} // Hover effect
-                                    onMouseLeave={() => setHoveredArtworkId(null)} // Hover effect
-                                    onTouchStart={() => handleDoubleTap(artwork.id)} // Double-tap for mobile
+                                    onMouseEnter={() => setHoveredArtworkId(artwork.id)}
+                                    onMouseLeave={() => setHoveredArtworkId(null)}
+                                    onTouchStart={() => handleDoubleTap(artwork.id)}
                                 >
                                     <div className="artwork-container">
                                         <Image alt={artwork.title} src={artwork.image} className="w-full h-auto rounded-lg" />
-                                        {/* Show actions on hover or mobile */}
                                         {(isMobile || hoveredArtworkId === artwork.id) && (
                                             <div className="artwork-actions">
                                                 <Button shape="circle" className="icon-button" onClick={() => handleDownload(artwork.image)}>
@@ -193,7 +239,7 @@ const VisitorGallery = () => {
                                                     className="icon-button"
                                                     onClick={() => handleLikeToggle(artwork.id)}
                                                 >
-                                                    <HeartFilled className={likedArtworks.has(artwork.id) ? "text-red-500" : ""} />
+                                                    <HeartFilled className={!likesLoading && userLikedArtworks && userLikedArtworks[artwork.id] > 0 ? "text-red-500" : ""} />
                                                 </Button>
                                             </div>
                                         )}
