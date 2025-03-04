@@ -77,20 +77,16 @@ const AdminDashboard = () => {
     const artistsData = users.map((user) => {
         // Filter artworks created by the current user
         const artistArtworks = artworks.filter((artwork) => {
-            console.log("Artwork Artist ID:", artwork.artist, typeof artwork.artist);
-            console.log("User PK:", user.pk, typeof user.pk);
             return artwork.artist && user.pk && Number(artwork.artist) === Number(user.pk);
         });
     
         // Calculate total likes for the user's artworks
         const likes = artistArtworks.reduce((acc, artwork) => {
-            const likesArray = artwork.likes || [];
-            console.log("Artwork Likes:", likesArray);
-            return acc + likesArray.length;
+            return acc + (artwork.likes_count || 0); // Use likes_count from the backend
         }, 0);
     
         return {
-            id: user.pk, // Use user.pk instead of user.id
+            id: user.pk,
             name: user.first_name + " " + user.last_name || "Unknown Artist",
             profilePicture: user.profile_picture || "https://via.placeholder.com/40",
             uploads: artistArtworks.length,
