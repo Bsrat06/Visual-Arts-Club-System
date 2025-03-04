@@ -45,7 +45,7 @@ const ArtworkSubmissionsChart = ({ data }) => {
   return (
     <div className="bg-white p-6 rounded-lg w-[60%] "> {/* Adjusted width */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Artworks Category Chart</h3>
+        <h3 className="text-lg font-semibold">Artwork Trends</h3>
         <select
           value={timePeriod}
           onChange={(e) => setTimePeriod(e.target.value)}
