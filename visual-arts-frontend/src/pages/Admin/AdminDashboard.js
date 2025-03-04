@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import "../../styles/admin-dashboard.css";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import StatsCards from "../../components/Shared/StatsCards";
+import ArtworkSubmissionsChart from "../../components/Shared/ArtworkSubmissionsChart"; // Ensure this is the correct path
 
 const { TabPane } = Tabs;
 const { Title, Text } = Typography;
@@ -127,10 +128,13 @@ const AdminDashboard = () => {
     <div className="admin-dashboard p-6">
       <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Admin Dashboard</h2>
 
-      {/* Add StatsCards component here */}
+      {/* Stats Cards */}
       <StatsCards data={statsData} />
 
-      <Tabs defaultActiveKey="1" className="custom-tabs">
+      {/* Bar Chart for Artwork Submissions by Category */}
+      <ArtworkSubmissionsChart data={artworks} />
+
+      <Tabs defaultActiveKey="1" className="custom-tabs mt-6">
         <TabPane tab="Overview" key="1">
           <p>Detailed Overview of Activities...</p>
         </TabPane>
