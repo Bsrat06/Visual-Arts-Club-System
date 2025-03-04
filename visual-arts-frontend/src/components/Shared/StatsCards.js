@@ -1,5 +1,3 @@
-// StatsCards.js
-
 import React, { useEffect, useState } from "react";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 
@@ -8,21 +6,21 @@ const StatsCards = ({ data }) => {
     newArtworks: 0,
     newUsers: 0,
     events: 0,
-    approvalRate: 0,
+    pendingArtworks: 0, // Add pending artworks to previous month data
   });
 
   useEffect(() => {
     const fetchPreviousMonthData = async () => {
       const previousMonth = new Date();
       previousMonth.setMonth(previousMonth.getMonth() - 1);
-      const previousMonthString = `<span class="math-inline">\{previousMonth\.getFullYear\(\)\}\-</span>{(
+      const previousMonthString = `${previousMonth.getFullYear()}-${(
         previousMonth.getMonth() + 1
       )
         .toString()
         .padStart(2, "0")}`;
 
       const currentMonth = new Date();
-      const currentMonthString = `<span class="math-inline">\{currentMonth\.getFullYear\(\)\}\-</span>{(
+      const currentMonthString = `${currentMonth.getFullYear()}-${(
         currentMonth.getMonth() + 1
       )
         .toString()
@@ -41,7 +39,7 @@ const StatsCards = ({ data }) => {
 
         const prevMonthArtworks = allArtworks.filter((artwork) => {
           const submissionDate = new Date(artwork.submission_date);
-          const submissionMonthString = `<span class="math-inline">\{submissionDate\.getFullYear\(\)\}\-</span>{(
+          const submissionMonthString = `${submissionDate.getFullYear()}-${(
             submissionDate.getMonth() + 1
           )
             .toString()
@@ -49,35 +47,11 @@ const StatsCards = ({ data }) => {
           return submissionMonthString === previousMonthString;
         }).length;
 
-        const approvedPrevMonthArtworks = allArtworks.filter((artwork) => {
-          const submissionDate = new Date(artwork.submission_date);
-          const submissionMonthString = `<span class="math-inline">\{submissionDate\.getFullYear\(\)\}\-</span>{(
-            submissionDate.getMonth() + 1
-          )
-            .toString()
-            .padStart(2, "0")}`;
-          return (
-            artwork.approval_status === "approved" &&
-            submissionMonthString === previousMonthString
-          );
-        }).length;
+        const pendingArtworks = allArtworks.filter(
+          (artwork) => artwork.approval_status === "pending"
+        ).length;
 
-        const prevMonthTotalArtworks = allArtworks.filter((artwork) => {
-          const submissionDate = new Date(artwork.submission_date);
-          const submissionMonthString = `<span class="math-inline">\{submissionDate\.getFullYear\(\)\}\-</span>{(
-            submissionDate.getMonth() + 1
-          )
-            .toString()
-            .padStart(2, "0")}`;
-          return submissionMonthString === previousMonthString;
-        }).length;
-
-        const prevApprovalRate =
-          prevMonthTotalArtworks > 0
-            ? Math.round((approvedPrevMonthArtworks / prevMonthTotalArtworks) * 100)
-            : 0;
-
-        return { artworks: prevMonthArtworks, approvalRate: prevApprovalRate };
+        return { artworks: prevMonthArtworks, pendingArtworks };
       };
 
       const fetchUsers = async () => {
@@ -93,7 +67,7 @@ const StatsCards = ({ data }) => {
 
         const prevMonthUsers = allUsers.filter((user) => {
           const joinDate = new Date(user.date_joined);
-          const joinMonthString = `<span class="math-inline">\{joinDate\.getFullYear\(\)\}\-</span>{(
+          const joinMonthString = `${joinDate.getFullYear()}-${(
             joinDate.getMonth() + 1
           )
             .toString()
@@ -117,7 +91,7 @@ const StatsCards = ({ data }) => {
 
         const prevMonthEvents = allEvents.filter((event) => {
           const eventDate = new Date(event.date);
-          const eventMonthString = `<span class="math-inline">\{eventDate\.getFullYear\(\)\}\-</span>{(
+          const eventMonthString = `${eventDate.getFullYear()}-${(
             eventDate.getMonth() + 1
           )
             .toString()
@@ -138,7 +112,7 @@ const StatsCards = ({ data }) => {
         newArtworks: artworksData.artworks,
         newUsers: usersData,
         events: eventsData,
-        approvalRate: artworksData.approvalRate,
+        pendingArtworks: artworksData.pendingArtworks, // Set total pending artworks
       });
     };
 
@@ -189,12 +163,12 @@ const StatsCards = ({ data }) => {
       previousValue: previousMonthData.events,
     },
     {
-      title: "Artworks Approval Rate",
-      value: `${data.approvalRate}%`,
-      icon: "✅",
-      progress: data.approvalRate,
+      title: "Pending Artworks",
+      value: data.pendingArtworks, // Use total pending artworks
+      icon: "⏳",
+      progress: data.pendingArtworks,
       color: "text-yellow-500",
-      previousValue: previousMonthData.approvalRate,
+      previousValue: previousMonthData.pendingArtworks,
     },
   ];
 
@@ -211,21 +185,21 @@ const StatsCards = ({ data }) => {
               <p className="text-gray-400 text-xs leading-4">This month</p>
             </div>
           </div>
-            <div className="w-12 mr-4"></div> {/* Spacer to align numbers */}
-            <div className="flex items-center">
-              <p className="text-2xl font-bold mr-2">{stat.value}</p>
-              {typeof stat.value === "string"
-                ? renderPercentageChange(stat.value.replace("%", ""), stat.previousValue)
-                : renderPercentageChange(stat.value, stat.previousValue)}
+          <div className="w-12 mr-4"></div> {/* Spacer to align numbers */}
+          <div className="flex items-center">
+            <p className="text-2xl font-bold mr-2">{stat.value}</p>
+            {typeof stat.value === "string"
+              ? renderPercentageChange(stat.value.replace("%", ""), stat.previousValue)
+              : renderPercentageChange(stat.value, stat.previousValue)}
           </div>
-          <div className="mt-2">
+          <div className="mt-1">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
                 className={`h-2 rounded-full ${stat.color}`}
                 style={{ width: `${stat.progress}%` }}
               ></div>
             </div>
-            </div>
+          </div>
         </div>
       ))}
     </div>

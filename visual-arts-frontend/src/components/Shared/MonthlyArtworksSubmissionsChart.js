@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import dayjs from "dayjs"; // Import dayjs
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import dayjs from "dayjs";
 
-const ArtworkSubmissionsChart = ({ data }) => {
+const MonthlyArtworkSubmissionsChart = ({ data }) => {
   const [timePeriod, setTimePeriod] = useState("monthly"); // Default to monthly view
 
   // Process data based on the selected time period
@@ -21,14 +21,10 @@ const ArtworkSubmissionsChart = ({ data }) => {
       }
 
       if (!groupedData[key]) {
-        groupedData[key] = { period: key };
+        groupedData[key] = { period: key, submissions: 0 };
       }
 
-      if (!groupedData[key][artwork.category]) {
-        groupedData[key][artwork.category] = 0;
-      }
-
-      groupedData[key][artwork.category] += 1;
+      groupedData[key].submissions += 1;
     });
 
     return Object.values(groupedData);
@@ -36,16 +32,10 @@ const ArtworkSubmissionsChart = ({ data }) => {
 
   const chartData = processData(data, timePeriod);
 
-  // Get unique categories for legend
-  const categories = [...new Set(data.map((artwork) => artwork.category))];
-
-  // Define custom colors for bars
-  const barColors = ["#FFA500", "#16DBCC", "#4C78FF", "#FF82AC", "#A05195", "#F95D6A", "#D45087", "#FF7C43"];
-
   return (
-    <div className="bg-white p-6 rounded-lg w-[60%] "> {/* Adjusted width */}
+    <div className="bg-white p-6 rounded-lg w-[40%]"> {/* Adjusted width */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Artworks Category Chart</h3>
+        <h3 className="text-lg font-semibold">Monthly Artwork Submissions</h3>
         <select
           value={timePeriod}
           onChange={(e) => setTimePeriod(e.target.value)}
@@ -56,21 +46,8 @@ const ArtworkSubmissionsChart = ({ data }) => {
         </select>
       </div>
 
-      {/* Legends placed above the chart */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        {categories.map((category, index) => (
-          <div key={index} className="flex items-center gap-2">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: barColors[index % barColors.length] }}
-            ></div>
-            <span className="text-sm" style={{ color: "#718EBF" }}>{category}</span>
-          </div>
-        ))}
-      </div>
-
       <ResponsiveContainer width="100%" height={300}> {/* Adjusted height */}
-        <BarChart data={chartData} margin={{ top: 20, right: 0, left: -35, bottom: 5 }}>
+        <LineChart data={chartData} margin={{ top: 20, right: 30, left: -35, bottom: 5 }}> {/* Changed left margin to 0 */}
           {/* Horizontal grid lines (solid) */}
           <CartesianGrid
             horizontal={true}
@@ -102,19 +79,19 @@ const ArtworkSubmissionsChart = ({ data }) => {
             }}
           />
 
-          {/* Bars with corner radius and custom colors */}
-          {categories.map((category, index) => (
-            <Bar
-              key={index}
-              dataKey={category}
-              fill={barColors[index % barColors.length]} // Use custom colors
-              radius={[5, 5, 5, 5]} // Rounded corners for bars (top and bottom)
-            />
-          ))}
-        </BarChart>
+          {/* Line with data points */}
+          <Line
+            type="monotone"
+            dataKey="submissions"
+            stroke="#FFA500" // Custom line color
+            strokeWidth={2} // Line thickness
+            dot={{ fill: "#FFA500", r: 2 }} // Custom data points
+            activeDot={{ r: 6 }} // Larger dot on hover
+          />
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
 };
 
-export default ArtworkSubmissionsChart;
+export default MonthlyArtworkSubmissionsChart;
