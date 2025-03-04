@@ -100,8 +100,8 @@ const AdminDashboard = () => {
 
             <StatsCards data={statsData} />
             <TopPerformingArtists artists={artistsData} />
-            <ArtworkSubmissionsChart data={artworks} />
             <MonthlyArtworkSubmissionsChart data={artworks} />
+            <ArtworkSubmissionsChart data={artworks} />
 
             <FloatButton
                 icon={<CalendarOutlined style={{ color: "black" }} />}
