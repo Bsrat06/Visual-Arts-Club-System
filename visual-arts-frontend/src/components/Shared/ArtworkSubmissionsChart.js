@@ -43,7 +43,7 @@ const ArtworkSubmissionsChart = ({ data }) => {
   const barColors = ["#FFA500", "#16DBCC", "#4C78FF", "#FF82AC", "#A05195", "#F95D6A", "#D45087", "#FF7C43"];
 
   return (
-    <div className="bg-white p-6 rounded-lg w-[60%] "> {/* Adjusted width */}
+    <div className="bg-white p-6 rounded-lg w-[52%] "> {/* Adjusted width */}
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Category Trends</h3>
         <select

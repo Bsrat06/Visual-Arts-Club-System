@@ -97,12 +97,12 @@ const AdminDashboard = () => {
     return (
         <div className="admin-dashboard p-6">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Admin Dashboard</h2>
-
+    
             <StatsCards data={statsData} />
             <TopPerformingArtists artists={artistsData} />
             <MonthlyArtworkSubmissionsChart data={artworks} />
             <ArtworkSubmissionsChart data={artworks} />
-
+    
             <FloatButton
                 icon={<CalendarOutlined style={{ color: "black" }} />}
                 onClick={() => setCalendarModalOpen(true)}
@@ -113,7 +113,7 @@ const AdminDashboard = () => {
                     border: "1px solid #ddd",
                 }}
             />
-
+    
             <Modal
                 title="Upcoming Events Calendar"
                 visible={isCalendarModalOpen}

@@ -35,7 +35,7 @@ const MonthlyArtworkSubmissionsChart = ({ data }) => {
   return (
     <div className="bg-white p-6 rounded-lg w-[52%]"> {/* Adjusted width */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Artwork Uploads</h3>
+        <h3 className="text-lg font-semibold">Artwork Posts</h3>
         <select
           value={timePeriod}
           onChange={(e) => setTimePeriod(e.target.value)}
