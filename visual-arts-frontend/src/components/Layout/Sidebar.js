@@ -64,7 +64,6 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
 
     return (
         <>
-            {/* Overlay Background on Small Screens */}
             {isMobile && !collapsed && (
                 <div
                     className="overlay"
@@ -81,7 +80,6 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                 ></div>
             )}
 
-            {/* Sidebar */}
             <Sider
                 width={300}
                 collapsedWidth={80}
@@ -95,10 +93,9 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                     boxShadow: "0px 10px 60px rgba(226, 236, 249, 0.5)",
                     transition: "left 0.3s ease",
                     zIndex: 100,
-                    left: isMobile && collapsed ? "-300px" : 0, // Hide sidebar on small screens when collapsed
+                    left: isMobile && collapsed ? "-300px" : 0,
                 }}
             >
-                {/* Logo and Collapse Button */}
                 <div
                     style={{
                         display: "flex",
@@ -109,12 +106,10 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                         paddingBottom: collapsed ? "10px" : "0px",
                     }}
                 >
-                    {/* Logo */}
                     <div className="text-black font-semibold" style={{ fontSize: "24px", padding: "0px" }}>
-                                            <img src={logo} style={{ height: "80px" }} />
-                                        </div>
+                        <img src={logo} style={{ height: "80px" }} alt="Logo" />
+                    </div>
 
-                    {/* Collapse Button */}
                     <Button
                         type="text"
                         icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
@@ -123,7 +118,6 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                     />
                 </div>
 
-                {/* Sidebar Menu */}
                 <Menu
                     mode="inline"
                     defaultSelectedKeys={[location.pathname]}
@@ -138,7 +132,6 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                         marginTop: collapsed ? "10px" : "20px",
                     }}
                 >
-                    {/* General Section */}
                     {!collapsed && (
                         <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
                             General
@@ -170,13 +163,12 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                         </Menu.Item>
                     ))}
 
-                    {/* Admin Section */}
-                    {userRole === "admin" && !collapsed && (
+                    {(userRole === "admin" || userRole === "manager") && !collapsed && (
                         <div style={{ padding: "10px 20px", fontWeight: "bold", fontSize: "14px", color: "#9197B3" }}>
                             Admin
                         </div>
                     )}
-                    {userRole === "admin" &&
+                    {(userRole === "admin" || userRole === "manager") &&
                         adminMenu.map((item) => (
                             <Menu.Item
                                 key={item.key}
@@ -203,8 +195,7 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
                             </Menu.Item>
                         ))}
 
-                    {/* Member Section */}
-                    {userRole !== "admin" &&
+                    {userRole !== "admin" && userRole !== "manager" &&
                         memberMenu.map((item) => (
                             <Menu.Item
                                 key={item.key}

@@ -67,7 +67,7 @@ const App = () => {
           <Route
             path="/admin/dashboard"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <AdminDashboard />
               </RoleGuard>
             }
@@ -77,7 +77,7 @@ const App = () => {
           <Route
             path="/admin/artwork-approvals"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <ArtworkApprovals />
               </RoleGuard>
             }
@@ -86,7 +86,7 @@ const App = () => {
           <Route
             path="/admin/manage-artworks"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <ManageArtworks />
               </RoleGuard>
             }
@@ -97,7 +97,7 @@ const App = () => {
           <Route
             path="/admin/manage-events"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <ManageEvents />
               </RoleGuard>
             }
@@ -110,7 +110,7 @@ const App = () => {
           <Route
             path="/admin/project-management"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <ManageProjects />
               </RoleGuard>
             }
@@ -121,7 +121,7 @@ const App = () => {
           <Route
             path="/admin/notifications"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <NotificationManagement />
               </RoleGuard>
             }
@@ -132,7 +132,7 @@ const App = () => {
           <Route
             path="/admin/user-management"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <ManageUsers />
               </RoleGuard>
             }
@@ -143,7 +143,7 @@ const App = () => {
 <Route
             path="/admin/analytics"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <AnalyticsDashboard />
               </RoleGuard>
             }
@@ -153,7 +153,7 @@ const App = () => {
           <Route
             path="/admin/event-analytics"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <EventAnalytics />
               </RoleGuard>
             }
@@ -163,7 +163,7 @@ const App = () => {
           <Route
             path="/admin/event-stats"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <EventStats />
               </RoleGuard>
             }
@@ -173,7 +173,7 @@ const App = () => {
           <Route
             path="/admin/project-analytics"
             element={
-              <RoleGuard allowedRoles={["admin"]}>
+              <RoleGuard allowedRoles={["admin", "manager"]}>
                 <ProjectAnalytics />
               </RoleGuard>
             }

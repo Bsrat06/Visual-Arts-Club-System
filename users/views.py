@@ -23,9 +23,16 @@ from rest_framework.pagination import PageNumberPagination
 from datetime import datetime
 from dj_rest_auth.views import PasswordResetView
 from django.core.exceptions import ValidationError
+import logging
+
 
 
 User = get_user_model()
+
+
+logger = logging.getLogger(__name__)  # Add logging
+
+
 
 class CustomAuthToken(ObtainAuthToken):
     def post(self, request, *args, **kwargs):
@@ -33,17 +40,19 @@ class CustomAuthToken(ObtainAuthToken):
         password = request.data.get("password")
 
         if not email or not password:
-            return Response({"error": "Email and password are required."}, status=400)
+            return Response({"error": "Email and password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Authenticate user using email
         user = authenticate(request, username=email, password=password)
 
         if not user:
-            return Response({"error": "Invalid credentials. Please try again."}, status=401)
+            logger.error("Invalid credentials for email: %s", email)  # Log invalid credentials
+            return Response({"error": "Invalid credentials. Please try again."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Check if the user is active
         if not user.is_active:
-            return Response({"error": "Your account is pending approval. Please contact an admin."}, status=403)
+            logger.warning("Inactive user attempted login: %s", email)  # Log inactive user
+            return Response({"error": "Your account is pending approval. Please contact an admin."}, status=status.HTTP_403_FORBIDDEN)
 
         # Generate or retrieve token
         token, created = Token.objects.get_or_create(user=user)

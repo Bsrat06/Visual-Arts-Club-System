@@ -30,6 +30,7 @@ const Login = () => {
         navigate("/"); // Redirect Visitors or Defaults
       }
     } catch (error) {
+      console.error("Login Error:", error); // Log the error
       if (error.message === "Your account is pending approval. Please contact an admin.") {
         // Show Ant Design modal for inactive users
         Modal.info({
