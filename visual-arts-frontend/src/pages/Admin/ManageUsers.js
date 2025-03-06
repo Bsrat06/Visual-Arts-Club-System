@@ -127,24 +127,24 @@ const ManageUsers = () => {
             key: "email",
         },
         {
-            title: "Role",
-            dataIndex: "role",
-            key: "role",
-            filters: [
-                { text: "Admin", value: "admin" },
-                { text: "Member", value: "member" },
-                { text: "Visitor", value: "visitor" },
-            ],
-            filteredValue: filteredInfo.role || null,
-            onFilter: (value, record) => record.role === value,
-            render: (role, record) => (
-                <Select value={role} onChange={(newRole) => handleRoleChange(record.pk, newRole)}>
-                    <Option value="admin">Admin</Option>
-                    <Option value="member">Member</Option>
-                    <Option value="visitor">Visitor</Option>
-                </Select>
-            ),
-        },
+          title: "Role",
+          dataIndex: "role",
+          key: "role",
+          filters: [
+              { text: "Admin", value: "admin" },
+              { text: "Manager", value: "manager" },
+              { text: "Member", value: "member" },
+          ],
+          filteredValue: filteredInfo.role || null,
+          onFilter: (value, record) => record.role === value,
+          render: (role, record) => (
+              <Select value={role} onChange={(newRole) => handleRoleChange(record.pk, newRole)}>
+                  <Option value="admin">Admin</Option>
+                  <Option value="manager">Manager</Option>
+                  <Option value="member">Member</Option>
+              </Select>
+          ),
+      },
         {
             title: "Status",
             dataIndex: "is_active",

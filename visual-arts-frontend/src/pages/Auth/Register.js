@@ -16,14 +16,18 @@ const Register = () => {
 
   const onSubmit = async (data) => {
     try {
-      console.log("Form Data:", data);
-      await API.post("auth/registration/", data);
-      alert("Registration successful! Please check your email.");
-      navigate("/login"); // ✅ Redirect to Login
+        const response = await API.post("auth/registration/", {
+            ...data,
+            role: "member",  // Explicitly set the role to 'member'
+            is_active: false,  // Ensure the user is inactive
+        });
+        alert("Registration successful! Your account is pending approval.");
+        navigate("/login");
     } catch (error) {
-      alert("Registration failed!");
+        alert("Registration failed!");
     }
-  };
+};
+
 
   return (
     <section className="bg-gray-50 min-h-screen flex items-center justify-center">

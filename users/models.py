@@ -8,8 +8,8 @@ from django.db.models import JSONField
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('admin', 'Admin'),
+        ('manager', 'Manager'),  # Added manager role
         ('member', 'Member'),
-        ('visitor', 'Visitor'),
     ]
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='visitor')

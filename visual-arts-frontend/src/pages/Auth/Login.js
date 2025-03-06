@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { loginUser } from "../../redux/slices/authSlice";
 import { useNavigate } from "react-router-dom"; // ✅ Navigation Hook
+import { Modal } from "antd"; // Import Ant Design Modal
 import logo from '../../assets/images/logo.png';
-
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -30,7 +30,20 @@ const Login = () => {
         navigate("/"); // Redirect Visitors or Defaults
       }
     } catch (error) {
-      alert("Login failed. Check credentials.");
+      if (error.message === "Your account is pending approval. Please contact an admin.") {
+        // Show Ant Design modal for inactive users
+        Modal.info({
+          title: "Account Inactive",
+          content: "Your account is pending approval. Please contact an admin.",
+          okText: "OK",
+          onOk: () => {
+            // Redirect to the home page or any other page
+            navigate("/");
+          },
+        });
+      } else {
+        alert("Login failed. Check credentials.");
+      }
     }
   };
 

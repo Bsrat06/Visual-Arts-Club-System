@@ -1,6 +1,6 @@
 from django.urls import path, include
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView, LogoutView
-from .views import CustomAuthToken, UserListView, UserDetailView, DeactivateUserView, ActivateUserView, UpdateUserRoleView, ProfileUpdateView, ActivityLogListView, UserPreferencesView, AnalyticsView, MemberStatsView, CustomPasswordResetView
+from .views import CustomAuthToken, UserListView, UserDetailView, DeactivateUserView, ActivateUserView, UpdateUserRoleView, ProfileUpdateView, ActivityLogListView, UserPreferencesView, AnalyticsView, MemberStatsView, CustomPasswordResetView, RegisterView
 
 urlpatterns = [
     # Password Reset Endpoints (Manually Defined)
@@ -11,7 +11,8 @@ urlpatterns = [
     path('auth/logout/', LogoutView.as_view(), name='logout'),
 
     # Custom Authentication Paths
-    path('auth/registration/', include('dj_rest_auth.registration.urls')),  # Registration
+    # path('auth/registration/', include('dj_rest_auth.registration.urls')),  # Registration
+    path('auth/registration/', RegisterView.as_view(), name='register'),  # Registration
     path('auth/login/', CustomAuthToken.as_view(), name='api_login'),  # Custom login with role
     path("auth/user/", UserDetailView.as_view(), name="user-details"),  # Custom user detail
     path("users/", UserListView.as_view(), name="user-list"),  # Admin user list
