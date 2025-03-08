@@ -46,12 +46,10 @@ class CustomAuthToken(ObtainAuthToken):
         user = authenticate(request, username=email, password=password)
 
         if not user:
-            logger.error("Invalid credentials for email: %s", email)  # Log invalid credentials
             return Response({"error": "Invalid credentials. Please try again."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Check if the user is active
         if not user.is_active:
-            logger.warning("Inactive user attempted login: %s", email)  # Log inactive user
             return Response({"error": "Your account is pending approval. Please contact an admin."}, status=status.HTTP_403_FORBIDDEN)
 
         # Generate or retrieve token
