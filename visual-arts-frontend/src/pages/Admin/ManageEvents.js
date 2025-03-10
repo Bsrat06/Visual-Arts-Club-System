@@ -38,26 +38,27 @@ const ManageEvents = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
     const [editingEvent, setEditingEvent] = useState(null);
-    const [eventStats, setEventStats] = useState({});
-    const [statsLoading, setStatsLoading] = useState(true);
     const [pageSize, setPageSize] = useState(8);
-    const [viewAsMember, setViewAsMember] = useState(false); // ✅ Switch state
+    const [viewAsMember, setViewAsMember] = useState(false);
 
     useEffect(() => {
         dispatch(fetchAllEvents());
-        fetchEventStats();
     }, [dispatch]);
 
-    const fetchEventStats = async () => {
-        try {
-            const response = await API.get("/event-stats/");
-            setEventStats(response.data);
-            setStatsLoading(false);
-        } catch (err) {
-            message.error("Failed to load event statistics.");
-            setStatsLoading(false);
-        }
+    // Calculate stats from events
+    const calculateStats = () => {
+        const totalEvents = events.length;
+        const completedEvents = events.filter((event) => event.is_completed).length;
+        const upcomingEvents = events.filter((event) => !event.is_completed).length;
+
+        return {
+            totalEvents,
+            completedEvents,
+            upcomingEvents,
+        };
     };
+
+    const stats = calculateStats();
 
     const showModal = () => setIsModalVisible(true);
     const closeModal = () => {
@@ -100,24 +101,6 @@ const ManageEvents = () => {
     const handlePageSizeChange = (current, size) => {
         setPageSize(size);
     };
-
-    const statistics = [
-        {
-            title: "Total Events",
-            value: eventStats.total_events || 0,
-            icon: <FaCalendarAlt className="text-[#FFA500] text-4xl" />,
-        },
-        {
-            title: "Completed Events",
-            value: eventStats.completed_events || 0,
-            icon: <FaCheckCircle className="text-[#FFA500] text-4xl" />,
-        },
-        {
-            title: "Upcoming Events",
-            value: eventStats.upcoming_events || 0,
-            icon: <FaClock className="text-[#FFA500] text-4xl" />,
-        },
-    ];
 
     const columns = [
         {
@@ -184,7 +167,6 @@ const ManageEvents = () => {
         id: event.id,
     }));
 
-    // ✅ Filtered data for both table and card views
     let filteredTableData = tableData.filter((event) =>
         event.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -199,6 +181,54 @@ const ManageEvents = () => {
         <div className="p-6 space-y-8">
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Events</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Event Management &gt; View & Manage</p>
+
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-blue-100">
+                            <span className="text-2xl text-blue-500">📅</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Total Events</p>
+                            <p className="text-gray-400 text-xs leading-4">All Time</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.totalEvents}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-green-100">
+                            <span className="text-2xl text-green-500">✅</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Completed Events</p>
+                            <p className="text-gray-400 text-xs leading-4">Completed</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.completedEvents}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-orange-100">
+                            <span className="text-2xl text-orange-500">⏳</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Upcoming Events</p>
+                            <p className="text-gray-400 text-xs leading-4">Upcoming</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.upcomingEvents}</p>
+                    </div>
+                </div>
+            </div>
 
             {/* Add Event Modal */}
             <Modal
@@ -220,18 +250,16 @@ const ManageEvents = () => {
                 {editingEvent && <EditEventForm event={editingEvent} onClose={closeEditModal} />}
             </Modal>
 
-            {/* ✅ Switch to toggle between Admin & Member View */}
+            {/* Switch to toggle between Admin & Member View */}
             <div className="flex justify-end items-center space-x-2">
                 <span className="text-gray-600">View as Member</span>
                 <Switch checked={viewAsMember} onChange={() => setViewAsMember(!viewAsMember)} />
             </div>
 
-            {/* ✅ Search and Filter Section */}
+            {/* Search and Filter Section */}
             <div className="bg-white shadow-md rounded-2xl p-6">
                 <div className="flex justify-between items-center pb-4">
-                    
                     <div className="flex gap-4">
-                        
                         <Input
                             placeholder="Search by event name..."
                             value={searchQuery}
@@ -240,12 +268,12 @@ const ManageEvents = () => {
                             prefix={<SearchOutlined />}
                         />
                         <Button className="add-artwork-btn" type="primary" icon={<FaPlusCircle />} onClick={showModal}>
-                                                    Add New Event
-                                                </Button>
+                            Add New Event
+                        </Button>
                     </div>
                 </div>
 
-                {/* ✅ Conditionally Render View */}
+                {/* Conditionally Render View */}
                 {viewAsMember ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {filteredTableData.map((event) => (

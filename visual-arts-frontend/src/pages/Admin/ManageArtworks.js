@@ -3,15 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllArtworks } from "../../redux/slices/artworkSlice";
 import {
     Input,
-    Select,
     Button,
     Tag,
     Space,
     Image,
     Modal,
     message,
-    Card,
-    Spin,
     Table as AntTable,
 } from "antd";
 import {
@@ -22,16 +19,9 @@ import {
     FilterOutlined,
     SearchOutlined,
 } from "@ant-design/icons";
-import {
-    FaImages,
-    FaCheckCircle,
-    FaClock,
-    FaTimesCircle,
-} from "react-icons/fa";
 import API from "../../services/api";
 import "../../styles/custom-ant.css";
 
-const { Option } = Select;
 const { confirm } = Modal;
 
 const ManageArtworks = () => {
@@ -40,34 +30,36 @@ const ManageArtworks = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [isViewModalVisible, setIsViewModalVisible] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState(null);
-    const [artworkStats, setArtworkStats] = useState({});
-    const [statsLoading, setStatsLoading] = useState(true);
     const [feedback, setFeedback] = useState("");
-    const [filteredInfo, setFilteredInfo] = useState({}); // Added to manage column filters
-    const [pageSize, setPageSize] = useState(8); // Added to manage page size
+    const [filteredInfo, setFilteredInfo] = useState({});
+    const [pageSize, setPageSize] = useState(8);
 
     useEffect(() => {
         dispatch(fetchAllArtworks());
-        fetchArtworkStats();
     }, [dispatch]);
 
-    const fetchArtworkStats = async () => {
-        try {
-            const response = await API.get("/artwork-stats/");
-            setArtworkStats(response.data);
-            setStatsLoading(false);
-        } catch (err) {
-            message.error("Failed to load artwork statistics.");
-            setStatsLoading(false);
-        }
+    // Calculate stats from artworks
+    const calculateStats = () => {
+        const totalArtworks = artworks.length;
+        const pendingArtworks = artworks.filter((artwork) => artwork.approval_status === "pending").length;
+        const approvedArtworks = artworks.filter((artwork) => artwork.approval_status === "approved").length;
+        const rejectedArtworks = artworks.filter((artwork) => artwork.approval_status === "rejected").length;
+
+        return {
+            totalArtworks,
+            pendingArtworks,
+            approvedArtworks,
+            rejectedArtworks,
+        };
     };
+
+    const stats = calculateStats();
 
     const handleApproveArtwork = async (id) => {
         try {
             await API.patch(`artwork/${id}/approve/`);
             message.success("Artwork approved successfully!");
             dispatch(fetchAllArtworks());
-            fetchArtworkStats();
         } catch (error) {
             message.error("Failed to approve artwork.");
         }
@@ -93,7 +85,6 @@ const ManageArtworks = () => {
                     message.success("Artwork rejected successfully!");
                     setFeedback("");
                     dispatch(fetchAllArtworks());
-                    fetchArtworkStats();
                 } catch (error) {
                     message.error("Failed to reject artwork.");
                 }
@@ -102,11 +93,11 @@ const ManageArtworks = () => {
     };
 
     const handleTableChange = (pagination, filters) => {
-        setFilteredInfo(filters); // Update filteredInfo state when filters change
+        setFilteredInfo(filters);
     };
 
     const handlePageSizeChange = (current, size) => {
-        setPageSize(size); // Update pageSize state when the user changes the page size
+        setPageSize(size);
     };
 
     const columns = [
@@ -143,10 +134,9 @@ const ManageArtworks = () => {
                 { text: "Pending", value: "pending" },
                 { text: "Rejected", value: "rejected" },
             ],
-            filteredValue: filteredInfo.approval_status || null, // Use filteredInfo state
+            filteredValue: filteredInfo.approval_status || null,
             onFilter: (value, record) => {
-                // Handle multiple filter values
-                if (!filteredInfo.approval_status) return true; // No filter applied
+                if (!filteredInfo.approval_status) return true;
                 return filteredInfo.approval_status.includes(record.approval_status);
             },
             render: (status) => {
@@ -223,7 +213,6 @@ const ManageArtworks = () => {
         artwork.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // Apply column filters
     if (filteredInfo.approval_status) {
         filteredArtworks = filteredArtworks.filter((artwork) =>
             filteredInfo.approval_status.includes(artwork.approval_status)
@@ -235,42 +224,100 @@ const ManageArtworks = () => {
             <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Artworks</h2>
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Artworks &gt; Review & Manage</p>
 
-            <div className="bg-white shadow-md rounded-2xl p-6">
-                <div className="flex justify-between items-center pb-4">
-                    
-                        
-                    <div className="flex gap-4 justify-end">
-                        
-                        <Input
-                            placeholder="Search by title..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-40"
-                            prefix={<SearchOutlined />}
-                        />
-
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-blue-100">
+                            <span className="text-2xl text-blue-500">🎨</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Total Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">All Time</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.totalArtworks}</p>
                     </div>
                 </div>
 
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-green-100">
+                            <span className="text-2xl text-green-500">✅</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Approved Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">Approved</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.approvedArtworks}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-red-100">
+                            <span className="text-2xl text-red-500">❌</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Rejected Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">Rejected</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.rejectedArtworks}</p>
+                    </div>
+                </div>
+            <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-orange-100">
+                            <span className="text-2xl text-orange-500">⏳</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Pending Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">Awaiting Approval</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.pendingArtworks}</p>
+                    </div>
+                </div>
+            </div>
+
+
+            {/* Table Section */}
+            <div className="bg-white shadow-md rounded-2xl p-6">
+                <div className="flex justify-between items-center pb-4">
+                    <Input
+                        placeholder="Search by title..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-40"
+                        prefix={<SearchOutlined />}
+                    />
+                </div>
                 <div className="overflow-x-auto">
                     <AntTable
                         columns={columns}
                         dataSource={filteredArtworks}
                         rowKey="id"
                         scroll={{ x: "max-content" }}
-                        onChange={handleTableChange} // Handle table changes (e.g., filtering)
+                        onChange={handleTableChange}
                         size="small"
                         pagination={{
-                            pageSize: pageSize, // Use pageSize state
-                            showSizeChanger: true, // Enable page size changer
-                            pageSizeOptions: ["8", "10", "15", "30", "50"], // Options for rows per page
-                            showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`, // Show total items
-                            onShowSizeChange: handlePageSizeChange, // Handle page size change
+                            pageSize: pageSize,
+                            showSizeChanger: true,
+                            pageSizeOptions: ["8", "10", "15", "30", "50"],
+                            showTotal: (total, range) => `Showing ${range[0]}-${range[1]} of ${total} items`,
+                            onShowSizeChange: handlePageSizeChange,
                         }}
                     />
                 </div>
             </div>
 
+            {/* Artwork Details Modal */}
             <Modal
                 title="Artwork Details"
                 visible={isViewModalVisible}

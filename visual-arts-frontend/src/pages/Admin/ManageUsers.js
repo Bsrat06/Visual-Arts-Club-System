@@ -16,27 +16,22 @@ import {
   message,
   Image,
   Modal,
-  Card,
   Spin,
   Table as AntTable,
 } from "antd";
 import {
-  CheckOutlined,
-  CloseOutlined,
   EyeOutlined,
-  ExclamationCircleOutlined,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
 } from "@ant-design/icons";
 import {
   FaUsers,
   FaUserCheck,
-  FaUser,
-  FaEye,
   FaUserSlash,
   FaUserPlus,
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import "../../styles/custom-ant.css";
-import GaugeChart from "react-gauge-chart"; // Import GaugeChart
 
 const { Option } = Select;
 
@@ -49,13 +44,39 @@ const ManageUsers = () => {
   const [isViewModalVisible, setIsViewModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statsLoading, setStatsLoading] = useState(true);
   const [pageSize, setPageSize] = useState(8);
+  const [previousMonthData, setPreviousMonthData] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    inactiveUsers: 0,
+    pendingApprovals: 0,
+  });
 
   useEffect(() => {
     dispatch(fetchAllUsers());
-    setTimeout(() => setStatsLoading(false), 1000);
+    fetchPreviousMonthData();
   }, [dispatch]);
+
+  const fetchPreviousMonthData = () => {
+    const previousMonth = new Date();
+    previousMonth.setMonth(previousMonth.getMonth() - 1);
+
+    const previousMonthUsers = users.filter((user) => {
+      const joinDate = new Date(user.date_joined);
+      return joinDate.getMonth() === previousMonth.getMonth() && joinDate.getFullYear() === previousMonth.getFullYear();
+    });
+
+    const previousMonthActiveUsers = previousMonthUsers.filter((user) => user.is_active).length;
+    const previousMonthInactiveUsers = previousMonthUsers.filter((user) => !user.is_active).length;
+    const previousMonthPendingApprovals = previousMonthUsers.filter((user) => !user.is_active).length;
+
+    setPreviousMonthData({
+      totalUsers: previousMonthUsers.length,
+      activeUsers: previousMonthActiveUsers,
+      inactiveUsers: previousMonthInactiveUsers,
+      pendingApprovals: previousMonthPendingApprovals,
+    });
+  };
 
   const handleRoleChange = (id, role) => {
     dispatch(updateUserRole({ id, role }));
@@ -81,27 +102,56 @@ const ManageUsers = () => {
   };
 
   const totalUsers = users.length;
-  const totalMembers = users.filter((user) => user.role === "member").length;
   const totalActiveUsers = users.filter((user) => user.is_active).length;
+  const totalInactiveUsers = totalUsers - totalActiveUsers;
+  const pendingApprovals = users.filter((user) => !user.is_active).length;
 
-  const statistics = [
+  const getPercentageChange = (current, previous) => {
+    if (previous === 0) {
+      return current > 0 ? 100 : 0;
+    }
+    return Math.round(((current - previous) / previous) * 100);
+  };
+
+  const renderPercentageChange = (current, previous) => {
+    const percentage = getPercentageChange(current, previous);
+    const isIncrease = percentage > 0;
+
+    return (
+      <span className={`text-xs ${isIncrease ? "text-green-500" : "text-red-500"}`}>
+        {percentage}% {isIncrease ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+      </span>
+    );
+  };
+
+  const stats = [
     {
       title: "Total Users",
       value: totalUsers,
-      icon: <FaUsers className="text-[#FFA500] text-4xl" />,
-      gaugeValue: totalUsers / (totalUsers || 1), // Gauge value (0 to 1)
-    },
-    {
-      title: "Total Members",
-      value: totalMembers,
-      icon: <FaUser className="text-[#FFA500] text-4xl" />,
-      gaugeValue: totalMembers / (totalUsers || 1),
+      icon: <FaUsers className="text-blue-500 text-2xl" />,
+      color: "text-blue-500",
+      previousValue: previousMonthData.totalUsers,
     },
     {
       title: "Active Users",
       value: totalActiveUsers,
-      icon: <FaUserCheck className="text-[#FFA500] text-4xl" />,
-      gaugeValue: totalActiveUsers / (totalUsers || 1),
+      icon: <FaUserCheck className="text-green-500 text-2xl" />,
+      color: "text-green-500",
+      previousValue: previousMonthData.activeUsers,
+    },
+    {
+      title: "Inactive Users",
+      value: totalInactiveUsers,
+      icon: <FaUserSlash className="text-red-500 text-2xl" />,
+      color: "text-red-500",
+      previousValue: previousMonthData.inactiveUsers,
+    },
+    {
+      title: "Pending Approvals",
+      value: pendingApprovals,
+      icon: <FaUserPlus className="text-yellow-500 text-2xl" />,
+      color: "text-yellow-500",
+      previousValue: previousMonthData.pendingApprovals,
     },
   ];
 
@@ -232,25 +282,23 @@ const ManageUsers = () => {
       <h2 className="text-black text-[22px] font-semibold font-[Poppins]">Manage Users</h2>
       <p className="text-green-500 text-sm font-[Poppins] mt-1">User Management &gt; View & Manage</p>
 
-      {/* User Stats with Gauges */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-        {statistics.map((stat, index) => (
+      {/* User Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {stats.map((stat, index) => (
           <div key={index} className="bg-white p-4 rounded-lg shadow-md">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
+            <div className="flex items-start">
+              <div className={`relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-gray-100`}>
                 {stat.icon}
-                <span className="ml-2 font-semibold">{stat.title}</span>
               </div>
-              <span className="text-xl font-bold">{stat.value}</span>
+              <div className="flex-1">
+                <p className="text-gray-600 text-sm leading-4">{stat.title}</p>
+                <p className="text-gray-400 text-xs leading-4">This month</p>
+              </div>
             </div>
-            <GaugeChart
-              id={`gauge-chart-${index}`}
-              nrOfLevels={20}
-              arcsLength={[0.3, 0.5, 0.2]}
-              colors={["#5BE12C", "#F5CD19", "#EA4228"]}
-              percent={stat.gaugeValue}
-              arcWidth={0.3}
-            />
+            <div className="flex items-center">
+              <p className="text-2xl font-bold mr-2">{stat.value}</p>
+              {renderPercentageChange(stat.value, stat.previousValue)}
+            </div>
           </div>
         ))}
       </div>

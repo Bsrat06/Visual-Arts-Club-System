@@ -14,6 +14,7 @@ import {
     MenuUnfoldOutlined,
     HomeOutlined,
     PictureOutlined,
+    ProfileOutlined,
 } from "@ant-design/icons";
 import logo from '../../assets/images/logo.png';
 
@@ -39,12 +40,12 @@ const Sidebar = ({ collapsed, setCollapsed, onMenuSelect }) => {
         { key: "3", path: "/admin/manage-artworks", label: "Manage Artworks", icon: <AppstoreOutlined /> },
         { key: "4", path: "/admin/manage-events", label: "Manage Events", icon: <CalendarOutlined /> },
         { key: "5", path: "/admin/project-management", label: "Manage Projects", icon: <ProjectOutlined /> },
-        { key: "6", path: "/member/portfolio", label: "Portfolio", icon: <AppstoreOutlined /> },
+        { key: "6", path: "/member/portfolio", label: "Portfolio", icon: <ProfileOutlined /> },
     ];
 
     const memberMenu = [
         { key: "1", path: "/member/dashboard", label: "Dashboard", icon: <PieChartOutlined /> },
-        { key: "2", path: "/member/portfolio", label: "Portfolio", icon: <AppstoreOutlined /> },
+        { key: "2", path: "/member/portfolio", label: "Portfolio", icon: <ProfileOutlined /> },
         { key: "3", path: "/visitor/events", label: "Events", icon: <CalendarOutlined /> },
         { key: "4", path: "/visitor/projects", label: "Projects", icon: <ProjectOutlined /> },
     ];

@@ -22,12 +22,12 @@ import {
     Upload,
     Tabs,
     Empty,
-    Table as AntTable, // Renamed to avoid conflicts
+    Table as AntTable,
 } from "antd";
-import { UploadOutlined, HeartFilled, DownloadOutlined, EditOutlined, DeleteOutlined,SearchOutlined } from "@ant-design/icons";
+import { UploadOutlined, HeartFilled, DownloadOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { FaEdit, FaTrashAlt, FaPlusCircle, FaHeart } from "react-icons/fa";
-import AddArtworkForm from "../../components/Admin/AddArtworkForm"; // Import the AddArtworkForm
-import EditArtworkForm from "../../components/Admin/EditArtworkForm"; // Import the EditArtworkForm
+import AddArtworkForm from "../../components/Admin/AddArtworkForm";
+import EditArtworkForm from "../../components/Admin/EditArtworkForm";
 import "../../styles/mansory-layout.css";
 import "../../styles/tabs.css";
 
@@ -45,10 +45,10 @@ const Portfolio = () => {
     const [sortOrder, setSortOrder] = useState("newest");
     const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-    const [isAddModalVisible, setIsAddModalVisible] = useState(false); // State for Add Modal
+    const [isAddModalVisible, setIsAddModalVisible] = useState(false);
     const [selectedArtwork, setSelectedArtwork] = useState(null);
     const [form] = Form.useForm();
-    const [pageSize, setPageSize] = useState(8); // Added to manage page size
+    const [pageSize, setPageSize] = useState(8);
 
     useEffect(() => {
         if (user?.pk) {
@@ -58,6 +58,23 @@ const Portfolio = () => {
     }, [dispatch, user]);
 
     const userArtworks = artworks.filter((art) => art.artist === user?.pk);
+
+    // Calculate stats from artworks
+    const calculateStats = () => {
+        const totalArtworks = userArtworks.length;
+        const approvedArtworks = userArtworks.filter((art) => art.approval_status === "approved").length;
+        const pendingArtworks = userArtworks.filter((art) => art.approval_status === "pending").length;
+        const likedArtworksCount = likedArtworks.length;
+
+        return {
+            totalArtworks,
+            approvedArtworks,
+            pendingArtworks,
+            likedArtworksCount,
+        };
+    };
+
+    const stats = calculateStats();
 
     // Sorting function
     const sortedArtworks = [...userArtworks].sort((a, b) => {
@@ -136,7 +153,7 @@ const Portfolio = () => {
     };
 
     const handlePageSizeChange = (current, size) => {
-        setPageSize(size); // Update pageSize state when the user changes the page size
+        setPageSize(size);
     };
 
     const columns = [
@@ -150,18 +167,18 @@ const Portfolio = () => {
             title: "Title",
             dataIndex: "title",
             key: "title",
-            sorter: (a, b) => a.title.localeCompare(b.title), // Add sorter
+            sorter: (a, b) => a.title.localeCompare(b.title),
         },
         {
             title: "Category",
             dataIndex: "category",
             key: "category",
-            sorter: (a, b) => a.category.localeCompare(b.category), // Add sorter
+            sorter: (a, b) => a.category.localeCompare(b.category),
             filters: artworks
                 .map((art) => art.category)
                 .filter((value, index, self) => self.indexOf(value) === index)
                 .map((category) => ({ text: category, value: category })),
-            onFilter: (value, record) => record.category === value, // Add filter
+            onFilter: (value, record) => record.category === value,
         },
         {
             title: "Status",
@@ -172,7 +189,7 @@ const Portfolio = () => {
                 { text: "Pending", value: "pending" },
                 { text: "Rejected", value: "rejected" },
             ],
-            onFilter: (value, record) => record.approval_status === value, // Add filter
+            onFilter: (value, record) => record.approval_status === value,
             render: (status) => (
                 <Tag color={status === "approved" ? "green" : "red"}>{status.toUpperCase()}</Tag>
             ),
@@ -216,45 +233,108 @@ const Portfolio = () => {
         <div className="p-6 space-y-8">
             <p className="text-green-500 text-sm font-[Poppins] mt-1">Portfolio &gt; My Artworks</p>
 
+            {/* Stats Section */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-blue-100">
+                            <span className="text-2xl text-blue-500">🎨</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Total Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">All Time</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.totalArtworks}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-green-100">
+                            <span className="text-2xl text-green-500">✅</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Approved Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">Approved</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.approvedArtworks}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-orange-100">
+                            <span className="text-2xl text-orange-500">⏳</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Pending Artworks</p>
+                            <p className="text-gray-400 text-xs leading-4">Pending</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.pendingArtworks}</p>
+                    </div>
+                </div>
+
+                <div className="bg-white p-4 rounded-lg shadow-md">
+                    <div className="flex items-start">
+                        <div className="relative w-12 h-12 rounded-full flex items-center justify-center mr-4 bg-purple-100">
+                            <span className="text-2xl text-purple-500">❤️</span>
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-gray-600 text-sm leading-4">Likes</p>
+                            <p className="text-gray-400 text-xs leading-4">All Time</p>
+                        </div>
+                    </div>
+                    <div className="mt-2">
+                        <p className="text-2xl font-bold">{stats.likedArtworksCount}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Tabs Section */}
             <Tabs defaultActiveKey="myArtworks" onChange={setSelectedTab}>
                 {/* My Artworks Tab */}
                 <TabPane tab="My Artworks" key="myArtworks">
-                <div className="flex justify-end gap-4 mb-4">
-                    <Input
-                        placeholder="Search artworks by name..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-60"
-                        prefix={<SearchOutlined />}
-                    />
-                    <Button
-                        className="add-artwork-btn"
-                        type="primary"
-                        icon={<FaPlusCircle />}
-                        onClick={() => setIsAddModalVisible(true)}
-                    >
-                        Add New Artwork
-                    </Button>
-                </div>
-
+                    <div className="flex justify-end gap-4 mb-4">
+                        <Input
+                            placeholder="Search artworks by name..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-60"
+                            prefix={<SearchOutlined />}
+                        />
+                        <Button
+                            className="add-artwork-btn"
+                            type="primary"
+                            icon={<FaPlusCircle />}
+                            onClick={() => setIsAddModalVisible(true)}
+                        >
+                            Add New Artwork
+                        </Button>
+                    </div>
 
                     {loading ? (
                         <Spin size="large" />
                     ) : (
-                        <div className="overflow-x-auto"> {/* Added wrapper for My Artworks table */}
+                        <div className="overflow-x-auto">
                             <AntTable
                                 columns={columns}
                                 dataSource={filteredArtworks}
                                 pagination={{
-                                    pageSize: pageSize, // Use pageSize state
-                                    showSizeChanger: true, // Enable page size changer
-                                    pageSizeOptions: ["8", "15", "30", "50"], // Options for rows per page
-                                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`, // Show total items
-                                    onShowSizeChange: handlePageSizeChange, // Handle page size change
+                                    pageSize: pageSize,
+                                    showSizeChanger: true,
+                                    pageSizeOptions: ["8", "15", "30", "50"],
+                                    showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+                                    onShowSizeChange: handlePageSizeChange,
                                 }}
                                 rowKey="id"
-                                scroll={{ x: "max-content" }} // Enable horizontal scroll
-                                size="small" // Added for smaller padding
+                                scroll={{ x: "max-content" }}
+                                size="small"
                             />
                         </div>
                     )}
@@ -279,7 +359,7 @@ const Portfolio = () => {
                                                 <DownloadOutlined />
                                             </Button>
                                             <Button shape="circle" className="icon-button" onClick={() => dispatch(unlikeArtwork(artwork.id))}>
-                                                <HeartFilled className="text-red-500" /> {/* Unlike button */}
+                                                <HeartFilled className="text-red-500" />
                                             </Button>
                                         </div>
                                     </div>
@@ -301,8 +381,8 @@ const Portfolio = () => {
             >
                 <AddArtworkForm
                     onArtworkAdded={() => {
-                        setIsAddModalVisible(false); // Close the modal
-                        dispatch(fetchAllArtworks()); // Refresh the table
+                        setIsAddModalVisible(false);
+                        dispatch(fetchAllArtworks());
                     }}
                 />
             </Modal>
@@ -328,8 +408,8 @@ const Portfolio = () => {
             {/* Delete Artwork Modal */}
             <Modal
                 title="Confirm Delete"
-                okText= "Yes, Delete"
-                okType= "danger"
+                okText="Yes, Delete"
+                okType="danger"
                 visible={isDeleteModalVisible}
                 onOk={deleteArtwork}
                 onCancel={() => setIsDeleteModalVisible(false)}

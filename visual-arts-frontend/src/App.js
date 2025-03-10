@@ -201,7 +201,7 @@ const App = () => {
           <Route
             path="/member/portfolio"
             element={
-              <RoleGuard allowedRoles={["member", "admin", "visitor"]}>
+              <RoleGuard allowedRoles={["member", "admin", "manager"]}>
                 <Portfolio />
               </RoleGuard>
             }
